@@ -5,6 +5,7 @@ import com.carpBread.shareEatIt.global.entity.BaseEntity;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 import java.sql.Date;
 
@@ -12,7 +13,8 @@ import java.sql.Date;
 @Table(name = "SHARING_POSTS")
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder @Getter
+@SuperBuilder
+@Getter
 public class SharingPost extends BaseEntity {
 
     @Id

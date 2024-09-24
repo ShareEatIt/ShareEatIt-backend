@@ -1,5 +1,6 @@
 package com.carpBread.shareEatIt.global.entity;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
 import lombok.AllArgsConstructor;
@@ -22,6 +23,7 @@ public class BaseEntity {
 
     @LastModifiedDate
     @Column(name = "modified_at")
+    @Nullable
     private LocalDateTime modifiedAt;
 
 }

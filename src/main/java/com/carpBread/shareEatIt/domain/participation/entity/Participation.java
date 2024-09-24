@@ -1,10 +1,8 @@
-package com.carpBread.shareEatIt.domain.report.entity;
-
+package com.carpBread.shareEatIt.domain.participation.entity;
 
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
 import com.carpBread.shareEatIt.global.entity.BaseEntity;
-import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,47 +10,39 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
+import javax.print.attribute.standard.MediaSize;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "REPORT")
+@Table(name = "PARTICIPATION")
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
 @Getter
-public class Report extends BaseEntity {
+public class Participation extends BaseEntity {
 
     @Id
-    @Column(name = "report_id")
+    @Column(name = "pt_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(columnDefinition = "TEXT")
-    private String content;
-
     @Enumerated(value = EnumType.STRING)
-    private ReportStatus status;
+    private ParticipationStatus status;
 
-    @Column(columnDefinition = "TEXT")
-    @Nullable
-    private String response;
-
-    @Column(name = "reviewed_at")
-    @Nullable
-    private LocalDateTime reviewedAt;
-
-    @Column(name = "response_at")
-    @Nullable
-    private LocalDateTime responseAt;
+    @Column(name = "completed_at")
+    private LocalDateTime completedAt;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "reporter_id")
-    private Member reporter;
+    @JoinColumn(name = "giver_id")
+    private Member giver;
 
-    @ManyToOne
-    @JoinColumn(name = "sharing_post_id")
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "post_id")
     private SharingPost post;
 
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "review_id")
+    private Review review;
 
 
 

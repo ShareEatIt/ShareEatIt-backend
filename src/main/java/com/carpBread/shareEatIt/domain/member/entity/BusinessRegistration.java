@@ -7,12 +7,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "BUSINESS_REGISTRATION")
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder @Getter
+@SuperBuilder
+@Getter
 public class BusinessRegistration extends BaseEntity {
 
     @Id

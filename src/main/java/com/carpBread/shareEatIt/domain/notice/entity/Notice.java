@@ -7,12 +7,14 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "NOTICE")
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder @Getter
+@SuperBuilder
+@Getter
 public class Notice extends BaseEntity {
     @Id
     @Column(name = "notice_id")

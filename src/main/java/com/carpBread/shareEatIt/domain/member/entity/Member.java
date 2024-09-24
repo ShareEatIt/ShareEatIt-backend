@@ -7,6 +7,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.experimental.SuperBuilder;
 
 import javax.print.attribute.standard.MediaSize;
 
@@ -14,7 +15,8 @@ import javax.print.attribute.standard.MediaSize;
 @Table(name = "MEMBER")
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder @Getter
+@SuperBuilder
+@Getter
 public class Member extends BaseEntity {
 
     @Id

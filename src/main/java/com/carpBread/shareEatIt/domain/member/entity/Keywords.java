@@ -15,7 +15,7 @@ import lombok.NoArgsConstructor;
 public class Keywords {
 
     @Id
-    @Column(name = "keyword_id")
+    @Column(name = "keywords_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -23,7 +23,7 @@ public class Keywords {
     @Nullable
     private String keyword;
 
-    private Boolean use;
+    private Boolean isUse;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "member_id")
