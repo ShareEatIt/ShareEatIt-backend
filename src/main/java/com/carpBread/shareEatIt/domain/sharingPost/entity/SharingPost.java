@@ -44,6 +44,9 @@ public class SharingPost extends BaseEntity {
 
     private String location;
 
+    @Column(name = "location_code", length = 50)
+    private String location_code;
+
     @Enumerated(value = EnumType.STRING)
     @Column(name = "post_type")
     private PostType postType;
