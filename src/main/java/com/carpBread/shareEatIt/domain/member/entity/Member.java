@@ -36,6 +36,8 @@ public class Member extends BaseEntity {
     @Nullable
     private String profileImgUrl;
 
+
+
     @Column(name = "address")
     private String address;
 
