@@ -6,5 +6,6 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum PostCategory {
-    BAKERY, BEVERAGE, CONVENIENCE_FOOD, COOKED_FOOD, SNACK, ETC
+    BAKERY, BEVERAGE, CONVENIENCE_FOOD, KOREAN, JAPANESE, CHINESE,WESTERN, SNACK, GROCERIES, ETC
+
 }

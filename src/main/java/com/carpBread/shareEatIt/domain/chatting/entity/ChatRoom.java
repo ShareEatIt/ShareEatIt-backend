@@ -17,7 +17,7 @@ import lombok.experimental.SuperBuilder;
 public class ChatRoom extends BaseEntity {
 
     @Id
-    @Column(name = "review_id")
+    @Column(name = "chatroom_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 

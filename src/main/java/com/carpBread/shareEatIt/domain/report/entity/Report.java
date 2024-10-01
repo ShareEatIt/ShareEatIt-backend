@@ -50,10 +50,7 @@ public class Report extends BaseEntity {
     private Member reporter;
 
     @ManyToOne
-    @JoinColumn(name = "sharing_post_id")
+    @JoinColumn(name = "post_id")
     private SharingPost post;
-
-
-
 
 }
