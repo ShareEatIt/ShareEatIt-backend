@@ -5,6 +5,6 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Getter
-public enum Reaction {
+public enum GratitudeType {
     SMILE1, SMILE2, SMILE3, SMILE4, SMILE5
 }

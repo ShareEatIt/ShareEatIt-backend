@@ -21,6 +21,7 @@ public class PostImgUrl {
     @Column(length = 500)
     private String url;
 
+    @Column(name = "img_order")
     private Integer imgOrder;
 
     @ManyToOne(cascade = CascadeType.ALL)
