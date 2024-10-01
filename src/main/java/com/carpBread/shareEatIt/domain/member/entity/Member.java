@@ -28,18 +28,26 @@ public class Member extends BaseEntity {
 
     private String nickname;
 
-    @Column(length = 100)
-    @Nullable
-    private String name;
-
     @Column(name = "profile_img_url")
     @Nullable
     private String profileImgUrl;
 
+    @Column(name = "keyword_avail")
+    private Boolean isKeywordAvail;
+
+    @Column(name = "notice_avail")
+    private Boolean isNoticeAvail;
 
 
-    @Column(name = "address")
-    private String address;
+    @Column(name = "address_st")
+    private String addressSt;
+
+    @Column(name = "address_detail")
+    private String addressDetail;
+
+    @Enumerated(value = EnumType.STRING)
+    private Provider provider;
+
 
 
 }

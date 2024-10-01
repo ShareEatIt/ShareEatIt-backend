@@ -6,26 +6,26 @@ import com.carpBread.shareEatIt.global.entity.BaseEntity;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Entity
-@Table(name = "REVIEW")
+@Table(name = "GRATITUDE_STICKERS")
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
 @Getter
-public class Review extends BaseEntity {
+public class GratitudeSticker extends BaseEntity {
 
     @Id
-    @Column(name = "review_id")
+    @Column(name = "gs_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Enumerated(value = EnumType.STRING)
-    private Reaction reaction;
+    @Column(name = "gratitude_type")
+    private GratitudeType gratitudeType;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "giver_id")
@@ -41,7 +41,7 @@ public class Review extends BaseEntity {
     private Participation participation;
 
     @OneToOne
-    @JoinColumn(name = "sp_id")
+    @JoinColumn(name = "post_id")
     private SharingPost post;
 
 
