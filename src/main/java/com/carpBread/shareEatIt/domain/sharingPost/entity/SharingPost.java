@@ -18,7 +18,7 @@ import java.sql.Date;
 public class SharingPost extends BaseEntity {
 
     @Id
-    @Column(name = "report_id")
+    @Column(name = "sp_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
@@ -38,18 +38,25 @@ public class SharingPost extends BaseEntity {
     @Column(name = "exp_date")
     private Date expDate;
 
+    @Column(name = "end_date")
+    private Date endDate;
+
     @Column(name = "purchase_date")
     @Nullable
     private Date purchaseDate;
 
-    private String location;
+    @Column(name = "address_st")
+    private String addressSt;
+
+    @Column(name = "address_detail")
+    private String addressDetail;
+
+    @Column(length = 500)
+    private String description;
 
     @Enumerated(value = EnumType.STRING)
     @Column(name = "post_type")
     private PostType postType;
-
-    @Column(name = "end_date")
-    private Date endDate;
 
     @Enumerated(value = EnumType.STRING)
     private PostStatus status;

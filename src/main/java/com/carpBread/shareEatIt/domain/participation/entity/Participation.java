@@ -14,7 +14,7 @@ import javax.print.attribute.standard.MediaSize;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "PARTICIPATION")
+@Table(name = "PARTICIPATIONS")
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
@@ -37,13 +37,12 @@ public class Participation extends BaseEntity {
     private Member giver;
 
     @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "receiver_id")
+    private Member receiver;
+
+    @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "post_id")
     private SharingPost post;
-
-    @OneToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "review_id")
-    private Review review;
-
 
 
 }
