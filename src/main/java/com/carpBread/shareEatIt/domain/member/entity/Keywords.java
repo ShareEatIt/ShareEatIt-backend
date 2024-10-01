@@ -23,7 +23,7 @@ public class Keywords {
     @Nullable
     private String keyword;
 
-    private Boolean isUse;
+    private Boolean avail;
 
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "member_id")
