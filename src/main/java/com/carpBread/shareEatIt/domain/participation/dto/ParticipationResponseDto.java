@@ -17,18 +17,18 @@ public class ParticipationResponseDto {
     private Long giverId;
     private Long receiverId;
     private ParticipationStatus status;
-    private LocalDateTime createdDate;
-    private LocalDateTime modifiedDate;
+    private LocalDateTime createdAt;
+    private LocalDateTime modifiedAt;
 
     @Builder
-    public ParticipationResponseDto(Long participationId, Long sharingPostId, Long giverId, Long receiverId, ParticipationStatus status, LocalDateTime createdDate, LocalDateTime modifiedDate) {
+    public ParticipationResponseDto(Long participationId, Long sharingPostId, Long giverId, Long receiverId, ParticipationStatus status, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.participationId = participationId;
         this.sharingPostId = sharingPostId;
         this.giverId = giverId;
         this.receiverId = receiverId;
         this.status = status;
-        this.createdDate = createdDate;
-        this.modifiedDate = modifiedDate;
+        this.createdAt = createdAt;
+        this.modifiedAt = modifiedAt;
     }
 
     public static ParticipationResponseDto from(Participation participation){
