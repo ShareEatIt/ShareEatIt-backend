@@ -3,6 +3,7 @@ package com.carpBread.shareEatIt.global.entity;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.Column;
 import jakarta.persistence.MappedSuperclass;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -19,6 +20,7 @@ public class BaseEntity {
 
     @CreatedDate
     @Column(name = "created_at")
+    @NotNull
     private LocalDateTime createdAt;
 
     @LastModifiedDate
