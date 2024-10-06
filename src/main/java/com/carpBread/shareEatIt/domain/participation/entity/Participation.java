@@ -7,13 +7,11 @@ import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 
-import javax.print.attribute.standard.MediaSize;
 import java.time.LocalDateTime;
 
 @Entity
@@ -27,7 +25,6 @@ public class Participation extends BaseEntity {
     @Id
     @Column(name = "pt_id")
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @NotNull
     private Long id;
 
     @ManyToOne(cascade = CascadeType.ALL)
@@ -53,7 +50,6 @@ public class Participation extends BaseEntity {
     @NotNull
     private Member receiver;
 
-
     @Column(name = "is_giver_in_chat")
     @NotNull
     private Boolean isGiverInChat;
@@ -61,6 +57,5 @@ public class Participation extends BaseEntity {
     @Column(name = "is_receiver_in_chat")
     @NotNull
     private Boolean isReceiverInChat;
-
 
 }
