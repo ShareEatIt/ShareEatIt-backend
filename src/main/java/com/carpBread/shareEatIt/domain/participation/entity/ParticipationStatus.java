@@ -6,5 +6,5 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum ParticipationStatus {
-    CHATTING, FAVORITE, MATCHED, COMPLETED
+    AVAILABLE, MATCHED, COMPLETED
 }
