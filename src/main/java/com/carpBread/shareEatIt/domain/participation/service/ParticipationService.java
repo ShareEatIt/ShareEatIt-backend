@@ -2,13 +2,12 @@ package com.carpBread.shareEatIt.domain.participation.service;
 
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
-import com.carpBread.shareEatIt.domain.participation.dto.ParticipationHistoryListResponseDto;
-import com.carpBread.shareEatIt.domain.participation.dto.ParticipationHistoryResponseDto;
-import com.carpBread.shareEatIt.domain.participation.dto.ParticipationRequestDto;
-import com.carpBread.shareEatIt.domain.participation.dto.ParticipationResponseDto;
+import com.carpBread.shareEatIt.domain.participation.dto.*;
 import com.carpBread.shareEatIt.domain.participation.entity.Participation;
 import com.carpBread.shareEatIt.domain.participation.entity.ParticipationStatus;
 import com.carpBread.shareEatIt.domain.participation.repository.ParticipationRepository;
+import com.carpBread.shareEatIt.domain.sharingPost.entity.PostStatus;
+import com.carpBread.shareEatIt.domain.sharingPost.entity.PostType;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +40,7 @@ public class ParticipationService {
         // Participation 객체 생성
         Participation participation = Participation.builder()
                 .post(post)
-                .status(ParticipationStatus.CHATTING)
+                .status(ParticipationStatus.AVAILABLE)
                 .giver(post.getWriter())
                 .receiver(receiver)
                 .isGiverInChat(true)
@@ -54,11 +53,13 @@ public class ParticipationService {
         // 응답 DTO 생성
         ParticipationResponseDto responseDto = ParticipationResponseDto.from(savedParticipation);
         return responseDto;
+
     }
 
 
     /* 사용자가 나눔받은 모든 기록 조회 */
     public ParticipationHistoryListResponseDto findAllParticipation(Long receiverId) {
+
         // member 조회 - 로그인 구현 이후 수정 필요
         Member receiver = memberRepository.findById(receiverId)
                 .orElseThrow(() -> new RuntimeException("해당ID의 회원을 찾지 못했습니다."));
@@ -69,6 +70,24 @@ public class ParticipationService {
         // 조회된 각 나눔글을 응답dto 리스트로 변환
         List<ParticipationHistoryResponseDto> dtoList = convertDtoToList(participatedPosts);
         return new ParticipationHistoryListResponseDto(dtoList);
+
+    }
+
+
+    /* 사용자가 특정 provider의 나눔을 받은 모든 기록 조회 */
+    public ParticipationHistoryListResponseDto findAllParticipationByProvider(Long receiverId, PostType provider) {
+
+        // member 조회 - 로그인 구현 이후 수정 필요
+        Member receiver = memberRepository.findById(receiverId)
+                .orElseThrow(() -> new RuntimeException("해당ID의 회원을 찾지 못했습니다."));
+
+        // 사용자 = receiver이고 상태 = 나눔완료인 모든 '참여'의 나눔글 중 특정 provider의 글 조회
+        List<SharingPost> participatedPosts = participationRepository.findSharingPostByUserAndStatusAndPostType(receiverId, provider);
+
+        // 조회된 각 나눔글을 응답dto 리스트로 변환
+        List<ParticipationHistoryResponseDto> dtoList = convertDtoToList(participatedPosts);
+        return new ParticipationHistoryListResponseDto(dtoList);
+
     }
 
     // list를 dto로 변환
@@ -77,4 +96,5 @@ public class ParticipationService {
                 .map(ParticipationHistoryResponseDto::from)
                 .collect(Collectors.toList());
     }
+
 }
