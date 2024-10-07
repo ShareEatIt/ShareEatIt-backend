@@ -97,4 +97,50 @@ public class ParticipationService {
                 .collect(Collectors.toList());
     }
 
+
+    /* 참여 상태 변경 */
+    public ParticipationUpdateStatusResponseDto updateStatus(Long ptId, Long receiverId, ParticipationStatus ptStatus) {
+
+        // member 조회 - 로그인 구현 이후 수정 필요
+        Member receiver = memberRepository.findById(receiverId)
+                .orElseThrow(() -> new RuntimeException("해당ID의 회원을 찾지 못했습니다."));
+
+        // participation 객체 찾아오기
+        Participation participation = participationRepository.findById(ptId)
+                .orElseThrow(() -> new RuntimeException("해당 ID의 참여기록을 찾지 못했습니다."));
+
+        String sharingPostStatus = participation.getPost().getStatus().toString();
+        String participationStatus = ptStatus.toString();
+
+        // 검증1: 해당 참여의 나눔글이 이미 바꾸려는 상태인지 확인 (이미 찜 or 나눔완료 된 나눔글의 참여인 경우)
+        if (sharingPostStatus.equals(participationStatus)){
+            throw new RuntimeException("현재 나눔글의 상태와 동일한 상태로 변경할 수 없습니다.");
+        }
+
+        // 검증2: 사용자가 나눔자의 writer인지 확인
+        if (receiverId != participation.getPost().getWriter().getId()){
+            throw new RuntimeException("나눔글 작성자가 아니므로 나눔 상태를 변경할 수 없습니다.");
+        }
+
+        // 상태 변경
+        participation.updateStatus(ptStatus);
+
+        // 동시에 post의 status도 변경 (클래스에 붙은 Transactional로 원자성 보장)
+        try {
+            PostStatus postStatus = PostStatus.valueOf(participationStatus);
+            System.out.println("변환된 PostStatus: " + postStatus);
+            SharingPost post = participation.getPost();
+            post.updateStatus(postStatus);
+        } catch (IllegalArgumentException e) {
+            System.out.println("잘못된 상태값입니다: " + participationStatus);
+        }
+
+        // 변경한 내용 저장
+        participationRepository.save(participation);
+
+        // 응답 DTO 생성
+        ParticipationUpdateStatusResponseDto responseDto = ParticipationUpdateStatusResponseDto.from(participation);
+        return responseDto;
+
+    }
 }

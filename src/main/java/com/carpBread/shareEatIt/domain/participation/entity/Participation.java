@@ -58,4 +58,9 @@ public class Participation extends BaseEntity {
     @NotNull
     private Boolean isReceiverInChat;
 
+    // 참여 상태 변경
+    public void updateStatus(ParticipationStatus participationStatus) {
+        this.status = participationStatus;
+    }
+
 }
