@@ -1,6 +1,7 @@
 package com.carpBread.shareEatIt.domain.sharingPost.entity;
 
 import com.carpBread.shareEatIt.domain.member.entity.Member;
+import com.carpBread.shareEatIt.domain.participation.entity.ParticipationStatus;
 import com.carpBread.shareEatIt.global.entity.BaseEntity;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
@@ -64,5 +65,10 @@ public class SharingPost extends BaseEntity {
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "writer_id")
     private Member writer;
+
+    // 참여 상태 변경
+    public void updateStatus(PostStatus postStatus) {
+        this.status = postStatus;
+    }
 
 }
