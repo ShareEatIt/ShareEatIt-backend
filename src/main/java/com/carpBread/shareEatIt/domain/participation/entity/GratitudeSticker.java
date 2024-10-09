@@ -6,13 +6,14 @@ import com.carpBread.shareEatIt.global.entity.BaseEntity;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Entity
 @Table(name = "GRATITUDE_STICKERS")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)  // accesslevel을 지정함으로써 외부에서 실수로 엔티티 객체를 직접 생성하는 것 방지
 @SuperBuilder
 @Getter
 public class GratitudeSticker extends BaseEntity {
@@ -47,4 +48,7 @@ public class GratitudeSticker extends BaseEntity {
     @NotNull
     private GratitudeType gratitudeType;
 
+    public void updateGratitude(GratitudeType gratitudeType) {
+        this.gratitudeType = gratitudeType;
+    }
 }

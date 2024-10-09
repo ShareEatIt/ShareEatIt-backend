@@ -29,6 +29,7 @@ public class GratitudeStickerService {
 
     /* 고마움 스티커 생성 */
     public GratitudeResponseDto createGratitudeSticker(Long postId, Long memberId, GratitudeType gratitudeType){
+
         // 파라미터 값이 누락된 경우 예외 처리
         if (postId == null || memberId == null) {
             throw new IllegalArgumentException("postId or memberId cannot be null");
@@ -73,6 +74,7 @@ public class GratitudeStickerService {
 
         // 응답 dto로 변환후 반환
         return GratitudeResponseDto.from(savedGratitude);
+
     }
 
     // 리스트에 하나의 객체만 있는지 확인한 후, 그 객체를 반환하는 함수
@@ -89,5 +91,38 @@ public class GratitudeStickerService {
 
         // 리스트에 하나의 요소만 있을 때 그 객체를 반환
         return participationList.get(0);
+    }
+
+
+    /* 고마움 스티커 수정 */
+    public GratitudeResponseDto updateGratitudeStickers(Long gratitudeStickerId, Long memberId, GratitudeType gratitudeType) {
+
+        // 파라미터 값이 누락된 경우 예외 처리
+        if (gratitudeStickerId == null || memberId == null) {
+            throw new IllegalArgumentException("postId or memberId cannot be null");
+        }
+
+        // member 객체 찾기
+        Member member = memberRepository.findById(memberId)
+                .orElseThrow(() -> new RuntimeException("해당 Id의 member를 찾을 수 없습니다."));
+
+        // gratitudeSticker 객체 찾기
+        GratitudeSticker gratitudeSticker = gratitudeStickerRepository.findById(gratitudeStickerId)
+                .orElseThrow(() -> new RuntimeException("해당 Id의 gratitudeSticker를 찾을 수 없습니다."));
+
+        // 검증1 : 찾은 gratitudeSticker의 reviewerId가 memberId와 같은지 확인
+        Member reviewer = gratitudeSticker.getReviewer();
+        if (reviewer == null || !memberId.equals(reviewer.getId())){
+            throw new IllegalStateException("해당 나눔을 받은 멤버가 아닙니다.");
+        }
+
+        // 업데이트
+        gratitudeSticker.updateGratitude(gratitudeType);
+        // 저장
+        GratitudeSticker savedGratitude = gratitudeStickerRepository.save(gratitudeSticker);
+
+        // 응답 dto로 변환후 반환
+        return GratitudeResponseDto.from(savedGratitude);
+
     }
 }
