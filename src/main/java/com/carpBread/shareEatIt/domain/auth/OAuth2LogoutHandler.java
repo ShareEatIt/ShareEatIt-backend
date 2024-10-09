@@ -16,10 +16,6 @@ public class OAuth2LogoutHandler implements LogoutHandler {
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
         String token = request.getHeader("Authorization").split(" ")[1];
         System.out.println(token);
-//
-//        if (authentication!=null && authentication.getPrincipal() instanceof OAuth2Principal){
-//            String unlinkurl = "https://kauth.kakao.com/oauth/logout?client_id=3737257962&logout_redirect_uri="+logoutRedirectUri;
-//        }
 
     }
 }

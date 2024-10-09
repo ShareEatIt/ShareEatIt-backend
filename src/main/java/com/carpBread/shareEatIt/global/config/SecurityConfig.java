@@ -1,15 +1,20 @@
 package com.carpBread.shareEatIt.global.config;
 
+import com.carpBread.shareEatIt.domain.auth.AuthLoginResponseDto;
 import com.carpBread.shareEatIt.domain.auth.OAuth2LogoutHandler;
 import com.carpBread.shareEatIt.domain.auth.OAuth2Principal;
 import com.carpBread.shareEatIt.domain.auth.OAuth2UserService;
 import com.carpBread.shareEatIt.domain.auth.util.JWTFilter;
 import com.carpBread.shareEatIt.domain.auth.util.JWTUtils;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
+import com.carpBread.shareEatIt.global.response.ApiResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
@@ -33,8 +38,12 @@ public class SecurityConfig {
 
     private final JWTUtils jwtUtils;
     private final MemberRepository memberRepository;
-
+    private final ObjectMapper objectMapper;
     private final OAuth2UserService oAuth2UserService;
+
+    @Value("${spring.jwt.refresh-secret}")
+    private String rToken;
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http
@@ -51,7 +60,7 @@ public class SecurityConfig {
                     oauth2.userInfoEndpoint(o->o.userService(oAuth2UserService))
                             .successHandler(successHandler())
             )
-            .addFilterBefore(new JWTFilter(jwtUtils,memberRepository), UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(new JWTFilter(jwtUtils,memberRepository,objectMapper), UsernamePasswordAuthenticationFilter.class)
             .logout(logout -> logout
                     .addLogoutHandler(new OAuth2LogoutHandler())
                     .logoutUrl("/logout")
@@ -70,11 +79,18 @@ public class SecurityConfig {
 
             String token = "Bearer "+jwtUtils.createToken(email, nickname);
 
-            response.setStatus(HttpServletResponse.SC_OK);
-            response.setHeader("Authorization",token);
-            response.setCharacterEncoding("UTF-8");
-
             System.out.println(token);
+
+            ApiResponse responseDto = new ApiResponse<AuthLoginResponseDto>(HttpStatus.CREATED.value(), "카카오 소셜 로그인 성공", new AuthLoginResponseDto(token,rToken ));
+            String jsonResponse = objectMapper.writeValueAsString(responseDto);
+
+            response.setStatus(HttpServletResponse.SC_OK);
+            response.setCharacterEncoding("UTF-8");
+            response.setContentType("application/json");
+            response.getWriter().write(jsonResponse);
+            response.getWriter().flush();
+            response.getWriter().close();
+
 
         });
     }

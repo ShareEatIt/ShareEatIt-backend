@@ -5,6 +5,10 @@ import com.carpBread.shareEatIt.domain.auth.OAuth2UserService;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.entity.Provider;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
+import com.carpBread.shareEatIt.global.exception.AppException;
+import com.carpBread.shareEatIt.global.exception.ErrorCode;
+import com.carpBread.shareEatIt.global.exception.ErrorResponseDto;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -22,6 +26,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.time.LocalDateTime;
 import java.util.Collections;
 
 @AllArgsConstructor
@@ -29,6 +34,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
     private JWTUtils jwtUtils;
     private MemberRepository memberRepository;
+    private ObjectMapper objectMapper;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -38,23 +44,30 @@ public class JWTFilter extends OncePerRequestFilter {
         try {
             // 1. 토큰 유무 확인
             if (authorization==null || !authorization.startsWith("Bearer ")){
+
+                errorResponse(request,response,ErrorCode.INVALID_ACCESS_TOKEN,"토큰이 존재하지 않습니다.");
+
                 throw new JwtException("토큰이 존재하지 않습니다.");
+
             }
 
             String token = authorization.split(" ")[1];
 
             // 2. 토큰 기한 만료 여부 확인
             if (jwtUtils.isExpired(token)){
+                errorResponse(request,response, ErrorCode.INVALID_ACCESS_TOKEN,"토큰 기한이 만료되었습니다.");
+
                 throw new JwtException("토큰 기한이 만료되었습니다.");
             }
 
             // 3. context authentication에 저장하기
             String email = jwtUtils.getEmail(token);
             Member member = memberRepository.findByEmail(email)
-                    .orElseThrow(() -> new RuntimeException("토큰을 찾을 수 없습니다"));
+                    .orElse(null);
 
-            String user_email= "yujinalice00@gmail.com";
-            if (!email.equals(member.getEmail())){
+            if (member==null ||!email.equals(member.getEmail())){
+
+                errorResponse(request,response,ErrorCode.INVALID_ACCESS_TOKEN, "회원가입되어있지 않습니다.");
                 throw new JwtException("회원가입되어있지 않습니다.");
             }
 
@@ -66,13 +79,34 @@ public class JWTFilter extends OncePerRequestFilter {
 
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
-            System.out.println((OAuth2Principal)SecurityContextHolder.getContext().getAuthentication().getPrincipal());
-
 
         }catch (JwtException e){
+            System.out.println(e.getMessage());
+        }catch (Exception e){
             System.out.println(e.getMessage());
         }
 
         filterChain.doFilter(request, response);
     }
+
+    private void errorResponse(HttpServletRequest request, HttpServletResponse response, ErrorCode errorCode, String message) throws Exception{
+
+
+        ErrorResponseDto responseDto = ErrorResponseDto.builder()
+                .timestamp(LocalDateTime.now())
+                .status(errorCode.getStatus().value())
+                .message(message)
+                .path(request.getRequestURI())
+                .build();
+
+        String responseJson = objectMapper.writeValueAsString(responseDto);
+
+        response.setStatus(errorCode.getStatus().value());
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("application/json");
+        response.getWriter().write(responseJson);
+        response.getWriter().flush();
+        response.getWriter().close();
+    }
+
 }
