@@ -19,4 +19,7 @@ public interface ParticipationRepository extends JpaRepository<Participation, Lo
     @Query("SELECT p.post FROM Participation p WHERE p.receiver.id = :memberId AND p.status = COMPLETED AND p.post.postType = :provider ORDER BY p.createdAt DESC")
     List<SharingPost> findSharingPostByUserAndStatusAndPostType(@Param("memberId") Long memberId, @Param("provider") PostType provider);
 
+    /* 나눔글Id로 완료된 상태의 참여 조회 */
+    @Query("SELECT p FROM Participation p WHERE p.post.id = :postId AND p.status = COMPLETED")
+    List<Participation> findByPostIdAndStatus(@Param("postId") Long postId);
 }
