@@ -1,19 +1,17 @@
 package com.carpBread.shareEatIt.global.exception;
 
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 
 import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(AppException.class)
     public ResponseEntity<ErrorResponseDto> handleAppException(AppException e){
-
-        System.out.println("GlobalExceptionHandler.handleAppException");
         ErrorResponseDto responseDto=ErrorResponseDto.builder()
                 .status(e.getErrorCode().getStatus().value())
                 .message(e.getMessage())
