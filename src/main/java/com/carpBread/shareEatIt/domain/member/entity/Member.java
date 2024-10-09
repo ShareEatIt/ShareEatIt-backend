@@ -28,6 +28,9 @@ public class Member extends BaseEntity {
 
     private String nickname;
 
+    private String accessToken;
+    private Long accessId;
+
     @Column(name = "profile_img_url")
     @Nullable
     private String profileImgUrl;
@@ -38,7 +41,6 @@ public class Member extends BaseEntity {
     @Column(name = "notice_avail")
     private Boolean isNoticeAvail;
 
-
     @Column(name = "address_st")
     private String addressSt;
 
@@ -48,6 +50,9 @@ public class Member extends BaseEntity {
     @Enumerated(value = EnumType.STRING)
     private Provider provider;
 
+    public void changeAccessToken(String accessToken){
+        this.accessToken=accessToken;
+    }
 
 
 }
