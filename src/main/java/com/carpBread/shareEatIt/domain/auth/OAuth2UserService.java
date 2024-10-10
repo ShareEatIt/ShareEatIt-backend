@@ -42,7 +42,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
         Map<String, Object> findAttributes = extractAttributes(attributes);
 
-        checkJoin(findAttributes,accessToken);
+        checkJoin(findAttributes,accessToken,(Long) findAttributes.get("id"));
 
         return new DefaultOAuth2User(authorities,findAttributes, userNameAttributeName);
 
@@ -68,7 +68,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
     }
 
     @Transactional
-    public void checkJoin(Map<String, Object> attributes, String accessToken){
+    public void checkJoin(Map<String, Object> attributes, String accessToken, Long accessId){
 
         String email = (String)attributes.get("email");
         String nickname = (String)attributes.get("nickname");
@@ -81,6 +81,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
             Member newMember= Member.builder()
                     .email(email)
                     .accessToken(accessToken)
+                    .accessId(accessId)
                     .nickname(nickname)
                     .profileImgUrl(profileImg)
                     .provider(Provider.INDIVIDUAL)
