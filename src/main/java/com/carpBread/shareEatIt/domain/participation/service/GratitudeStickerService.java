@@ -22,22 +22,22 @@ import java.util.List;
 @Transactional
 public class GratitudeStickerService {
 
-    private final MemberRepository memberRepository;
+//    private final MemberRepository memberRepository;
     private final SharingPostRepository sharingPostRepository;
     private final ParticipationRepository participationRepository;
     private final GratitudeStickerRepository gratitudeStickerRepository;
 
     /* 고마움 스티커 생성 */
-    public GratitudeResponseDto createGratitudeSticker(Long postId, Long memberId, GratitudeType gratitudeType){
+    public GratitudeResponseDto createGratitudeSticker(Long postId, Member member, GratitudeType gratitudeType){
 
         // 파라미터 값이 누락된 경우 예외 처리
-        if (postId == null || memberId == null) {
+        if (postId == null || member.getId() == null) {
             throw new IllegalArgumentException("postId or memberId cannot be null");
         }
-
-        // member 객체 찾기
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new RuntimeException("해당 Id의 member를 찾을 수 없습니다."));
+//
+//        // member 객체 찾기
+//        Member member = memberRepository.findById(memberId)
+//                .orElseThrow(() -> new RuntimeException("해당 Id의 member를 찾을 수 없습니다."));
 
         // SharingPost 객체 찾기
         SharingPost post = sharingPostRepository.findById(postId)
@@ -52,7 +52,7 @@ public class GratitudeStickerService {
         Participation participation = findSingleParticipation(postId);
 
         // 검증4 : 찾은 '참여' 데이터의 receiverId가 memberId와 같은지 확인
-        if (!memberId.equals(participation.getReceiver().getId())){
+        if (!member.getId().equals(participation.getReceiver().getId())){
             throw new IllegalStateException("해당 나눔을 받은 멤버가 아닙니다.");
         }
 
@@ -95,16 +95,12 @@ public class GratitudeStickerService {
 
 
     /* 고마움 스티커 수정 */
-    public GratitudeResponseDto updateGratitudeStickers(Long gratitudeStickerId, Long memberId, GratitudeType gratitudeType) {
+    public GratitudeResponseDto updateGratitudeStickers(Long gratitudeStickerId, Member member, GratitudeType gratitudeType) {
 
         // 파라미터 값이 누락된 경우 예외 처리
-        if (gratitudeStickerId == null || memberId == null) {
+        if (gratitudeStickerId == null || member == null) {
             throw new IllegalArgumentException("postId or memberId cannot be null");
         }
-
-        // member 객체 찾기
-        Member member = memberRepository.findById(memberId)
-                .orElseThrow(() -> new RuntimeException("해당 Id의 member를 찾을 수 없습니다."));
 
         // gratitudeSticker 객체 찾기
         GratitudeSticker gratitudeSticker = gratitudeStickerRepository.findById(gratitudeStickerId)
@@ -112,7 +108,7 @@ public class GratitudeStickerService {
 
         // 검증1 : 찾은 gratitudeSticker의 reviewerId가 memberId와 같은지 확인
         Member reviewer = gratitudeSticker.getReviewer();
-        if (reviewer == null || !memberId.equals(reviewer.getId())){
+        if (reviewer == null || !member.getId().equals(reviewer.getId())){
             throw new IllegalStateException("해당 나눔을 받은 멤버가 아닙니다.");
         }
 
