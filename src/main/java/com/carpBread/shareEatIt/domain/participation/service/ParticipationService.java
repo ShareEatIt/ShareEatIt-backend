@@ -24,14 +24,9 @@ public class ParticipationService {
 
     private final ParticipationRepository participationRepository;
     private final SharingPostRepository sharingPostRepository;
-    private final MemberRepository memberRepository;
 
     /* 참여 생성 - 나눔글 채팅 참여 */
-    public ParticipationResponseDto createParticipation(Long receiverId, ParticipationRequestDto requestDto) {
-
-        // member 조회 - 로그인 구현 이후 수정 필요
-        Member receiver = memberRepository.findById(receiverId)
-                .orElseThrow(() -> new RuntimeException("해당ID의 회원을 찾지 못했습니다."));
+    public ParticipationResponseDto createParticipation(Member receiver, ParticipationRequestDto requestDto) {
 
         // requestDto로 받아온 postId의 나눔글 조회
         SharingPost post = sharingPostRepository.findById(requestDto.getSharingPostId())
@@ -58,14 +53,10 @@ public class ParticipationService {
 
 
     /* 사용자가 나눔받은 모든 기록 조회 */
-    public ParticipationHistoryListResponseDto findAllParticipation(Long receiverId) {
-
-        // member 조회 - 로그인 구현 이후 수정 필요
-        Member receiver = memberRepository.findById(receiverId)
-                .orElseThrow(() -> new RuntimeException("해당ID의 회원을 찾지 못했습니다."));
+    public ParticipationHistoryListResponseDto findAllParticipation(Member receiver) {
 
         // 사용자 = receiver이고 나눔완료 상태인 모든 '참여'의 나눔글 조회
-        List<SharingPost> participatedPosts = participationRepository.findSharingPostByUserAndStatus(receiverId);
+        List<SharingPost> participatedPosts = participationRepository.findSharingPostByUserAndStatus(receiver.getId());
 
         // 조회된 각 나눔글을 응답dto 리스트로 변환
         List<ParticipationHistoryResponseDto> dtoList = convertDtoToList(participatedPosts);
@@ -75,14 +66,10 @@ public class ParticipationService {
 
 
     /* 사용자가 특정 provider의 나눔을 받은 모든 기록 조회 */
-    public ParticipationHistoryListResponseDto findAllParticipationByProvider(Long receiverId, PostType provider) {
-
-        // member 조회 - 로그인 구현 이후 수정 필요
-        Member receiver = memberRepository.findById(receiverId)
-                .orElseThrow(() -> new RuntimeException("해당ID의 회원을 찾지 못했습니다."));
+    public ParticipationHistoryListResponseDto findAllParticipationByProvider(Member receiver, PostType provider) {
 
         // 사용자 = receiver이고 상태 = 나눔완료인 모든 '참여'의 나눔글 중 특정 provider의 글 조회
-        List<SharingPost> participatedPosts = participationRepository.findSharingPostByUserAndStatusAndPostType(receiverId, provider);
+        List<SharingPost> participatedPosts = participationRepository.findSharingPostByUserAndStatusAndPostType(receiver.getId(), provider);
 
         // 조회된 각 나눔글을 응답dto 리스트로 변환
         List<ParticipationHistoryResponseDto> dtoList = convertDtoToList(participatedPosts);
@@ -99,11 +86,7 @@ public class ParticipationService {
 
 
     /* 참여 상태 변경 */
-    public ParticipationUpdateStatusResponseDto updateStatus(Long ptId, Long receiverId, ParticipationStatus ptStatus) {
-
-        // member 조회 - 로그인 구현 이후 수정 필요
-        Member receiver = memberRepository.findById(receiverId)
-                .orElseThrow(() -> new RuntimeException("해당ID의 회원을 찾지 못했습니다."));
+    public ParticipationUpdateStatusResponseDto updateStatus(Long ptId, Member receiver, ParticipationStatus ptStatus) {
 
         // participation 객체 찾아오기
         Participation participation = participationRepository.findById(ptId)
@@ -118,7 +101,7 @@ public class ParticipationService {
         }
 
         // 검증2: 사용자가 나눔자의 writer인지 확인
-        if (receiverId != participation.getPost().getWriter().getId()){
+        if (receiver.getId() != participation.getPost().getWriter().getId()){
             throw new RuntimeException("나눔글 작성자가 아니므로 나눔 상태를 변경할 수 없습니다.");
         }
 
