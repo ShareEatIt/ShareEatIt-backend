@@ -67,10 +67,10 @@ public class ParticipationController {
     // 참여 테이블의 참여 상태 변경
     @PatchMapping("/{ptId}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<ApiResponse<ParticipationUpdateStatusResponseDto>> updateStatus(@AuthUser Member receiver,
+    public ResponseEntity<ApiResponse<ParticipationUpdateStatusResponseDto>> updateStatus(@AuthUser Member giver,
                                                                                           @PathVariable("ptId") Long ptId,
                                                                                           @RequestParam("status") ParticipationStatus status){
-        ParticipationUpdateStatusResponseDto responseDto = participationService.updateStatus(ptId,receiver,status);
+        ParticipationUpdateStatusResponseDto responseDto = participationService.updateStatus(ptId, giver, status);
         ApiResponse<ParticipationUpdateStatusResponseDto> response = new ApiResponse<>(
                 HttpStatus.OK.value(),  // 상태코드 200
                 "참여 상태 수정 성공",   // 성공 메시지

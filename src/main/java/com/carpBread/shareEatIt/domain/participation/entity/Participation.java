@@ -41,13 +41,11 @@ public class Participation extends BaseEntity {
     @Nullable
     private LocalDateTime completedAt;
 
-//    @ManyToOne(cascade = CascadeType.ALL)
     @ManyToOne
     @JoinColumn(name = "giver_id")
     @NotNull
     private Member giver;
 
-//    @ManyToOne(cascade = CascadeType.ALL)
     @ManyToOne
     @JoinColumn(name = "receiver_id")
     @NotNull

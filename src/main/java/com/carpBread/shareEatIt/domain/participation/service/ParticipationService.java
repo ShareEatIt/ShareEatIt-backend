@@ -90,7 +90,7 @@ public class ParticipationService {
 
 
     /* 참여 상태 변경 */
-    public ParticipationUpdateStatusResponseDto updateStatus(Long ptId, Member receiver, ParticipationStatus ptStatus) {
+    public ParticipationUpdateStatusResponseDto updateStatus(Long ptId, Member giver, ParticipationStatus ptStatus) {
 
         // participation 객체 찾아오기
         Participation participation = participationRepository.findById(ptId)
@@ -114,8 +114,10 @@ public class ParticipationService {
         }
 
         // 검증2: 사용자가 나눔자의 writer인지 확인
-        if (!receiver.getId().equals(participation.getPost().getWriter().getId())){
+        if (!giver.getId().equals(participation.getPost().getWriter().getId())){
             log.error("사용자 != 나눔글 작성자");
+            log.info("giverId : {}", giver.getId());
+            log.info("writerId : {}", participation.getPost().getWriter().getId());
             throw new AppException(ErrorCode.NOT_WRITER_OF_SHARINGPOST, "나눔글 작성자가 아니므로 나눔 상태를 변경할 수 없습니다.", "/participation/"+ptId);
         }
 
