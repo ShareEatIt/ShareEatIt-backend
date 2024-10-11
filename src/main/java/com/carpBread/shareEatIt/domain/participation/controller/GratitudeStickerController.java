@@ -34,7 +34,7 @@ public class GratitudeStickerController {
     }
 
     /* 고마움 수정하기 */
-    @PatchMapping("/{gsId}/{memberId}")
+    @PatchMapping("/{gsId}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<ApiResponse<GratitudeResponseDto>> updateGratitudeSticker(@AuthUser Member member,
                                                                                     @PathVariable("gsId") Long gratitudeStickerId,

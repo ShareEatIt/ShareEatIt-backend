@@ -10,7 +10,6 @@ import com.carpBread.shareEatIt.domain.sharingPost.entity.PostType;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
 import com.carpBread.shareEatIt.global.exception.AppException;
-import com.carpBread.shareEatIt.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -18,6 +17,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
+
+import static com.carpBread.shareEatIt.global.exception.ErrorCode.*;
 
 @Service
 @Transactional
@@ -33,7 +34,7 @@ public class ParticipationService {
 
         // requestDto로 받아온 postId의 나눔글 조회
         SharingPost post = sharingPostRepository.findById(requestDto.getSharingPostId())
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_SHARINGPOST, "해당ID의 나눔글을 찾지 못했습니다.", "/participations"));
+                .orElseThrow(() -> new AppException(NOT_FOUND_SHARINGPOST, "해당ID의 나눔글을 찾지 못했습니다.", "/participations"));
 
 
         // Participation 객체 생성
@@ -94,7 +95,7 @@ public class ParticipationService {
 
         // participation 객체 찾아오기
         Participation participation = participationRepository.findById(ptId)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_PARTICIPATION, "해당 ID의 참여기록을 찾지 못했습니다.", "/participation/"+ptId));
+                .orElseThrow(() -> new AppException(NOT_FOUND_PARTICIPATION, "해당 ID의 참여기록을 찾지 못했습니다.", "/participation/"+ptId));
 
         String sharingPostStatus = participation.getPost().getStatus().toString();
         String participationStatus = ptStatus.toString();
@@ -103,13 +104,13 @@ public class ParticipationService {
         if (sharingPostStatus.equals(participationStatus)){
             log.error("이미 나눔글이 {}인 상태로, 같은 상태로 변경 불가", sharingPostStatus);
             if (sharingPostStatus.equals("COMPLETED")){
-                throw new AppException(ErrorCode.ALREADY_COMPLETED_SHARINGPOST, "이미 나눔 완료된 나눔입니다.", "/participation/"+ptId);
+                throw new AppException(ALREADY_COMPLETED_SHARINGPOST, "이미 나눔 완료된 나눔입니다.", "/participation/"+ptId);
             }
             else if (sharingPostStatus.equals("MATCHED")){
-                throw new AppException(ErrorCode.ALREADY_MATCHED_SHARINGPOST, "이미 찜 상태인 나눔입니다.", "/participation/"+ptId);
+                throw new AppException(ALREADY_MATCHED_SHARINGPOST, "이미 찜 상태인 나눔입니다.", "/participation/"+ptId);
             }
             else {
-                throw new AppException(ErrorCode.ALREADY_AVAILABLE_SHARINGPSOT, "현재 나눔 가능한 상태로 변경할 상태가 없습니다.", "/participation/"+ptId);
+                throw new AppException(ALREADY_AVAILABLE_SHARINGPSOT, "현재 나눔 가능한 상태로 변경할 상태가 없습니다.", "/participation/"+ptId);
             }
         }
 
@@ -118,7 +119,7 @@ public class ParticipationService {
             log.error("사용자 != 나눔글 작성자");
             log.info("giverId : {}", giver.getId());
             log.info("writerId : {}", participation.getPost().getWriter().getId());
-            throw new AppException(ErrorCode.NOT_WRITER_OF_SHARINGPOST, "나눔글 작성자가 아니므로 나눔 상태를 변경할 수 없습니다.", "/participation/"+ptId);
+            throw new AppException(NOT_WRITER_OF_SHARINGPOST, "나눔글 작성자가 아니므로 나눔 상태를 변경할 수 없습니다.", "/participation/"+ptId);
         }
 
         // 상태 변경
@@ -132,7 +133,7 @@ public class ParticipationService {
             post.updateStatus(postStatus);
         } catch (IllegalArgumentException e) {
             log.error("잘못된 상태값으로, 해당 나눔글의 상태 변경에 실패");
-            throw new AppException(ErrorCode.INVALID_STATUS_VALUE ,"잘못된 상태값으로, 해당 나눔글의 상태 변경에 실패하였습니다.", "/participation/"+ptId);
+            throw new AppException(INVALID_STATUS_VALUE ,"잘못된 상태값으로, 해당 나눔글의 상태 변경에 실패하였습니다.", "/participation/"+ptId);
         }
 
         // 변경한 내용 저장
