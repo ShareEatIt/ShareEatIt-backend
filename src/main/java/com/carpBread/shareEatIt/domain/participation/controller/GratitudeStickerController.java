@@ -1,5 +1,7 @@
 package com.carpBread.shareEatIt.domain.participation.controller;
 
+import com.carpBread.shareEatIt.domain.auth.AuthUser;
+import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.participation.dto.GratitudeResponseDto;
 import com.carpBread.shareEatIt.domain.participation.entity.GratitudeType;
 import com.carpBread.shareEatIt.domain.participation.service.GratitudeStickerService;
@@ -17,12 +19,12 @@ public class GratitudeStickerController {
     private final GratitudeStickerService gratitudeStickerService;
 
     /* 고마움 남기기(생성) */
-    @PostMapping("/{postId}/{memberId}")
+    @PostMapping("/{postId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<ApiResponse<GratitudeResponseDto>> createGratitudeSticker(@PathVariable("postId") Long postId,
-                                                                                    @PathVariable("memberId") Long memberId,
+    public ResponseEntity<ApiResponse<GratitudeResponseDto>> createGratitudeSticker(@AuthUser Member member,
+                                                                                    @PathVariable("postId") Long postId,
                                                                                     @RequestParam("gratitudeType")GratitudeType gratitudeType){
-        GratitudeResponseDto responseDto = gratitudeStickerService.createGratitudeSticker(postId, memberId, gratitudeType);
+        GratitudeResponseDto responseDto = gratitudeStickerService.createGratitudeSticker(postId, member, gratitudeType);
         ApiResponse<GratitudeResponseDto> response = new ApiResponse<>(
                 HttpStatus.CREATED.value(),  // 상태코드 201
                 "고마움 생성 성공",   // 성공 메시지
@@ -32,12 +34,12 @@ public class GratitudeStickerController {
     }
 
     /* 고마움 수정하기 */
-    @PatchMapping("/{gsId}/{memberId}")
+    @PatchMapping("/{gsId}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<ApiResponse<GratitudeResponseDto>> updateGratitudeSticker(@PathVariable("gsId") Long gratitudeStickerId,
-                                                                                    @PathVariable("memberId") Long memberId,
+    public ResponseEntity<ApiResponse<GratitudeResponseDto>> updateGratitudeSticker(@AuthUser Member member,
+                                                                                    @PathVariable("gsId") Long gratitudeStickerId,
                                                                                     @RequestParam("gratitudeType")GratitudeType gratitudeType){
-        GratitudeResponseDto responseDto = gratitudeStickerService.updateGratitudeStickers(gratitudeStickerId, memberId, gratitudeType);
+        GratitudeResponseDto responseDto = gratitudeStickerService.updateGratitudeStickers(gratitudeStickerId, member, gratitudeType);
         ApiResponse<GratitudeResponseDto> response = new ApiResponse<>(
                 HttpStatus.OK.value(),  //상태코드 200
                 "고마움 스티커 수정 성공",  // 성공 메시지

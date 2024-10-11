@@ -1,5 +1,7 @@
 package com.carpBread.shareEatIt.domain.participation.controller;
 
+import com.carpBread.shareEatIt.domain.auth.AuthUser;
+import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.participation.dto.*;
 import com.carpBread.shareEatIt.domain.participation.entity.ParticipationStatus;
 import com.carpBread.shareEatIt.domain.participation.service.ParticipationService;
@@ -18,14 +20,12 @@ public class ParticipationController {
 
     private final ParticipationService participationService;
 
-    /* 로그인 구현 전 - 모든 기본 경로 뒤에 receiverId 붙여서 구현함 */
-
-    // 참여 생성 - 로그인 구현 전
-    @PostMapping("/{receiverId}")
+    // 참여 생성
+    @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<ApiResponse<ParticipationResponseDto>> createParticipation(@PathVariable("receiverId") Long receiverId,
-                                                                                    @RequestBody @Valid final ParticipationRequestDto dto) {
-        ParticipationResponseDto responseDto = participationService.createParticipation(receiverId, dto);
+    public ResponseEntity<ApiResponse<ParticipationResponseDto>> createParticipation(@AuthUser Member receiver,
+                                                                                     @RequestBody @Valid final ParticipationRequestDto dto) {
+        ParticipationResponseDto responseDto = participationService.createParticipation(receiver, dto);
         ApiResponse<ParticipationResponseDto> response = new ApiResponse<>(
                 HttpStatus.CREATED.value(),  // 상태코드 201
                 "참여 생성 성공",   // 성공 메시지
@@ -36,10 +36,10 @@ public class ParticipationController {
 
 
     // 사용자의 나눔 참여 목록 전체 조회
-    @GetMapping("/{receiverId}")
+    @GetMapping()
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<ApiResponse<ParticipationHistoryListResponseDto>> getAllParticipation(@PathVariable("receiverId") Long receiverId){
-        ParticipationHistoryListResponseDto responseDto = participationService.findAllParticipation(receiverId);
+    public ResponseEntity<ApiResponse<ParticipationHistoryListResponseDto>> getAllParticipation(@AuthUser Member receiver){
+        ParticipationHistoryListResponseDto responseDto = participationService.findAllParticipation(receiver);
         ApiResponse<ParticipationHistoryListResponseDto> response = new ApiResponse<>(
                 HttpStatus.OK.value(),  // 상태코드 200
                 "사용자의 나눔 참여 목록 전체 조회 성공",   // 성공 메시지
@@ -50,11 +50,11 @@ public class ParticipationController {
 
 
     // 해당 제공 주체의 나눔 참여 목록 조회
-    @GetMapping("/{provider}/{receiverId}")
+    @GetMapping("/{provider}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<ApiResponse<ParticipationHistoryListResponseDto>> getParticipationByProvider(@PathVariable("receiverId") Long receiverId,
+    public ResponseEntity<ApiResponse<ParticipationHistoryListResponseDto>> getParticipationByProvider(@AuthUser Member receiver,
                                                                                                        @PathVariable("provider") PostType provider){
-        ParticipationHistoryListResponseDto responseDto = participationService.findAllParticipationByProvider(receiverId,provider);
+        ParticipationHistoryListResponseDto responseDto = participationService.findAllParticipationByProvider(receiver,provider);
         ApiResponse<ParticipationHistoryListResponseDto> response = new ApiResponse<>(
                 HttpStatus.OK.value(),  // 상태코드 200
                 "사용자의 나눔 참여 목록 중 특정 제공자의 나눔 참여 목록 조회 성공",   // 성공 메시지
@@ -65,12 +65,12 @@ public class ParticipationController {
 
 
     // 참여 테이블의 참여 상태 변경
-    @PatchMapping("/{ptId}/{receiverId}")
+    @PatchMapping("/{ptId}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<ApiResponse<ParticipationUpdateStatusResponseDto>> updateStatus(@PathVariable("ptId") Long ptId,
-                                                                                          @PathVariable("receiverId") Long receiverId,
+    public ResponseEntity<ApiResponse<ParticipationUpdateStatusResponseDto>> updateStatus(@AuthUser Member giver,
+                                                                                          @PathVariable("ptId") Long ptId,
                                                                                           @RequestParam("status") ParticipationStatus status){
-        ParticipationUpdateStatusResponseDto responseDto = participationService.updateStatus(ptId,receiverId,status);
+        ParticipationUpdateStatusResponseDto responseDto = participationService.updateStatus(ptId, giver, status);
         ApiResponse<ParticipationUpdateStatusResponseDto> response = new ApiResponse<>(
                 HttpStatus.OK.value(),  // 상태코드 200
                 "참여 상태 수정 성공",   // 성공 메시지
