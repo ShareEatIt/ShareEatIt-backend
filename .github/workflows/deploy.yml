@@ -5,6 +5,7 @@ name: Deploy to Amazon EC2
 on:
   push:
     branches: [ "develop" ]
+    
 
 # Workflow 내에서 사용하는 환경 변수 정의
 env:
