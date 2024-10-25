@@ -15,6 +15,6 @@ public interface GratitudeStickerRepository extends JpaRepository<GratitudeStick
     @Query("SELECT CASE WHEN COUNT(g) > 0 THEN true ELSE false END FROM GratitudeSticker g WHERE g.participation.id = :participationId")
     Boolean existsByParticipationId(@Param("participationId") Long participationId);
 
-    @Query(value = "SELECT g.gratitude_type, COUNT(*) FROM GRATITUDE_STICKERS g WHERE g.giver_id = ?1 GROUP BY g.gratitude_type",nativeQuery = true)
+    @Query(value = "SELECT g.gratitude_type, COUNT(*) FROM GratitudeSticker g WHERE g.giver_id = ?1 GROUP BY g.gratitude_type",nativeQuery = true)
     List<Object[]> countByGratitudeTypeByGiver(Long giverId);
 }
