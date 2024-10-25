@@ -3,13 +3,9 @@ package com.carpBread.shareEatIt.domain.member.service;
 import com.carpBread.shareEatIt.domain.member.dto.*;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
-import com.carpBread.shareEatIt.domain.participation.dto.GratitudeResponseDto;
-import com.carpBread.shareEatIt.domain.participation.entity.GratitudeSticker;
-import com.carpBread.shareEatIt.domain.participation.entity.GratitudeType;
 import com.carpBread.shareEatIt.domain.participation.repository.GratitudeStickerRepository;
 import com.carpBread.shareEatIt.global.exception.AppException;
 import com.carpBread.shareEatIt.global.exception.ErrorCode;
-import jdk.jfr.ContentType;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
@@ -19,7 +15,6 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -78,7 +73,7 @@ public class MemberService {
                 .email(updatedMember.getEmail())
                 .nickname(updatedMember.getNickname())
                 .profileImg(updatedMember.getProfileImgUrl())
-                .location(LocationResponseDto.builder()
+                .location(LocationResponseDtoComponent.builder()
                         .addressSt(updatedMember.getAddressSt())
                         .addressDetail(updatedMember.getAddressDetail())
                         .build())

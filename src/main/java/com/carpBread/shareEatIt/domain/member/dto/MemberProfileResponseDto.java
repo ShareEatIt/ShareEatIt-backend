@@ -10,6 +10,6 @@ public class MemberProfileResponseDto {
     private String profileImg;
     private String nickname;
     private String email;
-    private LocationResponseDto location;
+    private LocationResponseDtoComponent location;
 
 }
