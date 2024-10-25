@@ -20,7 +20,6 @@ public class Keywords {
     private Long id;
 
     @Column(length = 50)
-    @Nullable
     private String keyword;
 
     private Boolean avail;
@@ -28,4 +27,8 @@ public class Keywords {
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "member_id")
     private Member member;
+
+    public void changeAvail(Boolean avail){
+        this.avail=avail;
+    }
 }

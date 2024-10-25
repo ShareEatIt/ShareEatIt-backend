@@ -7,6 +7,8 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 public enum ErrorCode {
+
+    // Member
     NOT_FOUND_MEMBER(HttpStatus.NOT_FOUND),
     INVALID_ACCESS_TOKEN(HttpStatus.NOT_ACCEPTABLE),
 
@@ -28,7 +30,12 @@ public enum ErrorCode {
 
     // SharingPost
     NOT_FOUND_SHARINGPOST(HttpStatus.NOT_FOUND),
-    NOT_COMPLETED_SHARINGPOST(HttpStatus.FORBIDDEN);
+    NOT_COMPLETED_SHARINGPOST(HttpStatus.FORBIDDEN),
+
+    // Keyword
+    ALREADY_USING_KEYWORD(HttpStatus.IM_USED),
+    NOT_FOUND_KEYWORD_UNAVAILABLE_ID(HttpStatus.NOT_FOUND),
+    NOT_AVAILABLE_MEMBER_TO_DELETE_KEYWORD(HttpStatus.FORBIDDEN);
 
     private final HttpStatus status;
 }
