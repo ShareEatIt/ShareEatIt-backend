@@ -18,7 +18,7 @@ public class ParticipationHistoryResponseDto {
     private PostCategory category;
 //    private PostImgUrl imgURL;
     private PostStatus status;
-    private Date endDate;
+    private LocalDateTime endDate;
     private LocalDateTime createdAt;  // LocalDateTime
 
 //    //이미지와 생성시각을 제외한 dto
@@ -37,7 +37,7 @@ public class ParticipationHistoryResponseDto {
 
     //이미지를 제외한 dto
     @Builder
-    public ParticipationHistoryResponseDto(Long sharingPostId, String title, PostType provider, String writerName, PostCategory category,  PostStatus status, Date endDate, LocalDateTime createdAt) {
+    public ParticipationHistoryResponseDto(Long sharingPostId, String title, PostType provider, String writerName, PostCategory category,  PostStatus status, LocalDateTime endDate, LocalDateTime createdAt) {
         this.sharingPostId = sharingPostId;
         this.title = title;
         this.provider = provider;
@@ -58,7 +58,7 @@ public class ParticipationHistoryResponseDto {
                 post.getCategory(),
 //                post.getPostType(), // image
                 post.getStatus(),
-                post.getEndDate(),
+                post.getEndAt(),
                 post.getCreatedAt()
         );
     }
