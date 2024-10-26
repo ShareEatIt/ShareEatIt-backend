@@ -28,4 +28,8 @@ public class PostImgUrl {
     @JoinColumn(name = "post_id")
     private SharingPost post;
 
+    public void updateOrder(int order){
+        this.imgOrder=order;
+    }
+
 }

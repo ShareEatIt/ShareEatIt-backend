@@ -2,7 +2,6 @@ package com.carpBread.shareEatIt.domain.sharingPost.dto;
 
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Null;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -11,7 +10,7 @@ import java.time.LocalDateTime;
 
 @NoArgsConstructor
 @Getter
-public class SharingPostCreateRequestDto {
+public class SharingPostRequestDto {
 
     @NotNull
     private String title;
@@ -24,10 +23,16 @@ public class SharingPostCreateRequestDto {
     private Boolean isFinished;
 
     @NotNull
+    private String foodName;
+
+    @NotNull
     private LocalDate expDate;
 
     @Nullable
     private LocalDate purchaseDate;
+
+
+    /*************** 위치 관련  ****************/
 
     @NotNull
     private String addressSt;
@@ -37,10 +42,18 @@ public class SharingPostCreateRequestDto {
 
     // 카카오지도 location
     @Nullable
-    private String locationCode;
+    private String kakaoLocationCode;
+
+    @NotNull
+    private Double latitude;
+    @NotNull
+    private Double longitude;
 
     @Nullable
     private String description;
+
+    @NotNull
+    private String postType;
 
     @NotNull
     private LocalDateTime endAt;
