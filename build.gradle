@@ -20,10 +20,11 @@ configurations {
 }
 
 repositories {
-	mavenCentral()
+
 	maven {
 		url 'https://repo.osgeo.org/repository/release'
 	}
+	mavenCentral()
 
 }
 
@@ -57,7 +58,7 @@ dependencies {
 	implementation 'org.geotools:gt-main:27.0'         // GeoTools 메인 라이브러리
 	implementation 'org.geotools:gt-cql:27.0'          // GeoTools의 필터 및 쿼리 기능
 	implementation 'org.geotools:gt-epsg-hsql:27.0'    // 좌표 변환을 위한 EPSG 데이터베이스
-	implementation 'org.locationtech.jts:jts-core:1.18.2'
+//	implementation 'org.locationtech.jts:jts-core:1.18.2'
 	implementation 'org.hibernate:hibernate-spatial:6.2.6.Final' // Hibernate Spatial for JPA support
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
