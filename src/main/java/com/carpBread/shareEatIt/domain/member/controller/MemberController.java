@@ -9,6 +9,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.service.annotation.GetExchange;
 
 @RestController
 @RequestMapping("/members")
@@ -53,6 +54,16 @@ public class MemberController {
 
         return ResponseEntity.ok().body(response);
     }
+
+    @GetMapping("/sharing/status")
+    public ResponseEntity<ApiResponse<MemberSharingStatusResponseDto>> getMemberSharingStatus(@AuthUser Member member){
+        MemberSharingStatusResponseDto responseDto = memberService.findMemberSharingStatus(member);
+
+        ApiResponse response = new ApiResponse(HttpStatus.OK.value(),"회원 나눔 현황 조회 성공", responseDto);
+
+        return ResponseEntity.ok().body(response);
+    }
+
 
     @PutMapping
     public ResponseEntity<ApiResponse> updateMemberProfile(@AuthUser Member member,

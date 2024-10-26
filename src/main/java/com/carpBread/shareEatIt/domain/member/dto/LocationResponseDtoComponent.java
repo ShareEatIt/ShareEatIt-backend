@@ -9,4 +9,6 @@ import lombok.Getter;
 public class LocationResponseDtoComponent {
     private String addressSt;
     private String addressDetail;
+    private Double latitude;
+    private Double longitude;
 }

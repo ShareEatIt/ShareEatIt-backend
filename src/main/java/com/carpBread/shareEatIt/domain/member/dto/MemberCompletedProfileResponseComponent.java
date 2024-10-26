@@ -2,14 +2,13 @@ package com.carpBread.shareEatIt.domain.member.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Getter;
 
 @AllArgsConstructor
-@Getter @Builder
-public class MemberAsWriterSimpleDtoComponent {
-
+@Builder
+public class MemberCompletedProfileResponseComponent {
     private Long id;
-    private String img;
+    private String email;
+    private String imgUrl;
     private String nickname;
     private Long sharingTotal;
 }

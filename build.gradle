@@ -45,6 +45,17 @@ dependencies {
 	implementation 'io.jsonwebtoken:jjwt-impl:0.11.5'
 	implementation 'io.jsonwebtoken:jjwt-jackson:0.11.5'
 
+	// aws 관련 - 경량구성 가능하도록 aws에서 제공한 sdk 사용
+	implementation platform('com.amazonaws:aws-java-sdk-bom:1.12.529')
+	implementation 'com.amazonaws:aws-java-sdk-s3'
+
+	// GeoTools
+	implementation 'org.geotools:gt-main:27.0'         // GeoTools 메인 라이브러리
+	implementation 'org.geotools:gt-cql:27.0'          // GeoTools의 필터 및 쿼리 기능
+	implementation 'org.geotools:gt-epsg-hsql:27.0'    // 좌표 변환을 위한 EPSG 데이터베이스
+	implementation 'org.locationtech.jts:jts-core:1.18.2'
+	implementation 'org.hibernate:hibernate-spatial:6.2.6.Final' // Hibernate Spatial for JPA support
+
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'

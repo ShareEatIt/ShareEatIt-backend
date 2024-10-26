@@ -4,6 +4,9 @@ import com.carpBread.shareEatIt.domain.member.dto.*;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
 import com.carpBread.shareEatIt.domain.participation.repository.GratitudeStickerRepository;
+import com.carpBread.shareEatIt.domain.sharingPost.entity.PostCategory;
+import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
+import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
 import com.carpBread.shareEatIt.global.exception.AppException;
 import com.carpBread.shareEatIt.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
@@ -23,8 +26,10 @@ import java.util.Map;
 @Slf4j @Transactional
 @RequiredArgsConstructor
 public class MemberService {
+
     private final MemberRepository memberRepository;
     private final GratitudeStickerRepository gratitudeStickerRepository;
+    private final SharingPostRepository sharingPostRepository;
 
     /* 멤버의 스티커 현황 찾기 */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -131,4 +136,71 @@ public class MemberService {
     }
 
 
+    public MemberSharingStatusResponseDto findMemberSharingStatus(Member writer) {
+
+        MemberSharingStatusResponseComponent statusDto = getSharingStatusResponseComponent(writer);
+
+        MemberCompletedProfileResponseComponent writerDto = MemberCompletedProfileResponseComponent.builder()
+                .id(writer.getId())
+                .email(writer.getEmail())
+                .imgUrl(writer.getProfileImgUrl())
+                .nickname(writer.getNickname())
+                .sharingTotal(sharingPostRepository.countByWriter(writer))
+                .build();
+
+        return MemberSharingStatusResponseDto.builder()
+                .writer(writerDto)
+                .status(statusDto)
+                .build();
+
+
+    }
+
+    private MemberSharingStatusResponseComponent getSharingStatusResponseComponent(Member writer){
+        Long BAKERY =0l;
+        Long BEVERAGE=0l;
+        Long CONVENIENCE_FOOD=0l;
+        Long KOREAN=0l;
+        Long JAPANESE=0l;
+        Long CHINESE=0l;
+        Long WESTERN=0l;
+        Long SNACK=0l;
+        Long GROCERIES=0l;
+        Long ETC=0l;
+
+        List<Object[]> objects = sharingPostRepository.countByCategoryForWriter(writer);
+        for (Object[] obj : objects){
+            PostCategory category = (PostCategory) obj[0];
+            Long count = (Long) obj[1];
+
+            switch (category){
+                case BAKERY -> BAKERY=count;
+                case BEVERAGE -> BEVERAGE = count;
+                case CONVENIENCE_FOOD -> CONVENIENCE_FOOD = count;
+                case KOREAN -> KOREAN = count;
+                case JAPANESE -> JAPANESE = count;
+                case CHINESE -> CHINESE = count;
+                case WESTERN -> WESTERN = count;
+                case SNACK -> SNACK = count;
+                case GROCERIES -> GROCERIES = count;
+                case ETC -> ETC = count;
+            }
+
+
+        }
+
+        return MemberSharingStatusResponseComponent.builder()
+                .BAKERY(BAKERY)
+                .BEVERAGE(BEVERAGE)
+                .CONVENIENCE_FOOD(CONVENIENCE_FOOD)
+                .KOREAN(KOREAN)
+                .JAPANESE(JAPANESE)
+                .CHINESE(CHINESE)
+                .WESTERN(WESTERN)
+                .SNACK(SNACK)
+                .GROCERIES(GROCERIES)
+                .ETC(ETC)
+                .build();
+
+    }
 }
