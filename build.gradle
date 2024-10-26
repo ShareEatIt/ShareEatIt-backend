@@ -21,6 +21,10 @@ configurations {
 
 repositories {
 	mavenCentral()
+	maven {
+		url 'https://repo.osgeo.org/repository/release'
+	}
+
 }
 
 jar {
