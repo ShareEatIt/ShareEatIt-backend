@@ -12,6 +12,9 @@ import com.carpBread.shareEatIt.domain.participation.entity.Participation;
 import com.carpBread.shareEatIt.domain.participation.entity.ParticipationStatus;
 import com.carpBread.shareEatIt.domain.participation.repository.GratitudeStickerRepository;
 import com.carpBread.shareEatIt.domain.sharingPost.dto.*;
+import com.carpBread.shareEatIt.domain.sharingPost.dto.map.MapListResponseDto;
+import com.carpBread.shareEatIt.domain.sharingPost.dto.map.MapRequestDto;
+import com.carpBread.shareEatIt.domain.sharingPost.dto.map.MapResponseComponent;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.*;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.PostImgUrlRepository;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
@@ -45,6 +48,7 @@ public class SharingPostService {
 
     // 위치 기반 반경 (10km 설정)
     private final double radius=10000;
+    private final double mapRadius=1000;
 
     private final GeometryFactory geometryFactory = new GeometryFactory();
 
@@ -314,6 +318,39 @@ public class SharingPostService {
             throw new AppException(ErrorCode.UNAUTHORIZED_MEMBER_TO_DELETE_POST, "작성자가 아니므로 해당 POST에 대한 삭제가 불가합니다.", "/sharing/" + id);
 
         sharingPostRepository.delete(targetPost);
+
+    }
+
+
+    @Transactional
+    public MapListResponseDto getMapList(Member member, MapRequestDto dto) {
+        List<SharingPost> sharingPostsWithinRadius = sharingPostRepository.findSharingPostsWithinRadius(dto.getLatitude(), dto.getLongitude(), mapRadius);
+
+        List<MapResponseComponent> componentList = new ArrayList<>();
+        for (SharingPost post : sharingPostsWithinRadius){
+            LocationResponseDtoComponent location = LocationResponseDtoComponent.builder()
+                    .latitude(post.getLocationPoint().getY())
+                    .longitude(post.getLocationPoint().getX())
+                    .addressDetail(post.getAddressDetail())
+                    .addressSt(post.getAddressSt())
+                    .build();
+
+
+            MapResponseComponent component = MapResponseComponent.builder()
+                    .kakaoLocationCode(post.getKakaoLocationCode())
+                    .id(post.getId())
+                    .category(post.getCategory().name())
+                    .location(location)
+                    .build();
+
+            componentList.add(component);
+
+
+        }
+
+        return MapListResponseDto.builder()
+                .mapList(componentList)
+                .build();
 
     }
 

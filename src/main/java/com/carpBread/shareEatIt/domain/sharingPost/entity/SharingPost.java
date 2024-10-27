@@ -80,6 +80,8 @@ public class SharingPost extends BaseEntity {
     @JoinColumn(name = "writer_id")
     private Member writer;
 
+    private Boolean noticed;
+
     @OneToMany(mappedBy = "post",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     List<PostImgUrl> postImgUrlList=new ArrayList<>();
 
@@ -106,6 +108,10 @@ public class SharingPost extends BaseEntity {
         this.description=dto.getDescription();
         this.endAt=dto.getEndAt();
 
+    }
+
+    public void changeNoticed(boolean noticed){
+        this.noticed = noticed;
     }
 
 }
