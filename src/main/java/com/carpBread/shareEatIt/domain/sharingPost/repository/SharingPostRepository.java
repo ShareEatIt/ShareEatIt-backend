@@ -1,6 +1,7 @@
 package com.carpBread.shareEatIt.domain.sharingPost.repository;
 
 import com.carpBread.shareEatIt.domain.member.entity.Member;
+import com.carpBread.shareEatIt.domain.sharingPost.entity.PostStatus;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -29,6 +30,8 @@ public interface SharingPostRepository extends JpaRepository<SharingPost, Long> 
     Long countByWriter(Member writer);
 
     List<SharingPost> findByWriter(Member writer);
+
+    List<SharingPost> findAllByNoticedFalseAndStatus(PostStatus status);
 
     @Query(value = "SELECT p.category, count(p) from SharingPost p where p.writer = :writer group by p.category", nativeQuery = true)
     List<Object[]> countByCategoryForWriter (@Param("writer")Member writer);

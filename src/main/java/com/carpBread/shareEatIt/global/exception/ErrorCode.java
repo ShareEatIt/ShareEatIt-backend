@@ -43,7 +43,11 @@ public enum ErrorCode {
     // Keyword
     ALREADY_USING_KEYWORD(HttpStatus.IM_USED),
     NOT_FOUND_KEYWORD_UNAVAILABLE_ID(HttpStatus.NOT_FOUND),
-    NOT_AVAILABLE_MEMBER_TO_DELETE_KEYWORD(HttpStatus.FORBIDDEN);
+    NOT_AVAILABLE_MEMBER_TO_DELETE_KEYWORD(HttpStatus.FORBIDDEN),
+
+    // report
+    CANNOT_REPORT_SELF(HttpStatus.FORBIDDEN),
+    CANNOT_BE_NULL_IMG_FILE_FOR_REPORT(HttpStatus.NO_CONTENT);
 
     private final HttpStatus status;
 }

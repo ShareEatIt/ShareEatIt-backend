@@ -27,6 +27,8 @@ public class Report extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String title;
+
     @Column(columnDefinition = "TEXT")
     private String content;
 
@@ -36,6 +38,8 @@ public class Report extends BaseEntity {
     @Column(columnDefinition = "TEXT")
     @Nullable
     private String response;
+
+    private String imgUrl;
 
     @Column(name = "reviewed_at")
     @Nullable
