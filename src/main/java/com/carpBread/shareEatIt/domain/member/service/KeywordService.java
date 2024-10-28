@@ -86,7 +86,7 @@ public class KeywordService {
         for (Keywords keyword : allKeywordList){
             KeywordResponseDto keywordDto = KeywordResponseDto.builder()
                     .id(keyword.getId())
-                    .avail(true)
+                    .avail(keyword.getAvail())
                     .keyword(keyword.getKeyword())
                     .build();
             keywordList.add(keywordDto);

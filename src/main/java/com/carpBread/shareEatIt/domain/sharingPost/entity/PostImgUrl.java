@@ -24,7 +24,7 @@ public class PostImgUrl {
     @Column(name = "img_order")
     private Integer imgOrder;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "post_id")
     private SharingPost post;
 

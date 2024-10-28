@@ -1,12 +1,13 @@
 package com.carpBread.shareEatIt.domain.sharingPost.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
+import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
+import lombok.*;
 
 import java.time.LocalDateTime;
 
-@AllArgsConstructor
-@Builder
+
+@Builder @Getter
+@AllArgsConstructor(access = AccessLevel.PRIVATE)
 public class SharingPostSimpleResponseComponent {
 
     private Long id;
@@ -18,5 +19,20 @@ public class SharingPostSimpleResponseComponent {
     private Integer dDay;
     private String ago;
     private String img;
+
+    public static SharingPostSimpleResponseComponent of(SharingPost post, int dDay, String ago, String firstImgUrl){
+        return SharingPostSimpleResponseComponent.builder()
+                .id(post.getId())
+                .createdAt(post.getCreatedAt())
+                .title(post.getTitle())
+                .endAt(post.getEndAt())
+                .nickname(post.getWriter().getNickname())
+                .category(post.getCategory().name())
+                .dDay(dDay)
+                .ago(ago)
+                .img(firstImgUrl)
+                .build();
+
+    }
 
 }

@@ -1,8 +1,11 @@
 package com.carpBread.shareEatIt.domain.member.service;
 
+import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.carpBread.shareEatIt.domain.member.dto.*;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
+import com.carpBread.shareEatIt.domain.notice.controller.NoticeController;
 import com.carpBread.shareEatIt.domain.participation.repository.GratitudeStickerRepository;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.PostCategory;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
@@ -11,16 +14,25 @@ import com.carpBread.shareEatIt.global.exception.AppException;
 import com.carpBread.shareEatIt.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 @Slf4j @Transactional
@@ -30,6 +42,13 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final GratitudeStickerRepository gratitudeStickerRepository;
     private final SharingPostRepository sharingPostRepository;
+    private final AmazonS3 s3Client;
+
+    private final GeometryFactory geometryFactory = new GeometryFactory();
+
+
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucketName;
 
     /* 멤버의 스티커 현황 찾기 */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
@@ -66,12 +85,35 @@ public class MemberService {
 
     }
 
-    public MemberProfileResponseDto updateProfile(Long memberId, MemberProfileUpdateRequestDto updateRequestDto) {
+    public MemberProfileResponseDto updateProfile(Long memberId, MultipartFile imgFile, MemberProfileUpdateRequestDto updateRequestDto) {
         Member findMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_MEMBER,
                         "member profile update - PUT error", "/members"));
 
-        findMember.changeMemberProfile(updateRequestDto);
+        Point point = geometryFactory.createPoint(new Coordinate(updateRequestDto.getLongitude(), updateRequestDto.getLatitude()));
+        point.setSRID(4326);
+
+        String imgUrl=findMember.getProfileImgUrl();
+
+        if (imgFile!=null){
+            String key = "images/" + UUID.randomUUID() + "_" + imgFile.getOriginalFilename();
+
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(imgFile.getSize());
+            metadata.setContentType(imgFile.getContentType());
+
+            try (InputStream inputStream = imgFile.getInputStream()){
+                s3Client.putObject(bucketName,key,inputStream,metadata);
+            }
+            catch (IOException e){
+                throw new AppException(ErrorCode.AWS_S3_IMG_UPLOAD_CONNECTION_ERROR, "sharing post create - POST error","/sharing");
+            }
+
+            imgUrl = s3Client.getUrl(bucketName, key).toString();
+
+        }
+
+        findMember.changeMemberProfile(updateRequestDto,point,imgUrl);
         Member updatedMember = memberRepository.save(findMember);
 
         return MemberProfileResponseDto.builder()
@@ -81,6 +123,8 @@ public class MemberService {
                 .location(LocationResponseDtoComponent.builder()
                         .addressSt(updatedMember.getAddressSt())
                         .addressDetail(updatedMember.getAddressDetail())
+                        .latitude(updatedMember.getLocationPoint().getY())
+                        .longitude(updatedMember.getLocationPoint().getX())
                         .build())
                 .build();
 
@@ -95,6 +139,12 @@ public class MemberService {
 
         Member savedMember = memberRepository.save(findMember);
 
+        if (!dto.getIsNoticeAvail()){
+            NoticeController.removeMemberFromClients(memberId);
+        }else{
+            NoticeController.putMemberToClients(memberId);
+        }
+
         return findStickers(savedMember.getId());
 
     }
@@ -104,7 +154,13 @@ public class MemberService {
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_MEMBER,
                         "member withdrawal - DELETE error", "/members"));
 
+        NoticeController.removeMemberFromClients(memberId);
+
         // 이미지 url 삭제 로직 추가 예정
+        String profileImgUrl = findMember.getProfileImgUrl();
+        String objectKey = URI.create(profileImgUrl)
+                .getPath().substring(1);
+        s3Client.deleteObject(bucketName,objectKey);
 
 
         // kakao 연결 끊기

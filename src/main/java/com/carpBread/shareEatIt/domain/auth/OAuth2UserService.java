@@ -3,6 +3,7 @@ package com.carpBread.shareEatIt.domain.auth;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.entity.Provider;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
+import com.carpBread.shareEatIt.domain.notice.controller.NoticeController;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -30,6 +31,8 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
         // super.loadUser()로 AccessToken으로 user 정보를 조회함
         Map<String, Object> attributes = super.loadUser(userRequest).getAttributes();
+
+        System.out.println(attributes);
 
         String accessToken = userRequest.getAccessToken().getTokenValue();
 
@@ -89,7 +92,11 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
                     .isNoticeAvail(true)
                     .build();
 
+
+
             Member savedMember = memberRepository.save(newMember);
+
+            NoticeController.putMemberToClients(savedMember.getId());
 
         }else if(!member.getNickname().equals(nickname)){
 

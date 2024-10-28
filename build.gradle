@@ -32,6 +32,8 @@ jar {
 	enabled = false
 }
 
+
+
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
 //	implementation 'org.springframework.boot:spring-boot-starter-data-mongodb'
@@ -54,6 +56,9 @@ dependencies {
 	implementation platform('com.amazonaws:aws-java-sdk-bom:1.12.529')
 	implementation 'com.amazonaws:aws-java-sdk-s3'
 
+	// redis - for logout
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+
 	// GeoTools
 	implementation 'org.geotools:gt-main:27.0'         // GeoTools 메인 라이브러리
 	implementation 'org.geotools:gt-cql:27.0'          // GeoTools의 필터 및 쿼리 기능
@@ -67,6 +72,11 @@ dependencies {
 
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 }
+
+tasks.withType(JavaCompile) {
+	options.compilerArgs << "-parameters"
+}
+
 
 tasks.named('test') {
 	useJUnitPlatform()

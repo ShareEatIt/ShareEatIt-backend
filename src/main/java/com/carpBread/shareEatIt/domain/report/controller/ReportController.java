@@ -24,8 +24,8 @@ public class ReportController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<ReportCreateResponseDto>> createNewReport(@AuthUser Member member,
-                                                                                @NotNull MultipartFile imgFile,
-                                                                                @Valid @RequestBody ReportCreateRequestDto dto){
+                                                                                @RequestPart(name = "imgFile") @NotNull MultipartFile imgFile,
+                                                                                @RequestPart(name = "dto") @Valid ReportCreateRequestDto dto){
         ReportCreateResponseDto responseDto = reportService.createNewReport(member, imgFile,dto);
         ApiResponse<ReportCreateResponseDto> response = new ApiResponse<>(HttpStatus.CREATED.value(),"나눔글 신고 생성 성공", responseDto);
 

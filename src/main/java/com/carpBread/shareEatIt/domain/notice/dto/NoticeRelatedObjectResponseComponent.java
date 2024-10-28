@@ -1,4 +1,4 @@
-package com.carpBread.shareEatIt.domain.report.dto;
+package com.carpBread.shareEatIt.domain.notice.dto;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -6,8 +6,8 @@ import lombok.Getter;
 
 @AllArgsConstructor
 @Builder @Getter
-public class ReportMemberResponseComponent {
-
+public class NoticeRelatedObjectResponseComponent {
     private Long id;
-    private String nickname;
+    private String category;
+
 }

@@ -49,7 +49,7 @@ public class Report extends BaseEntity {
     @Nullable
     private LocalDateTime responseAt;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "reporter_id")
     private Member reporter;
 

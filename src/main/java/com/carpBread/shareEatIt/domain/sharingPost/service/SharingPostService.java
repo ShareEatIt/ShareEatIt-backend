@@ -4,8 +4,17 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.carpBread.shareEatIt.domain.member.dto.LocationResponseDtoComponent;
 import com.carpBread.shareEatIt.domain.member.dto.MemberAsWriterSimpleDtoComponent;
+import com.carpBread.shareEatIt.domain.member.entity.Keywords;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.entity.Provider;
+import com.carpBread.shareEatIt.domain.member.repository.KeywordsRepository;
+import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
+import com.carpBread.shareEatIt.domain.notice.dto.NoticeCreateDto;
+import com.carpBread.shareEatIt.domain.notice.dto.NoticeRelatedObjectResponseComponent;
+import com.carpBread.shareEatIt.domain.notice.entity.Notice;
+import com.carpBread.shareEatIt.domain.notice.entity.NoticeType;
+import com.carpBread.shareEatIt.domain.notice.repository.NoticeRepository;
+import com.carpBread.shareEatIt.domain.notice.service.NoticeService;
 import com.carpBread.shareEatIt.domain.participation.entity.GratitudeSticker;
 import com.carpBread.shareEatIt.domain.participation.entity.GratitudeType;
 import com.carpBread.shareEatIt.domain.participation.entity.Participation;
@@ -47,12 +56,15 @@ public class SharingPostService {
     private String bucketName;
 
     // 위치 기반 반경 (10km 설정)
-    private final double radius=10000;
-    private final double mapRadius=1000;
+    private final double radius = 10000;
+    private final double mapRadius = 1000;
 
     private final GeometryFactory geometryFactory = new GeometryFactory();
 
     private final SharingPostRepository sharingPostRepository;
+    private final MemberRepository memberRepository;
+    private final KeywordsRepository keywordsRepository;
+    private final NoticeRepository noticeRepository;
     private final PostImgUrlRepository postImgUrlRepository;
     private final GratitudeStickerRepository gratitudeStickerRepository;
 
@@ -89,9 +101,12 @@ public class SharingPostService {
                 .postType(PostType.toEnumType(dto.getPostType()))
                 .status(PostStatus.AVAILABLE)
                 .writer(member)
+                .noticed(false)
                 .build();
 
         SharingPost savedPost = sharingPostRepository.save(newPost);
+
+        isSendNotification(savedPost);
 
         // 이미지 저장
         for (int i=0; i<imgUrlList.size(); i++){
@@ -220,7 +235,7 @@ public class SharingPostService {
                 .description(findPost.getDescription())
                 .status(findPost.getStatus().name())
                 .subject(subject)
-                .gratitudeSticker(gratitudeSticker.name())
+                .gratitudeSticker(gratitudeSticker!=null ? gratitudeSticker.name(): null)
                 .build();
 
 
@@ -243,15 +258,19 @@ public class SharingPostService {
         SharingPost updatedPost = sharingPostRepository.save(targetPost);
 
         // 이미지 리스트 확인
-        boolean result = updatePostImgList(dto.getImgUrlList(), updatedPost.getPostImgUrlList(), targetPost);
+        boolean result = updatePostImgList(dto.getImgUrlList(), getPostImgUrlList(updatedPost), targetPost);
         List<PostImgUrl> updatedUrlList = getPostImgUrlList(updatedPost);
+
+        System.out.println("현재 리스트 수: "+updatedUrlList.size());
+
         int idx = 1;
         for (PostImgUrl imgUrl : updatedUrlList) {
             imgUrl.updateOrder(idx);
+            postImgUrlRepository.save(imgUrl);
             idx += 1;
         }
 
-        if (result) {
+        if (imgList!=null) {
             for (MultipartFile img : imgList) {
                 String key = "images/" + UUID.randomUUID() + "_" + img.getOriginalFilename();
 
@@ -271,6 +290,7 @@ public class SharingPostService {
                         .imgOrder(idx)
                         .url(newUrl)
                         .build();
+                idx+=1;
                 postImgUrlRepository.save(newUrlEntity);
 
             }
@@ -304,7 +324,7 @@ public class SharingPostService {
                 .postType(updatedPost.getPostType().name())
                 .description(updatedPost.getDescription())
                 .status(updatedPost.getStatus().name())
-                .gratitudeSticker(gratitudeSticker.name())
+                .gratitudeSticker(gratitudeSticker!=null ? gratitudeSticker.name(): null)
                 .build();
 
     }
@@ -374,10 +394,15 @@ public class SharingPostService {
                 .filter(preImgUrl -> !currentUrlList.contains(preImgUrl.getUrl()))
                 .collect(Collectors.toList());
 
+        System.out.println("삭제할 객체의 수 : "+listToDelete.size());
+
 
         for (PostImgUrl deleteUrl: listToDelete){
 
-            postImgUrlRepository.deleteByPostAndImgOrder(post,deleteUrl.getImgOrder());
+
+            System.out.println("==========");
+            postImgUrlRepository.deleteById(deleteUrl.getId());
+            System.out.println("============");
 
             // objectkey 추출
             String objectKey = URI.create(deleteUrl.getUrl())
@@ -489,9 +514,9 @@ public class SharingPostService {
         long weeks = days/7;
 
         if(seconds<60){
-            return seconds+"초 천";
+            return seconds+"초 전";
         } else if (minutes<60) {
-            return minutes+"분 천";
+            return minutes+"분 전";
         } else if (hours < 24) {
             return hours+"시간 전";
         } else if (days<7) {
@@ -509,12 +534,60 @@ public class SharingPostService {
 //
 //        return firstImgUrl.getUrl();
 
-        for (PostImgUrl imgUrl : post.getPostImgUrlList()){
+        for (PostImgUrl imgUrl : getPostImgUrlList(post)){
             if (imgUrl.getImgOrder()==1){
                 return imgUrl.getUrl();
             }
         }
         throw new AppException(ErrorCode.NOT_FOUND_POST_IMAGE, "현재 POST에 해당하는 IMAGE를 찾을 수 없습니다", "/sharing");
+
+    }
+
+    @Transactional(value = Transactional.TxType.REQUIRES_NEW)
+    private void isSendNotification(SharingPost post){
+        List<Member> memberList = memberRepository.findMemberWithRadius(post.getLocationPoint().getY(), post.getLocationPoint().getX(), mapRadius);
+
+        String foodName = post.getFoodName();
+
+        for (Member member : memberList){
+            List<Keywords> keywordsList = member.getKeywordsList();
+
+            for(Keywords keywords : keywordsList){
+                String keyword = keywords.getKeyword();
+                if ((keyword.length()>=foodName.length() && foodName.contains(keyword) )
+                    || (keyword.length()< foodName.length() && keyword.contains(foodName))){
+                    String title="새로운 나눔글이 등록되었어요!✨";
+                    String message = member.getNickname() + "님을 위한 " + keyword + "과 관련된 새로운 나눔글이 등록되었어요!✨ \n 관심 키워드로 등록한 나눔글을 확인해보세요❤️";
+
+                    Notice newNotice = Notice.builder()
+                            .title(title)
+                            .message(message)
+                            .type(NoticeType.KEYWORD)
+                            .isRead(false)
+                            .member(member)
+                            .build();
+                    Notice savedNotice = noticeRepository.save(newNotice);
+
+                    NoticeRelatedObjectResponseComponent noticeObject = NoticeRelatedObjectResponseComponent.builder()
+                                    .id(post.getId())
+                                            .category(post.getCategory().name())
+                                                    .build();
+
+
+                    NoticeCreateDto noticeDto = NoticeCreateDto.builder()
+                            .id(savedNotice.getId())
+                            .title(title)
+                            .message(message)
+                            .noticeType(NoticeType.KEYWORD)
+                            .noticeObject(noticeObject)
+                            .createdAt(savedNotice.getCreatedAt())
+                            .build();
+
+                    NoticeService.sendNotification(member, noticeDto);
+
+                }
+            }
+        }
 
     }
 

@@ -3,6 +3,8 @@ package com.carpBread.shareEatIt.domain.sharingPost.repository;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.PostImgUrl;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 
 import java.util.List;
 import java.util.Optional;
@@ -15,5 +17,4 @@ public interface PostImgUrlRepository extends JpaRepository<PostImgUrl, Long> {
 
     List<PostImgUrl> findByPost(SharingPost post);
 
-    void deleteByPostAndImgOrder(SharingPost post, int imgOrder);
 }

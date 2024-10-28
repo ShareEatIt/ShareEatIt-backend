@@ -4,11 +4,13 @@ import com.carpBread.shareEatIt.domain.auth.AuthUser;
 import com.carpBread.shareEatIt.domain.member.dto.*;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.service.MemberService;
+import com.carpBread.shareEatIt.domain.notice.controller.NoticeController;
 import com.carpBread.shareEatIt.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.service.annotation.GetExchange;
 
 @RestController
@@ -26,7 +28,7 @@ public class MemberController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse> memberProfile(@AuthUser Member member){
+    public ResponseEntity<ApiResponse<MemberProfileResponseDto>> memberProfile(@AuthUser Member member){
         MemberProfileResponseDto responseDto = MemberProfileResponseDto.builder()
                 .profileImg(member.getProfileImgUrl())
                 .nickname(member.getNickname())
@@ -34,6 +36,8 @@ public class MemberController {
                 .location(LocationResponseDtoComponent.builder()
                         .addressSt(member.getAddressSt())
                         .addressDetail(member.getAddressDetail())
+                        .latitude(member.getLocationPoint().getY())
+                        .longitude(member.getLocationPoint().getX())
                         .build())
                 .build();
 
@@ -67,9 +71,10 @@ public class MemberController {
 
     @PutMapping
     public ResponseEntity<ApiResponse> updateMemberProfile(@AuthUser Member member,
-                                                           @RequestBody MemberProfileUpdateRequestDto requestDto){
+                                                           @RequestPart(name = "imgFile",required = false) MultipartFile imgFile,
+                                                           @RequestPart(name = "dto") MemberProfileUpdateRequestDto dto){
 
-        MemberProfileResponseDto responseDto = memberService.updateProfile(member.getId(), requestDto);
+        MemberProfileResponseDto responseDto = memberService.updateProfile(member.getId(),imgFile, dto);
 
         ApiResponse response = new ApiResponse<>(HttpStatus.OK.value(),
                 "회원 정보 수정 성공",
@@ -79,10 +84,10 @@ public class MemberController {
     }
 
     @PatchMapping("/avail")
-    public ResponseEntity<ApiResponse> updateMemberAvail(@AuthUser Member member,
+    public ResponseEntity<ApiResponse<MemberStickerResponseDto>> updateMemberAvail(@AuthUser Member member,
                                                          @RequestBody MemberAvailRequestDto dto){
         MemberStickerResponseDto responseDto = memberService.updateAvail(dto,member.getId());
-        ApiResponse response = new ApiResponse<>(HttpStatus.OK.value(),
+        ApiResponse<MemberStickerResponseDto> response = new ApiResponse<>(HttpStatus.OK.value(),
                 "회원 keyword avail, notice avail 수정",
                 responseDto);
 

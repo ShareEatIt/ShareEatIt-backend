@@ -11,6 +11,10 @@ import lombok.NoArgsConstructor;
 public class MemberProfileUpdateRequestDto {
     private String profileImg;
     private String nickname;
+
+    private Double latitude;
+    private Double longitude;
+
     private String addressSt;
     private String addressDetail;
 }

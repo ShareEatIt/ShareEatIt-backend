@@ -24,8 +24,9 @@ public class SharingPostController {
 
     @PostMapping
     public ResponseEntity<ApiResponse<SharingPostCreateResponseDto>> createNewSharingPost(@AuthUser Member member,
-                                                                                          @NotNull List<MultipartFile> imgList,
-                                                                                          @Valid @RequestBody SharingPostRequestDto dto){
+                                                                                          @RequestPart(name = "imgList") @NotNull List<MultipartFile> imgList,
+                                                                                          @RequestPart(name = "dto") @Valid SharingPostRequestDto dto){
+
 
         SharingPostCreateResponseDto responseDto = sharingPostService.createSharingPost(imgList,dto,member);
 
@@ -59,8 +60,8 @@ public class SharingPostController {
     @PutMapping("/{id}")
     public ResponseEntity<ApiResponse<SharingPostResponseDto>> updateSharingPost(@AuthUser Member member,
                                                                                  @PathVariable(name = "id")Long id,
-                                                                                 List<MultipartFile> imgList,
-                                                                                 @RequestBody SharingPostUpdateRequestDto dto){
+                                                                                 @RequestPart(name = "imgList", required = false) List<MultipartFile> imgList,
+                                                                                 @RequestPart(name = "dto") SharingPostUpdateRequestDto dto){
         SharingPostResponseDto responseDto = sharingPostService.updateSharingPost(member,id, imgList, dto);
         ApiResponse<SharingPostResponseDto> response = new ApiResponse<>(HttpStatus.OK.value(),"나눔글 정보 수정 성공", responseDto);
 
