@@ -1,14 +1,20 @@
 package com.carpBread.shareEatIt.domain.notice.service;
 
 import com.carpBread.shareEatIt.domain.member.entity.Member;
+import com.carpBread.shareEatIt.domain.notice.controller.NoticeController;
+import com.carpBread.shareEatIt.domain.notice.dto.NoticeCreateDto;
 import com.carpBread.shareEatIt.domain.notice.dto.NoticeListResponseDto;
 import com.carpBread.shareEatIt.domain.notice.dto.NoticeResponseComponent;
 import com.carpBread.shareEatIt.domain.notice.entity.Notice;
 import com.carpBread.shareEatIt.domain.notice.repository.NoticeRepository;
+import com.carpBread.shareEatIt.global.exception.AppException;
+import com.carpBread.shareEatIt.global.exception.ErrorCode;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,5 +44,20 @@ public class NoticeService {
                 .build();
 
     }
+
+    public static void sendNotification(Member member, NoticeCreateDto dto){
+        SseEmitter emitter = NoticeController.getSseEmitterByMemberId(member.getId());
+
+        if (emitter != null){
+            try{
+                emitter.send(SseEmitter.event().name("notice:"+dto.getNoticeType().name()+":"+dto.getId()).data(dto));
+            }catch (IOException e){
+                NoticeController.removeMemberFromClients(member.getId());
+                throw new AppException(ErrorCode.NOTICE_SEND_FAIL,"알림을 전송하는 과정에서 오류가 발생했습니다","[INNER LOGIC FAIL _ NO URL]");
+            }
+        }
+    }
+
+
 
 }

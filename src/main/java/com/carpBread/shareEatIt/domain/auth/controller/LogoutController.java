@@ -1,55 +1,47 @@
-package com.carpBread.shareEatIt.domain.auth;
+package com.carpBread.shareEatIt.domain.auth.controller;
 
+import com.carpBread.shareEatIt.domain.auth.AuthUser;
 import com.carpBread.shareEatIt.domain.auth.util.JWTUtils;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
 import com.carpBread.shareEatIt.global.exception.AppException;
 import com.carpBread.shareEatIt.global.exception.ErrorCode;
-import io.jsonwebtoken.JwtException;
+import com.carpBread.shareEatIt.global.response.ApiResponse;
 import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import lombok.Getter;
+import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
-import org.springframework.security.web.authentication.logout.LogoutHandler;
-import org.springframework.stereotype.Component;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.UUID;
 
-@Component
-public class OAuth2LogoutHandler implements LogoutHandler {
-
-    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
-    private String clientId;
-
-    @Value("${kakao.api.logout-url}")
-    private String kakaoLogoutUrl;
-
-    @Value("${spring.oauth2.logout.direct-url}")
-    private String logoutRedirectUri;
+@RequiredArgsConstructor
+@RequestMapping("/auth")
+@RestController
+public class LogoutController {
 
     private final WebClient webClient;
     private final MemberRepository memberRepository;
     private final JWTUtils jwtUtils;
     private final RedisTemplate<String,Object> redisTemplate;
-    public OAuth2LogoutHandler(WebClient webClient, MemberRepository memberRepository, JWTUtils jwtUtils, RedisTemplate<String,Object> redisTemplate) {
+    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
+    String clientId;
 
-        this.webClient=webClient;
-        this.memberRepository=memberRepository;
-        this.jwtUtils=jwtUtils;
-        this.redisTemplate=redisTemplate;
-    }
+    @Value("${kakao.api.logout-url}")
+    String kakaoLogoutUrl;
 
-//    public OAuth2LogoutHandler(WebClient.Builder webClientBuilder){
-//        this.webClient = WebClient.builder().build();
-//    }
+    @Value("${spring.oauth2.logout.direct-url}")
+    String logoutRedirectUri;
 
-    @Override
-    public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
-
+    @GetMapping("/logout")
+    public ResponseEntity<String> logout(HttpServletRequest request){
         String token = null;
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
@@ -70,15 +62,9 @@ public class OAuth2LogoutHandler implements LogoutHandler {
 
         // kakao 서버에 '카카오 계정과 함께 로그아웃' 요청 보내기
 
-        System.out.println(clientId+ logoutRedirectUri);
-
         if (accessToken != null) {
             webClient.get()
-                    .uri(uriBuilder -> uriBuilder
-                            .path(kakaoLogoutUrl)
-                            .queryParam("client_id", clientId)
-                            .queryParam("logout_redirect_uri", logoutRedirectUri)
-                            .build())
+                    .uri(kakaoLogoutUrl + "?client_id=" + clientId + "&logout_redirect_uri=" + logoutRedirectUri)
                     .retrieve()
                     .bodyToMono(Void.class)
                     .doOnError(error -> {
@@ -93,5 +79,7 @@ public class OAuth2LogoutHandler implements LogoutHandler {
         }
 
 
+        return ResponseEntity.ok().body("로그아웃이 성공적으로 완료되었습니다");
     }
+
 }

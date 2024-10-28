@@ -14,6 +14,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -27,6 +28,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
+import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Map;
 
@@ -40,6 +42,8 @@ public class SecurityConfig {
     private final MemberRepository memberRepository;
     private final ObjectMapper objectMapper;
     private final OAuth2UserService oAuth2UserService;
+    private final WebClient webClient;
+    private final RedisTemplate<String , Object> redisTemplate;
 
     @Value("${spring.jwt.refresh-secret}")
     private String rToken;
@@ -60,9 +64,9 @@ public class SecurityConfig {
                     oauth2.userInfoEndpoint(o->o.userService(oAuth2UserService))
                             .successHandler(successHandler())
             )
-            .addFilterBefore(new JWTFilter(jwtUtils,memberRepository,objectMapper), UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(new JWTFilter(jwtUtils,memberRepository,objectMapper,redisTemplate), UsernamePasswordAuthenticationFilter.class)
             .logout(logout -> logout
-                    .addLogoutHandler(new OAuth2LogoutHandler())
+                    .addLogoutHandler(new OAuth2LogoutHandler(webClient,memberRepository,jwtUtils,redisTemplate))
                     .logoutUrl("/logout")
             );
         return http.build();

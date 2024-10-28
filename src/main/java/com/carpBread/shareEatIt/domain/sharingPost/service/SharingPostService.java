@@ -4,8 +4,17 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.carpBread.shareEatIt.domain.member.dto.LocationResponseDtoComponent;
 import com.carpBread.shareEatIt.domain.member.dto.MemberAsWriterSimpleDtoComponent;
+import com.carpBread.shareEatIt.domain.member.entity.Keywords;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.entity.Provider;
+import com.carpBread.shareEatIt.domain.member.repository.KeywordsRepository;
+import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
+import com.carpBread.shareEatIt.domain.notice.dto.NoticeCreateDto;
+import com.carpBread.shareEatIt.domain.notice.dto.NoticeRelatedObjectResponseComponent;
+import com.carpBread.shareEatIt.domain.notice.entity.Notice;
+import com.carpBread.shareEatIt.domain.notice.entity.NoticeType;
+import com.carpBread.shareEatIt.domain.notice.repository.NoticeRepository;
+import com.carpBread.shareEatIt.domain.notice.service.NoticeService;
 import com.carpBread.shareEatIt.domain.participation.entity.GratitudeSticker;
 import com.carpBread.shareEatIt.domain.participation.entity.GratitudeType;
 import com.carpBread.shareEatIt.domain.participation.entity.Participation;
@@ -53,6 +62,9 @@ public class SharingPostService {
     private final GeometryFactory geometryFactory = new GeometryFactory();
 
     private final SharingPostRepository sharingPostRepository;
+    private final MemberRepository memberRepository;
+    private final KeywordsRepository keywordsRepository;
+    private final NoticeRepository noticeRepository;
     private final PostImgUrlRepository postImgUrlRepository;
     private final GratitudeStickerRepository gratitudeStickerRepository;
 
@@ -92,6 +104,8 @@ public class SharingPostService {
                 .build();
 
         SharingPost savedPost = sharingPostRepository.save(newPost);
+
+        isSendNotification(savedPost);
 
         // 이미지 저장
         for (int i=0; i<imgUrlList.size(); i++){
@@ -515,6 +529,54 @@ public class SharingPostService {
             }
         }
         throw new AppException(ErrorCode.NOT_FOUND_POST_IMAGE, "현재 POST에 해당하는 IMAGE를 찾을 수 없습니다", "/sharing");
+
+    }
+
+    @Transactional(value = Transactional.TxType.REQUIRES_NEW)
+    private void isSendNotification(SharingPost post){
+        List<Member> memberList = memberRepository.findMemberWithRadius(post.getLocationPoint().getY(), post.getLocationPoint().getX(), mapRadius);
+
+        String foodName = post.getFoodName();
+
+        for (Member member : memberList){
+            List<Keywords> keywordsList = member.getKeywordsList();
+
+            for(Keywords keywords : keywordsList){
+                String keyword = keywords.getKeyword();
+                if ((keyword.length()>=foodName.length() && foodName.contains(keyword) )
+                    || (keyword.length()< foodName.length() && keyword.contains(foodName))){
+                    String title="새로운 나눔글이 등록되었어요!✨";
+                    String message = member.getNickname() + "님을 위한 " + keyword + "과 관련된 새로운 나눔글이 등록되었어요!✨ \n 관심 키워드로 등록한 나눔글을 확인해보세요❤️";
+
+                    Notice newNotice = Notice.builder()
+                            .title(title)
+                            .message(message)
+                            .type(NoticeType.KEYWORD)
+                            .isRead(false)
+                            .member(member)
+                            .build();
+                    Notice savedNotice = noticeRepository.save(newNotice);
+
+                    NoticeRelatedObjectResponseComponent noticeObject = NoticeRelatedObjectResponseComponent.builder()
+                                    .id(post.getId())
+                                            .category(post.getCategory().name())
+                                                    .build();
+
+
+                    NoticeCreateDto noticeDto = NoticeCreateDto.builder()
+                            .id(savedNotice.getId())
+                            .title(title)
+                            .message(message)
+                            .noticeType(NoticeType.KEYWORD)
+                            .noticeObject(noticeObject)
+                            .createdAt(savedNotice.getCreatedAt())
+                            .build();
+
+                    NoticeService.sendNotification(member, noticeDto);
+
+                }
+            }
+        }
 
     }
 

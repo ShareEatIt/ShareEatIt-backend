@@ -6,6 +6,7 @@ import com.carpBread.shareEatIt.domain.notice.dto.NoticeListResponseDto;
 import com.carpBread.shareEatIt.domain.notice.service.NoticeService;
 import com.carpBread.shareEatIt.domain.sharingPost.dto.SharingPostResponseDto;
 import com.carpBread.shareEatIt.global.response.ApiResponse;
+import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +15,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
+import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.logging.Logger;
@@ -23,8 +25,19 @@ import java.util.logging.Logger;
 @RequiredArgsConstructor
 public class NoticeController {
 
-    private final Map<Long, SseEmitter> clients = new ConcurrentHashMap<>();
+    private static Map<Long, SseEmitter> clients = new ConcurrentHashMap<>();
 
+    public static void putMemberToClients(Long memberId){
+        clients.put(memberId,new SseEmitter());
+    }
+
+    public static void removeMemberFromClients(Long memberId){
+        clients.remove(memberId);
+    }
+
+    public static SseEmitter getSseEmitterByMemberId(Long memberId){
+        return clients.get(memberId);
+    }
 
     private final NoticeService noticeService;
 
@@ -38,6 +51,42 @@ public class NoticeController {
 
     }
 
+    // 클라이언트가 서버에 연결될 때
+    @GetMapping("/subscribe")
+    public SseEmitter subscribe(@AuthUser Member member){
+        SseEmitter sseEmitter = new SseEmitter();
+        clients.put(member.getId(), sseEmitter);
+        System.out.println( clients
+
+
+        );
+
+        // 연결 로그 출력
+        System.out.println("Client connected: " + member.getId());
+
+        // 연결이 닫히거나 타임아웃이 발생하면 클라이언트 목록에서 제거
+        sseEmitter.onCompletion(() -> clients.remove(member.getId()));
+        sseEmitter.onTimeout(() -> clients.remove(member.getId()));
+
+        return sseEmitter;
+
+    }
+
+    @GetMapping("/send")
+    public String sendNotification(@AuthUser Member member){
+        SseEmitter sseEmitter = clients.get(member.getId());
+        System.out.println( clients        );
+        if (sseEmitter != null){
+            try{
+                sseEmitter.send(SseEmitter.event().name("notification").data("you have a new notice!"));
+            }catch (IOException e){
+                clients.remove(member.getId());
+                return "Error - sending notice";
+            }
+            return "notice sent!";
+        }
+        return "no client connected";
+    }
 
     @GetMapping
     public SseEmitter testNotice(@AuthUser Member member){
@@ -52,6 +101,8 @@ public class NoticeController {
 
         return sseEmitter;
     }
+
+
 
     public void sendNotification(Long userId, String message){
         SseEmitter emitter = clients.get(userId);

@@ -4,6 +4,7 @@ import com.carpBread.shareEatIt.domain.auth.AuthUser;
 import com.carpBread.shareEatIt.domain.member.dto.*;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.service.MemberService;
+import com.carpBread.shareEatIt.domain.notice.controller.NoticeController;
 import com.carpBread.shareEatIt.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;

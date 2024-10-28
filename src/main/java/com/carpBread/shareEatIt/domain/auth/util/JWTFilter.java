@@ -18,6 +18,7 @@ import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -28,6 +29,8 @@ import org.springframework.web.filter.OncePerRequestFilter;
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Collections;
+import java.util.Objects;
+import java.util.Set;
 
 @AllArgsConstructor
 public class JWTFilter extends OncePerRequestFilter {
@@ -35,9 +38,10 @@ public class JWTFilter extends OncePerRequestFilter {
     private JWTUtils jwtUtils;
     private MemberRepository memberRepository;
     private ObjectMapper objectMapper;
+    private RedisTemplate<String, Object> redisTemplate;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException, AppException {
 
         String authorization = request.getHeader("Authorization");
 
@@ -52,7 +56,7 @@ public class JWTFilter extends OncePerRequestFilter {
             }
 
             String token = authorization.split(" ")[1];
-
+            
             // 2. 토큰 기한 만료 여부 확인
             if (jwtUtils.isExpired(token)){
                 errorResponse(request,response, ErrorCode.INVALID_ACCESS_TOKEN,"토큰 기한이 만료되었습니다.");
@@ -64,6 +68,21 @@ public class JWTFilter extends OncePerRequestFilter {
             String email = jwtUtils.getEmail(token);
             Member member = memberRepository.findByEmail(email)
                     .orElse(null);
+            
+            // 3-1 * : 로그아웃된 JWT인지 확인
+            Set<String> keys = redisTemplate.keys("token:" + email + ":*");
+
+            if (keys!=null){
+                for (String key:keys){
+                    String logoutToken = (String)redisTemplate.opsForValue().get(key);
+
+                    if (token.equals(logoutToken)){
+
+                        throw new JwtException("로그아웃된 토큰입니다. 다시 로그인해주세요.");                    }
+
+                }
+            }
+
 
             if (member==null ||!email.equals(member.getEmail())){
 
@@ -81,7 +100,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
 
         }catch (JwtException e){
-            System.out.println(e.getMessage());
+            throw new AppException(ErrorCode.UNAUTHORIZED_JWT,e.getMessage(),request.getRequestURI());
         }catch (Exception e){
             System.out.println(e.getMessage());
         }
