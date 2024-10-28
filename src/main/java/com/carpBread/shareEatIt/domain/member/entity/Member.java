@@ -72,14 +72,19 @@ public class Member extends BaseEntity {
         this.accessToken=accessToken;
     }
 
-    public void changeMemberProfile(MemberProfileUpdateRequestDto dto,Point point){
+    public void changeMemberProfile(MemberProfileUpdateRequestDto dto,Point point, String imgUrl){
         this.profileImgUrl=dto.getProfileImg();
         this.nickname=dto.getNickname();
         this.locationPoint=point;
+        this.profileImgUrl=imgUrl;
         this.addressSt=dto.getAddressSt();
         this.addressDetail=dto.getAddressDetail();
     }
 
+    public void changeImgUrl(String url){
+        this.profileImgUrl=url;
+
+    }
     public void changeAvail(MemberAvailRequestDto dto){
         this.isKeywordAvail=dto.getIsKeywordAvail();
         this.isNoticeAvail=dto.getIsNoticeAvail();

@@ -76,7 +76,7 @@ public class SharingPost extends BaseEntity {
     @Enumerated(value = EnumType.STRING)
     private PostStatus status;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "writer_id")
     private Member writer;
 

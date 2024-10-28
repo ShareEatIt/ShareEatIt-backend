@@ -56,8 +56,8 @@ public class SharingPostService {
     private String bucketName;
 
     // 위치 기반 반경 (10km 설정)
-    private final double radius=10000;
-    private final double mapRadius=1000;
+    private final double radius = 10000;
+    private final double mapRadius = 1000;
 
     private final GeometryFactory geometryFactory = new GeometryFactory();
 
@@ -101,6 +101,7 @@ public class SharingPostService {
                 .postType(PostType.toEnumType(dto.getPostType()))
                 .status(PostStatus.AVAILABLE)
                 .writer(member)
+                .noticed(false)
                 .build();
 
         SharingPost savedPost = sharingPostRepository.save(newPost);
@@ -234,7 +235,7 @@ public class SharingPostService {
                 .description(findPost.getDescription())
                 .status(findPost.getStatus().name())
                 .subject(subject)
-                .gratitudeSticker(gratitudeSticker.name())
+                .gratitudeSticker(gratitudeSticker!=null ? gratitudeSticker.name(): null)
                 .build();
 
 
@@ -257,15 +258,19 @@ public class SharingPostService {
         SharingPost updatedPost = sharingPostRepository.save(targetPost);
 
         // 이미지 리스트 확인
-        boolean result = updatePostImgList(dto.getImgUrlList(), updatedPost.getPostImgUrlList(), targetPost);
+        boolean result = updatePostImgList(dto.getImgUrlList(), getPostImgUrlList(updatedPost), targetPost);
         List<PostImgUrl> updatedUrlList = getPostImgUrlList(updatedPost);
+
+        System.out.println("현재 리스트 수: "+updatedUrlList.size());
+
         int idx = 1;
         for (PostImgUrl imgUrl : updatedUrlList) {
             imgUrl.updateOrder(idx);
+            postImgUrlRepository.save(imgUrl);
             idx += 1;
         }
 
-        if (result) {
+        if (imgList!=null) {
             for (MultipartFile img : imgList) {
                 String key = "images/" + UUID.randomUUID() + "_" + img.getOriginalFilename();
 
@@ -285,6 +290,7 @@ public class SharingPostService {
                         .imgOrder(idx)
                         .url(newUrl)
                         .build();
+                idx+=1;
                 postImgUrlRepository.save(newUrlEntity);
 
             }
@@ -318,7 +324,7 @@ public class SharingPostService {
                 .postType(updatedPost.getPostType().name())
                 .description(updatedPost.getDescription())
                 .status(updatedPost.getStatus().name())
-                .gratitudeSticker(gratitudeSticker.name())
+                .gratitudeSticker(gratitudeSticker!=null ? gratitudeSticker.name(): null)
                 .build();
 
     }
@@ -388,10 +394,15 @@ public class SharingPostService {
                 .filter(preImgUrl -> !currentUrlList.contains(preImgUrl.getUrl()))
                 .collect(Collectors.toList());
 
+        System.out.println("삭제할 객체의 수 : "+listToDelete.size());
+
 
         for (PostImgUrl deleteUrl: listToDelete){
 
-            postImgUrlRepository.deleteByPostAndImgOrder(post,deleteUrl.getImgOrder());
+
+            System.out.println("==========");
+            postImgUrlRepository.deleteById(deleteUrl.getId());
+            System.out.println("============");
 
             // objectkey 추출
             String objectKey = URI.create(deleteUrl.getUrl())
@@ -503,9 +514,9 @@ public class SharingPostService {
         long weeks = days/7;
 
         if(seconds<60){
-            return seconds+"초 천";
+            return seconds+"초 전";
         } else if (minutes<60) {
-            return minutes+"분 천";
+            return minutes+"분 전";
         } else if (hours < 24) {
             return hours+"시간 전";
         } else if (days<7) {
@@ -523,7 +534,7 @@ public class SharingPostService {
 //
 //        return firstImgUrl.getUrl();
 
-        for (PostImgUrl imgUrl : post.getPostImgUrlList()){
+        for (PostImgUrl imgUrl : getPostImgUrlList(post)){
             if (imgUrl.getImgOrder()==1){
                 return imgUrl.getUrl();
             }

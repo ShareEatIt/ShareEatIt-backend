@@ -13,11 +13,12 @@ public interface MemberRepository extends JpaRepository<Member , Long> {
 
     Optional<Member> findByEmail(String email);
 
-    @Query(value = "select m from Member m where ST_DistanceSphere(m.locationPoint, ST_MakePoint(:longitude, :latitude)) <= :radius", nativeQuery = true)
+    @Query(value = "SELECT * FROM MEMBER WHERE ST_Distance_Sphere(location_point, ST_GeomFromText(CONCAT('POINT(', :latitude, ' ', :longitude, ')'), 4326)) <= :radius", nativeQuery = true)
     List<Member> findMemberWithRadius(
             @Param("latitude") double latitude,
             @Param("longitude") double longitude,
             @Param("radius") double radius
     );
+
 
 }

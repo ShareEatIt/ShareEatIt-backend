@@ -1,6 +1,7 @@
 package com.carpBread.shareEatIt.domain.member.service;
 
 import com.amazonaws.services.s3.AmazonS3;
+import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.carpBread.shareEatIt.domain.member.dto.*;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
@@ -22,12 +23,16 @@ import org.springframework.http.MediaType;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URI;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 @Service
 @Slf4j @Transactional
@@ -80,15 +85,35 @@ public class MemberService {
 
     }
 
-    public MemberProfileResponseDto updateProfile(Long memberId, MemberProfileUpdateRequestDto updateRequestDto) {
+    public MemberProfileResponseDto updateProfile(Long memberId, MultipartFile imgFile, MemberProfileUpdateRequestDto updateRequestDto) {
         Member findMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_MEMBER,
                         "member profile update - PUT error", "/members"));
 
         Point point = geometryFactory.createPoint(new Coordinate(updateRequestDto.getLongitude(), updateRequestDto.getLatitude()));
+        point.setSRID(4326);
 
+        String imgUrl=findMember.getProfileImgUrl();
 
-        findMember.changeMemberProfile(updateRequestDto,point);
+        if (imgFile!=null){
+            String key = "images/" + UUID.randomUUID() + "_" + imgFile.getOriginalFilename();
+
+            ObjectMetadata metadata = new ObjectMetadata();
+            metadata.setContentLength(imgFile.getSize());
+            metadata.setContentType(imgFile.getContentType());
+
+            try (InputStream inputStream = imgFile.getInputStream()){
+                s3Client.putObject(bucketName,key,inputStream,metadata);
+            }
+            catch (IOException e){
+                throw new AppException(ErrorCode.AWS_S3_IMG_UPLOAD_CONNECTION_ERROR, "sharing post create - POST error","/sharing");
+            }
+
+            imgUrl = s3Client.getUrl(bucketName, key).toString();
+
+        }
+
+        findMember.changeMemberProfile(updateRequestDto,point,imgUrl);
         Member updatedMember = memberRepository.save(findMember);
 
         return MemberProfileResponseDto.builder()
@@ -98,6 +123,8 @@ public class MemberService {
                 .location(LocationResponseDtoComponent.builder()
                         .addressSt(updatedMember.getAddressSt())
                         .addressDetail(updatedMember.getAddressDetail())
+                        .latitude(updatedMember.getLocationPoint().getY())
+                        .longitude(updatedMember.getLocationPoint().getX())
                         .build())
                 .build();
 

@@ -12,14 +12,14 @@ import java.util.List;
 
 public interface SharingPostRepository extends JpaRepository<SharingPost, Long> {
 
-    @Query(value = "select p from SharingPost p where ST_DistanceSphere(p.locationPoint, ST_MakePoint(:longitude, :latitude)) <= :radius", nativeQuery = true)
+    @Query(value = "select * from SHARING_POSTS where ST_Distance_Sphere(location_point, ST_GeomFromText(CONCAT('POINT(', :latitude, ' ', :longitude, ')'), 4326)) <= :radius", nativeQuery = true)
     List<SharingPost> findSharingPostsWithinRadius(
             @Param("latitude") double latitude,
             @Param("longitude") double longitude,
             @Param("radius") double radius
     );
 
-    @Query(value = "select p from SharingPost p where p.postType = :postType and ST_DistanceSphere(p.locationPoint, ST_MakePoint(:longitude, :latitude)) <= :radius", nativeQuery = true)
+    @Query(value = "select * from SHARING_POSTS where post_type = :postType and ST_Distance_Sphere(location_point, ST_GeomFromText(CONCAT('POINT(', :latitude, ' ', :longitude, ')'), 4326)) <= :radius", nativeQuery = true)
     List<SharingPost> findSharingPostsByPostTypeWithinRadius(
             @Param("latitude") double latitude,
             @Param("longitude") double longitude,
@@ -27,13 +27,15 @@ public interface SharingPostRepository extends JpaRepository<SharingPost, Long> 
             @Param("postType") String postType
     );
 
-    Long countByWriter(Member writer);
+    @Query(value = "SELECT COUNT(p) FROM SharingPost p WHERE p.writer = :writer")
+    Long countByWriter(@Param("writer") Member writer);
+
 
     List<SharingPost> findByWriter(Member writer);
 
     List<SharingPost> findAllByNoticedFalseAndStatus(PostStatus status);
 
-    @Query(value = "SELECT p.category, count(p) from SharingPost p where p.writer = :writer group by p.category", nativeQuery = true)
+    @Query(value = "SELECT p.category, count(p) from SharingPost p where p.writer = :writer group by p.category")
     List<Object[]> countByCategoryForWriter (@Param("writer")Member writer);
 
 }
