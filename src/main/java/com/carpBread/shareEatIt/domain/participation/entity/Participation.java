@@ -3,19 +3,21 @@ package com.carpBread.shareEatIt.domain.participation.entity;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
 import com.carpBread.shareEatIt.global.entity.BaseEntity;
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-import javax.print.attribute.standard.MediaSize;
+
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "PARTICIPATIONS")
-@NoArgsConstructor
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @AllArgsConstructor
 @SuperBuilder
 @Getter
@@ -26,23 +28,40 @@ public class Participation extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @ManyToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "post_id")
+    @NotNull
+    private SharingPost post;
+
     @Enumerated(value = EnumType.STRING)
+    @NotNull
     private ParticipationStatus status;
 
     @Column(name = "completed_at")
+    @Nullable
     private LocalDateTime completedAt;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "giver_id")
+    @NotNull
     private Member giver;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "receiver_id")
+    @NotNull
     private Member receiver;
 
-    @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "post_id")
-    private SharingPost post;
+    @Column(name = "is_giver_in_chat")
+    @NotNull
+    private Boolean isGiverInChat;
 
+    @Column(name = "is_receiver_in_chat")
+    @NotNull
+    private Boolean isReceiverInChat;
+
+    // 참여 상태 변경
+    public void updateStatus(ParticipationStatus participationStatus) {
+        this.status = participationStatus;
+    }
 
 }
