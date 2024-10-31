@@ -44,6 +44,7 @@ public class SharingPostRequestDto {
     @Nullable
     private String kakaoLocationCode;
 
+
     @NotNull
     private Double latitude;
     @NotNull
