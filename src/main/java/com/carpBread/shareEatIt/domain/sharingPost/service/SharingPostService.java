@@ -20,6 +20,7 @@ import com.carpBread.shareEatIt.domain.participation.entity.GratitudeType;
 import com.carpBread.shareEatIt.domain.participation.entity.Participation;
 import com.carpBread.shareEatIt.domain.participation.entity.ParticipationStatus;
 import com.carpBread.shareEatIt.domain.participation.repository.GratitudeStickerRepository;
+import com.carpBread.shareEatIt.domain.participation.repository.ParticipationRepository;
 import com.carpBread.shareEatIt.domain.sharingPost.dto.*;
 import com.carpBread.shareEatIt.domain.sharingPost.dto.map.MapListResponseDto;
 import com.carpBread.shareEatIt.domain.sharingPost.dto.map.MapRequestDto;
@@ -63,7 +64,7 @@ public class SharingPostService {
 
     private final SharingPostRepository sharingPostRepository;
     private final MemberRepository memberRepository;
-    private final KeywordsRepository keywordsRepository;
+    private final ParticipationRepository participationRepository;
     private final NoticeRepository noticeRepository;
     private final PostImgUrlRepository postImgUrlRepository;
     private final GratitudeStickerRepository gratitudeStickerRepository;
@@ -250,6 +251,11 @@ public class SharingPostService {
         if (targetPost.getWriter().getId() != member.getId())
             throw new AppException(ErrorCode.UNAUTHORIZED_MEMBER_TO_UPDATE_POST, "작성자가 아니므로 해당 POST에 대한 내용 수정이 불가합니다.", "/sharing/" + id);
 
+        List<Participation> participationList = participationRepository.findByPostIdAndStatus(targetPost.getId());
+        if (participationList.size()!=0 || targetPost.getStatus()==PostStatus.COMPLETED) {
+            throw new AppException(ErrorCode.UNAUTHORIZED_UPDATE_POST, "참여가 완료된 나눔이므로 POST에 대한 내용 수정이 불가합니다", "/sharing" + id);
+        }
+
         Point point = geometryFactory.createPoint(new Coordinate(dto.getLongitude(), dto.getLatitude()));
         point.setSRID(4326);
 
@@ -261,7 +267,6 @@ public class SharingPostService {
         boolean result = updatePostImgList(dto.getImgUrlList(), getPostImgUrlList(updatedPost), targetPost);
         List<PostImgUrl> updatedUrlList = getPostImgUrlList(updatedPost);
 
-        System.out.println("현재 리스트 수: "+updatedUrlList.size());
 
         int idx = 1;
         for (PostImgUrl imgUrl : updatedUrlList) {
@@ -302,6 +307,8 @@ public class SharingPostService {
         MemberAsWriterSimpleDtoComponent writer = getSimpleWriterComponent(member);
         GratitudeType gratitudeSticker = getGratitudeSticker(updatedPost);
         updatedUrlList = getPostImgUrlList(updatedPost);
+        String subject = determineSubject(updatedPost, member);
+
         List<String> imgUrlList = new ArrayList<>();
         for (PostImgUrl imgUrl : updatedUrlList) {
             imgUrlList.add(imgUrl.getUrl());
@@ -324,6 +331,7 @@ public class SharingPostService {
                 .postType(updatedPost.getPostType().name())
                 .description(updatedPost.getDescription())
                 .status(updatedPost.getStatus().name())
+                .subject(subject)
                 .gratitudeSticker(gratitudeSticker!=null ? gratitudeSticker.name(): null)
                 .build();
 

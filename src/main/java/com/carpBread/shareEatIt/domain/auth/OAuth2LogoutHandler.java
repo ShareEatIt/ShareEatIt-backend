@@ -43,10 +43,6 @@ public class OAuth2LogoutHandler implements LogoutHandler {
         this.redisTemplate=redisTemplate;
     }
 
-//    public OAuth2LogoutHandler(WebClient.Builder webClientBuilder){
-//        this.webClient = WebClient.builder().build();
-//    }
-
     @Override
     public void logout(HttpServletRequest request, HttpServletResponse response, Authentication authentication) {
 

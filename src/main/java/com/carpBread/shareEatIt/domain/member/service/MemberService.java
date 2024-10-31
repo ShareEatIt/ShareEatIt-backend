@@ -75,12 +75,14 @@ public class MemberService {
                 .build();
 
         return MemberStickerResponseDto.builder()
+                .id(findMember.getId())
                 .profileImg(findMember.getProfileImgUrl())
                 .nickname(findMember.getNickname())
                 .email(findMember.getEmail())
                 .stickers(stickersDto)
                 .isKeywordAvail(findMember.getIsKeywordAvail())
                 .isNoticeAvail(findMember.getIsNoticeAvail())
+                .provider(findMember.getProvider().name())
                 .build();
 
     }
@@ -95,7 +97,9 @@ public class MemberService {
 
         String imgUrl=findMember.getProfileImgUrl();
 
-        if (imgFile!=null){
+
+        if (!imgFile.isEmpty()){
+
             String key = "images/" + UUID.randomUUID() + "_" + imgFile.getOriginalFilename();
 
             ObjectMetadata metadata = new ObjectMetadata();
@@ -113,10 +117,12 @@ public class MemberService {
 
         }
 
+
         findMember.changeMemberProfile(updateRequestDto,point,imgUrl);
         Member updatedMember = memberRepository.save(findMember);
 
         return MemberProfileResponseDto.builder()
+                .id(updatedMember.getId())
                 .email(updatedMember.getEmail())
                 .nickname(updatedMember.getNickname())
                 .profileImg(updatedMember.getProfileImgUrl())
@@ -126,6 +132,9 @@ public class MemberService {
                         .latitude(updatedMember.getLocationPoint().getY())
                         .longitude(updatedMember.getLocationPoint().getX())
                         .build())
+                .provider(updatedMember.getProvider().name())
+                .joinedAt(updatedMember.getCreatedAt())
+                .recentModifiedAt(updatedMember.getModifiedAt())
                 .build();
 
     }
@@ -206,7 +215,7 @@ public class MemberService {
 
         return MemberSharingStatusResponseDto.builder()
                 .writer(writerDto)
-                .status(statusDto)
+                .statusByCategory(statusDto)
                 .build();
 
 
@@ -215,7 +224,7 @@ public class MemberService {
     private MemberSharingStatusResponseComponent getSharingStatusResponseComponent(Member writer){
         Long BAKERY =0l;
         Long BEVERAGE=0l;
-        Long CONVENIENCE_FOOD=0l;
+        Long CONVENIENCEFOOD=0l;
         Long KOREAN=0l;
         Long JAPANESE=0l;
         Long CHINESE=0l;
@@ -232,7 +241,7 @@ public class MemberService {
             switch (category){
                 case BAKERY -> BAKERY=count;
                 case BEVERAGE -> BEVERAGE = count;
-                case CONVENIENCE_FOOD -> CONVENIENCE_FOOD = count;
+                case CONVENIENCE_FOOD -> CONVENIENCEFOOD = count;
                 case KOREAN -> KOREAN = count;
                 case JAPANESE -> JAPANESE = count;
                 case CHINESE -> CHINESE = count;
@@ -248,7 +257,7 @@ public class MemberService {
         return MemberSharingStatusResponseComponent.builder()
                 .BAKERY(BAKERY)
                 .BEVERAGE(BEVERAGE)
-                .CONVENIENCE_FOOD(CONVENIENCE_FOOD)
+                .CONVENIENCEFOOD(CONVENIENCEFOOD)
                 .KOREAN(KOREAN)
                 .JAPANESE(JAPANESE)
                 .CHINESE(CHINESE)

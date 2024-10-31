@@ -12,14 +12,14 @@ import java.util.List;
 
 public interface SharingPostRepository extends JpaRepository<SharingPost, Long> {
 
-    @Query(value = "select * from SHARING_POSTS where ST_Distance_Sphere(location_point, ST_GeomFromText(CONCAT('POINT(', :latitude, ' ', :longitude, ')'), 4326)) <= :radius", nativeQuery = true)
+    @Query(value = "select * from SHARING_POSTS where ST_Distance_Sphere(location_point, ST_GeomFromText(CONCAT('POINT(', :latitude, ' ', :longitude, ')'), 4326)) <= :radius and status in ('AVAILABLE','CHATTING')", nativeQuery = true)
     List<SharingPost> findSharingPostsWithinRadius(
             @Param("latitude") double latitude,
             @Param("longitude") double longitude,
             @Param("radius") double radius
     );
 
-    @Query(value = "select * from SHARING_POSTS where post_type = :postType and ST_Distance_Sphere(location_point, ST_GeomFromText(CONCAT('POINT(', :latitude, ' ', :longitude, ')'), 4326)) <= :radius", nativeQuery = true)
+    @Query(value = "select * from SHARING_POSTS where post_type = :postType and ST_Distance_Sphere(location_point, ST_GeomFromText(CONCAT('POINT(', :latitude, ' ', :longitude, ')'), 4326)) <= :radius AND status in ('AVAILABLE','CHATTING')", nativeQuery = true)
     List<SharingPost> findSharingPostsByPostTypeWithinRadius(
             @Param("latitude") double latitude,
             @Param("longitude") double longitude,

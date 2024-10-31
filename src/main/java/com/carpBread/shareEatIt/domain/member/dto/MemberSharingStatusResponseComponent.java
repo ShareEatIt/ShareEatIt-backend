@@ -9,7 +9,7 @@ import lombok.Getter;
 public class MemberSharingStatusResponseComponent {
     private Long BAKERY;
     private Long BEVERAGE;
-    private Long CONVENIENCE_FOOD;
+    private Long CONVENIENCEFOOD;
     private Long KOREAN;
     private Long JAPANESE;
     private Long CHINESE;
