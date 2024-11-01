@@ -218,6 +218,8 @@ public class SharingPostService {
             imgUrlList.add(img.getUrl());
         }
 
+         
+
         return SharingPostResponseDto.builder()
                 .id(findPost.getId())
                 .title(findPost.getTitle())
@@ -536,11 +538,6 @@ public class SharingPostService {
     }
 
     private String findFirstImgUrl(SharingPost post){
-
-//        PostImgUrl firstImgUrl = postImgUrlRepository.findByImgOrderAndPost(1, post)
-//                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_POST_IMAGE, "현재 POST에 해당하는 IMAGE를 찾을 수 없습니다", "/sharing"));
-//
-//        return firstImgUrl.getUrl();
 
         for (PostImgUrl imgUrl : getPostImgUrlList(post)){
             if (imgUrl.getImgOrder()==1){
