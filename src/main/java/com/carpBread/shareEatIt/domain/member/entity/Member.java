@@ -79,6 +79,7 @@ public class Member extends BaseEntity {
         this.profileImgUrl=imgUrl;
         this.addressSt=dto.getAddressSt();
         this.addressDetail=dto.getAddressDetail();
+        this.provider=Provider.toEnum(dto.getProvider());
     }
 
     public void changeImgUrl(String url){

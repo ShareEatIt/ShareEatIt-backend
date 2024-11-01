@@ -11,6 +11,7 @@ public enum ErrorCode {
     // Member
     NOT_FOUND_MEMBER(HttpStatus.NOT_FOUND),
     INVALID_ACCESS_TOKEN(HttpStatus.NOT_ACCEPTABLE),
+    INVALID_ENUM_VALUE_PROVIDER(HttpStatus.NOT_FOUND),
 
     // Participation
     NOT_FOUND_PARTICIPATION(HttpStatus.NOT_FOUND),
@@ -38,6 +39,7 @@ public enum ErrorCode {
     NOT_FOUND_POST(HttpStatus.NOT_FOUND),
     UNAUTHORIZED_MEMBER_TO_UPDATE_POST(HttpStatus.UNAUTHORIZED),
     UNAUTHORIZED_MEMBER_TO_DELETE_POST(HttpStatus.UNAUTHORIZED),
+    UNAUTHORIZED_UPDATE_POST(HttpStatus.UNAUTHORIZED),
 
     // auth
     LOGOUT_FAIL(HttpStatus.CONFLICT),

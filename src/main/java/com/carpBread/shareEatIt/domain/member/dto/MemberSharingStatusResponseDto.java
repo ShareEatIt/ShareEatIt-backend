@@ -10,5 +10,5 @@ import lombok.Getter;
 public class MemberSharingStatusResponseDto {
 
     private MemberCompletedProfileResponseComponent writer;
-    private MemberSharingStatusResponseComponent status;
+    private MemberSharingStatusResponseComponent statusByCategory;
 }

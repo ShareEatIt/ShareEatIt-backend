@@ -18,7 +18,7 @@ public interface KeywordsRepository extends JpaRepository<Keywords, Long> {
     Optional<Keywords> findByMemberAndId(Member member, Long id);
 
 
-    @Query(value = "SELECT k.avail from Keywords k where k.keyword = :keyword and k.member = :member", nativeQuery = true)
+    @Query(value = "SELECT k.avail from keywords k where k.keyword = :keyword and k.member = :member", nativeQuery = true)
     Boolean findAvailByKeywordAndMember(@Param("keyword") String  keyword, @Param("member")Member member);
 
     List<Keywords> findAllByMember(Member member);

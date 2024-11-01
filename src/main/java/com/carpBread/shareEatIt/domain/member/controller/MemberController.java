@@ -30,6 +30,7 @@ public class MemberController {
     @GetMapping
     public ResponseEntity<ApiResponse<MemberProfileResponseDto>> memberProfile(@AuthUser Member member){
         MemberProfileResponseDto responseDto = MemberProfileResponseDto.builder()
+                .id(member.getId())
                 .profileImg(member.getProfileImgUrl())
                 .nickname(member.getNickname())
                 .email(member.getEmail())
@@ -39,6 +40,9 @@ public class MemberController {
                         .latitude(member.getLocationPoint().getY())
                         .longitude(member.getLocationPoint().getX())
                         .build())
+                .provider(member.getProvider().name())
+                .joinedAt(member.getCreatedAt())
+                .recentModifiedAt(member.getModifiedAt())
                 .build();
 
         ApiResponse response = new ApiResponse<>(HttpStatus.OK.value(),
@@ -59,7 +63,7 @@ public class MemberController {
         return ResponseEntity.ok().body(response);
     }
 
-    @GetMapping("/sharing/status")
+    @GetMapping("/sharing/category")
     public ResponseEntity<ApiResponse<MemberSharingStatusResponseDto>> getMemberSharingStatus(@AuthUser Member member){
         MemberSharingStatusResponseDto responseDto = memberService.findMemberSharingStatus(member);
 
