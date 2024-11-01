@@ -27,6 +27,8 @@ public class Report extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    private String title;
+
     @Column(columnDefinition = "TEXT")
     private String content;
 
@@ -37,6 +39,8 @@ public class Report extends BaseEntity {
     @Nullable
     private String response;
 
+    private String imgUrl;
+
     @Column(name = "reviewed_at")
     @Nullable
     private LocalDateTime reviewedAt;
@@ -45,7 +49,7 @@ public class Report extends BaseEntity {
     @Nullable
     private LocalDateTime responseAt;
 
-    @ManyToOne(cascade = CascadeType.ALL)
+    @ManyToOne
     @JoinColumn(name = "reporter_id")
     private Member reporter;
 

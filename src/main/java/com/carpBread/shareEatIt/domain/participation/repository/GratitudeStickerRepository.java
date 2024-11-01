@@ -2,12 +2,14 @@ package com.carpBread.shareEatIt.domain.participation.repository;
 
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.participation.entity.GratitudeSticker;
+import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface GratitudeStickerRepository extends JpaRepository<GratitudeSticker, Long> {
@@ -15,6 +17,9 @@ public interface GratitudeStickerRepository extends JpaRepository<GratitudeStick
     @Query("SELECT CASE WHEN COUNT(g) > 0 THEN true ELSE false END FROM GratitudeSticker g WHERE g.participation.id = :participationId")
     Boolean existsByParticipationId(@Param("participationId") Long participationId);
 
-    @Query(value = "SELECT g.gratitude_type, COUNT(*) FROM GRATITUDE_STICKERS g WHERE g.giver_id = ?1 GROUP BY g.gratitude_type",nativeQuery = true)
+    Boolean existsByPost(SharingPost post);
+    Optional<GratitudeSticker> findByPost(SharingPost post);
+
+    @Query(value = "SELECT g.gratitude_type, COUNT(*) FROM gratitude_stickers g WHERE g.giver_id = ?1 GROUP BY g.gratitude_type",nativeQuery = true)
     List<Object[]> countByGratitudeTypeByGiver(Long giverId);
 }

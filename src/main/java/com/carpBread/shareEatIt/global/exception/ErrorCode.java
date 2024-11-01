@@ -7,8 +7,11 @@ import org.springframework.http.HttpStatus;
 @Getter
 @AllArgsConstructor
 public enum ErrorCode {
+
+    // Member
     NOT_FOUND_MEMBER(HttpStatus.NOT_FOUND),
     INVALID_ACCESS_TOKEN(HttpStatus.NOT_ACCEPTABLE),
+    INVALID_ENUM_VALUE_PROVIDER(HttpStatus.NOT_FOUND),
 
     // Participation
     NOT_FOUND_PARTICIPATION(HttpStatus.NOT_FOUND),
@@ -28,7 +31,31 @@ public enum ErrorCode {
 
     // SharingPost
     NOT_FOUND_SHARINGPOST(HttpStatus.NOT_FOUND),
-    NOT_COMPLETED_SHARINGPOST(HttpStatus.FORBIDDEN);
+    NOT_COMPLETED_SHARINGPOST(HttpStatus.FORBIDDEN),
+    AWS_S3_IMG_UPLOAD_CONNECTION_ERROR(HttpStatus.CONFLICT),
+    INVALID_ENUM_VALUE(HttpStatus.NOT_FOUND),
+    INVALID_PROVIDER_WITH_POSTTYPE_STORE(HttpStatus.UNAUTHORIZED),
+    NOT_FOUND_POST_IMAGE(HttpStatus.NOT_FOUND),
+    NOT_FOUND_POST(HttpStatus.NOT_FOUND),
+    UNAUTHORIZED_MEMBER_TO_UPDATE_POST(HttpStatus.UNAUTHORIZED),
+    UNAUTHORIZED_MEMBER_TO_DELETE_POST(HttpStatus.UNAUTHORIZED),
+    UNAUTHORIZED_UPDATE_POST(HttpStatus.UNAUTHORIZED),
+
+    // auth
+    LOGOUT_FAIL(HttpStatus.CONFLICT),
+    UNAUTHORIZED_JWT(HttpStatus.UNAUTHORIZED),
+
+    // Keyword
+    ALREADY_USING_KEYWORD(HttpStatus.IM_USED),
+    NOT_FOUND_KEYWORD_UNAVAILABLE_ID(HttpStatus.NOT_FOUND),
+    NOT_AVAILABLE_MEMBER_TO_DELETE_KEYWORD(HttpStatus.FORBIDDEN),
+
+    // notice
+    NOTICE_SEND_FAIL(HttpStatus.CONFLICT),
+
+    // report
+    CANNOT_REPORT_SELF(HttpStatus.FORBIDDEN),
+    CANNOT_BE_NULL_IMG_FILE_FOR_REPORT(HttpStatus.NO_CONTENT);
 
     private final HttpStatus status;
 }

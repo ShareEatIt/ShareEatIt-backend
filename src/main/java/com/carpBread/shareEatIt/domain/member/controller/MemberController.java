@@ -1,19 +1,17 @@
 package com.carpBread.shareEatIt.domain.member.controller;
 
 import com.carpBread.shareEatIt.domain.auth.AuthUser;
-import com.carpBread.shareEatIt.domain.auth.OAuth2Principal;
 import com.carpBread.shareEatIt.domain.member.dto.*;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.service.MemberService;
-import com.carpBread.shareEatIt.global.config.SecurityConfig;
+import com.carpBread.shareEatIt.domain.notice.controller.NoticeController;
 import com.carpBread.shareEatIt.global.response.ApiResponse;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.web.service.annotation.GetExchange;
 
 @RestController
 @RequestMapping("/members")
@@ -30,15 +28,21 @@ public class MemberController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse> memberProfile(@AuthUser Member member){
+    public ResponseEntity<ApiResponse<MemberProfileResponseDto>> memberProfile(@AuthUser Member member){
         MemberProfileResponseDto responseDto = MemberProfileResponseDto.builder()
+                .id(member.getId())
                 .profileImg(member.getProfileImgUrl())
                 .nickname(member.getNickname())
                 .email(member.getEmail())
-                .location(LocationResponseDto.builder()
+                .location(LocationResponseDtoComponent.builder()
                         .addressSt(member.getAddressSt())
                         .addressDetail(member.getAddressDetail())
+                        .latitude(member.getLocationPoint().getY())
+                        .longitude(member.getLocationPoint().getX())
                         .build())
+                .provider(member.getProvider().name())
+                .joinedAt(member.getCreatedAt())
+                .recentModifiedAt(member.getModifiedAt())
                 .build();
 
         ApiResponse response = new ApiResponse<>(HttpStatus.OK.value(),
@@ -59,11 +63,22 @@ public class MemberController {
         return ResponseEntity.ok().body(response);
     }
 
+    @GetMapping("/sharing/category")
+    public ResponseEntity<ApiResponse<MemberSharingStatusResponseDto>> getMemberSharingStatus(@AuthUser Member member){
+        MemberSharingStatusResponseDto responseDto = memberService.findMemberSharingStatus(member);
+
+        ApiResponse response = new ApiResponse(HttpStatus.OK.value(),"회원 나눔 현황 조회 성공", responseDto);
+
+        return ResponseEntity.ok().body(response);
+    }
+
+
     @PutMapping
     public ResponseEntity<ApiResponse> updateMemberProfile(@AuthUser Member member,
-                                                           @RequestBody MemberProfileUpdateRequestDto requestDto){
+                                                           @RequestPart(name = "imgFile",required = false) MultipartFile imgFile,
+                                                           @RequestPart(name = "dto") MemberProfileUpdateRequestDto dto){
 
-        MemberProfileResponseDto responseDto = memberService.updateProfile(member.getId(), requestDto);
+        MemberProfileResponseDto responseDto = memberService.updateProfile(member.getId(),imgFile, dto);
 
         ApiResponse response = new ApiResponse<>(HttpStatus.OK.value(),
                 "회원 정보 수정 성공",
@@ -73,10 +88,10 @@ public class MemberController {
     }
 
     @PatchMapping("/avail")
-    public ResponseEntity<ApiResponse> updateMemberAvail(@AuthUser Member member,
+    public ResponseEntity<ApiResponse<MemberStickerResponseDto>> updateMemberAvail(@AuthUser Member member,
                                                          @RequestBody MemberAvailRequestDto dto){
         MemberStickerResponseDto responseDto = memberService.updateAvail(dto,member.getId());
-        ApiResponse response = new ApiResponse<>(HttpStatus.OK.value(),
+        ApiResponse<MemberStickerResponseDto> response = new ApiResponse<>(HttpStatus.OK.value(),
                 "회원 keyword avail, notice avail 수정",
                 responseDto);
 

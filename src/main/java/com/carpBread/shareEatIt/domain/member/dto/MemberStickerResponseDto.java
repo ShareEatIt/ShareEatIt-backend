@@ -7,10 +7,12 @@ import lombok.Getter;
 @Getter @Builder
 @AllArgsConstructor
 public class MemberStickerResponseDto {
+    private Long id;
     private String profileImg;
     private String nickname;
     private String email;
     private StickersResponseDto stickers;
     private Boolean isNoticeAvail;
     private Boolean isKeywordAvail;
+    private String provider;
 }

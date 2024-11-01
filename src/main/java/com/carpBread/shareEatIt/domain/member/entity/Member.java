@@ -12,8 +12,11 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
+import org.locationtech.jts.geom.Point;
 
 import javax.print.attribute.standard.MediaSize;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "MEMBER")
@@ -55,21 +58,34 @@ public class Member extends BaseEntity {
     @Column(name = "address_detail")
     private String addressDetail;
 
+    @Column(columnDefinition = "POINT", name = "location_point")
+    private Point locationPoint;
+
     @Enumerated(value = EnumType.STRING)
     @NotNull
     private Provider provider;
+
+    @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
+    List<Keywords> keywordsList = new ArrayList<>();
 
     public void changeAccessToken(String accessToken){
         this.accessToken=accessToken;
     }
 
-    public void changeMemberProfile(MemberProfileUpdateRequestDto dto){
+    public void changeMemberProfile(MemberProfileUpdateRequestDto dto,Point point, String imgUrl){
         this.profileImgUrl=dto.getProfileImg();
         this.nickname=dto.getNickname();
+        this.locationPoint=point;
+        this.profileImgUrl=imgUrl;
         this.addressSt=dto.getAddressSt();
         this.addressDetail=dto.getAddressDetail();
+        this.provider=Provider.toEnum(dto.getProvider());
     }
 
+    public void changeImgUrl(String url){
+        this.profileImgUrl=url;
+
+    }
     public void changeAvail(MemberAvailRequestDto dto){
         this.isKeywordAvail=dto.getIsKeywordAvail();
         this.isNoticeAvail=dto.getIsNoticeAvail();

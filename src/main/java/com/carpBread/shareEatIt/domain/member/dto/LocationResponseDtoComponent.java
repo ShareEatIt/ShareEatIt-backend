@@ -6,7 +6,9 @@ import lombok.Getter;
 
 @Getter @Builder
 @AllArgsConstructor
-public class LocationResponseDto {
+public class LocationResponseDtoComponent {
     private String addressSt;
     private String addressDetail;
+    private Double latitude;
+    private Double longitude;
 }
