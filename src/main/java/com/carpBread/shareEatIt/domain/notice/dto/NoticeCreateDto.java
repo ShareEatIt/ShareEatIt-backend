@@ -13,7 +13,7 @@ public class NoticeCreateDto {
     private Long id;
     private String title;
     private String message;
-    private NoticeType noticeType;
+    private String noticeType;
     private LocalDateTime createdAt;
 
     private NoticeRelatedObjectResponseComponent noticeObject;
