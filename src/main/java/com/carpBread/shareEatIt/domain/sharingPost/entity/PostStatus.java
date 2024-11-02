@@ -6,5 +6,5 @@ import lombok.Getter;
 @AllArgsConstructor
 @Getter
 public enum PostStatus {
-    AVAILABLE, CHATTING, COMPLETED
+    AVAILABLE, MATCHED, COMPLETED
 }

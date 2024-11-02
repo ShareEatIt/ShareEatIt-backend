@@ -1,21 +1,31 @@
 package com.carpBread.shareEatIt.domain.participation.service;
 
 import com.carpBread.shareEatIt.domain.member.entity.Member;
+import com.carpBread.shareEatIt.domain.notice.dto.NoticeCreateDto;
+import com.carpBread.shareEatIt.domain.notice.dto.NoticeRelatedObjectResponseComponent;
+import com.carpBread.shareEatIt.domain.notice.entity.Notice;
+import com.carpBread.shareEatIt.domain.notice.entity.NoticeType;
+import com.carpBread.shareEatIt.domain.notice.repository.NoticeRepository;
+import com.carpBread.shareEatIt.domain.notice.service.NoticeService;
 import com.carpBread.shareEatIt.domain.participation.dto.*;
+import com.carpBread.shareEatIt.domain.participation.entity.GratitudeSticker;
 import com.carpBread.shareEatIt.domain.participation.entity.Participation;
 import com.carpBread.shareEatIt.domain.participation.entity.ParticipationStatus;
+import com.carpBread.shareEatIt.domain.participation.repository.GratitudeStickerRepository;
 import com.carpBread.shareEatIt.domain.participation.repository.ParticipationRepository;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.PostStatus;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.PostType;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
 import com.carpBread.shareEatIt.global.exception.AppException;
+import com.carpBread.shareEatIt.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.carpBread.shareEatIt.global.exception.ErrorCode.*;
@@ -28,6 +38,8 @@ public class ParticipationService {
 
     private final ParticipationRepository participationRepository;
     private final SharingPostRepository sharingPostRepository;
+    private final GratitudeStickerRepository gratitudeStickerRepository;
+    private final NoticeRepository noticeRepository;
 
     /* 참여 생성 - 나눔글 채팅 참여 */
     public ParticipationResponseDto createParticipation(Member receiver, ParticipationRequestDto requestDto) {
@@ -144,4 +156,51 @@ public class ParticipationService {
         return responseDto;
 
     }
+
+    private void sendNotification(Participation participation,ParticipationStatus status){
+        if (status!=ParticipationStatus.COMPLETED)
+            return;
+
+        Boolean isExists = gratitudeStickerRepository.existsByPost(participation.getPost());
+        if (isExists)
+            return;
+
+
+        String title = "나눔이 완료되었습니다! 후기를 남겨주세요😺";
+        String message = participation.getGiver().getNickname()+"님과의 "+participation.getPost().getFoodName()+" 나눔이 완료되었습니다! "
+                +"\n나눔글 페이지에서 후기를 남겨주세요❤️";
+        Notice newNotice = Notice.builder()
+                .title(title)
+                .message(message)
+                .member(participation.getReceiver())
+                .type(NoticeType.REVIEW)
+                .isRead(false)
+                .build();
+
+        Notice savedNotice = noticeRepository.save(newNotice);
+
+        NoticeRelatedObjectResponseComponent noticeObject = NoticeRelatedObjectResponseComponent.builder()
+                .id(participation.getPost().getId())
+                .category(participation.getPost().getCategory().name())
+                .build();
+
+        NoticeCreateDto noticeDto = NoticeCreateDto.builder()
+                .id(savedNotice.getId())
+                .title(savedNotice.getTitle())
+                .message(savedNotice.getMessage())
+                .noticeType(NoticeType.REVIEW)
+                .noticeObject(noticeObject)
+                .createdAt(savedNotice.getCreatedAt())
+                .build();
+        NoticeService.sendNotification(participation.getReceiver(), noticeDto);
+
+
+    }
+
+
+
+
+
+
+
 }
