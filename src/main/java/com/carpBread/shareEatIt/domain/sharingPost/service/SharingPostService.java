@@ -583,7 +583,7 @@ public class SharingPostService {
                             .id(savedNotice.getId())
                             .title(title)
                             .message(message)
-                            .noticeType(NoticeType.KEYWORD)
+                            .noticeType(NoticeType.KEYWORD.name())
                             .noticeObject(noticeObject)
                             .createdAt(savedNotice.getCreatedAt())
                             .build();
