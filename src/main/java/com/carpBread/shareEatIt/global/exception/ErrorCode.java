@@ -52,6 +52,9 @@ public enum ErrorCode {
 
     // notice
     NOTICE_SEND_FAIL(HttpStatus.CONFLICT),
+    NOT_FOUND_NOTICE(HttpStatus.NOT_FOUND),
+    UNAUTHORIZED_USER(HttpStatus.UNAUTHORIZED),
+    ALREADY_READ(HttpStatus.FORBIDDEN),
 
     // report
     CANNOT_REPORT_SELF(HttpStatus.FORBIDDEN),

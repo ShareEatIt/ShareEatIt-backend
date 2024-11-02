@@ -188,7 +188,7 @@ public class ParticipationService {
                 .id(savedNotice.getId())
                 .title(savedNotice.getTitle())
                 .message(savedNotice.getMessage())
-                .noticeType(NoticeType.REVIEW)
+                .noticeType(NoticeType.REVIEW.name())
                 .noticeObject(noticeObject)
                 .createdAt(savedNotice.getCreatedAt())
                 .build();

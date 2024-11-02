@@ -5,6 +5,8 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
+import java.time.LocalDateTime;
+
 @AllArgsConstructor
 @Builder @Getter
 public class NoticeResponseDto {
@@ -13,6 +15,5 @@ public class NoticeResponseDto {
     private String noticeType;
     private String title;
     private String message;
-    private MemberAsWriterSimpleDtoComponent member;
-
+    private LocalDateTime createdAt;
 }
