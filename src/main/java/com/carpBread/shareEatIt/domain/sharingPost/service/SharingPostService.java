@@ -562,7 +562,7 @@ public class SharingPostService {
                 if ((keyword.length()>=foodName.length() && foodName.contains(keyword) )
                     || (keyword.length()< foodName.length() && keyword.contains(foodName))){
                     String title="새로운 나눔글이 등록되었어요!✨";
-                    String message = member.getNickname() + "님을 위한 " + keyword + "과 관련된 새로운 나눔글이 등록되었어요!✨ \n 관심 키워드로 등록한 나눔글을 확인해보세요❤️";
+                    String message = member.getNickname() + "님을 위한 " + keyword + "과 관련된 새로운 나눔글이 등록되었어요!✨ \n관심 키워드로 등록한 나눔글을 확인해보세요❤️";
 
                     Notice newNotice = Notice.builder()
                             .title(title)
