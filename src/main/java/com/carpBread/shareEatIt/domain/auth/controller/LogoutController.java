@@ -86,8 +86,8 @@ public class LogoutController {
     public ResponseEntity<String> logout(HttpServletRequest request){
         String token = null;
         String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);  // Extracts token after "Bearer "
+        if (authHeader != null && authHeader.startsWith("Bearer")) {
+            token = authHeader.split("\\+")[1];
         }else{
             throw new AppException(ErrorCode.UNAUTHORIZED_JWT,"유효하지 않은 인증 토큰입니다","/logout");
         }
