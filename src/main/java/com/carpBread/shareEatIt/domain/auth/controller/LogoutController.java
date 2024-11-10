@@ -1,13 +1,19 @@
 package com.carpBread.shareEatIt.domain.auth.controller;
 
+import com.carpBread.shareEatIt.domain.auth.AuthLoginResponseDto;
 import com.carpBread.shareEatIt.domain.auth.AuthUser;
+import com.carpBread.shareEatIt.domain.auth.dto.RefreshRequestDto;
 import com.carpBread.shareEatIt.domain.auth.util.JWTUtils;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
 import com.carpBread.shareEatIt.global.exception.AppException;
 import com.carpBread.shareEatIt.global.exception.ErrorCode;
 import com.carpBread.shareEatIt.global.response.ApiResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import jakarta.validation.Valid;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,11 +21,11 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.UUID;
 
 @RequiredArgsConstructor
@@ -28,6 +34,7 @@ import java.util.UUID;
 public class LogoutController {
 
     private final WebClient webClient;
+    private final ObjectMapper objectMapper;
     private final MemberRepository memberRepository;
     private final JWTUtils jwtUtils;
     private final RedisTemplate<String,Object> redisTemplate;
@@ -39,6 +46,41 @@ public class LogoutController {
 
     @Value("${spring.oauth2.logout.direct-url}")
     String logoutRedirectUri;
+
+    @PostMapping("/refresh")
+    public void refreshAccessToken(@AuthUser Member member,
+                                                     @RequestBody @Valid RefreshRequestDto dto,
+                                                     HttpServletResponse response)throws Exception{
+
+        if (!member.getRefreshToken().equals(dto.getRefreshToken())){
+            throw new AppException(ErrorCode.UNAUTHORIZED_USER,"refreshToken에 대한 사용 권한이 없습니다","/auth/refresh");
+        }
+        String token = jwtUtils.createToken(member.getEmail(), member.getNickname());
+        String encodedToken = URLEncoder.encode(token, StandardCharsets.UTF_8.toString());
+
+
+        String newRefreshToken = jwtUtils.createToken(member.getEmail(), member.getNickname());
+        member.updateRefreshToken(newRefreshToken);
+        memberRepository.save(member);
+
+
+        Cookie cookie = new Cookie("accessToken",encodedToken);
+        cookie.setPath("/");
+        cookie.setMaxAge(60*60*24);
+
+        response.addCookie(cookie);
+        response.setStatus(HttpServletResponse.SC_OK);
+        ApiResponse responseDto = new ApiResponse<AuthLoginResponseDto>(HttpStatus.CREATED.value(), "카카오 소셜 로그인 성공", new AuthLoginResponseDto(newRefreshToken));
+        String jsonResponse = objectMapper.writeValueAsString(responseDto);
+
+        response.setStatus(HttpServletResponse.SC_OK);
+        response.setCharacterEncoding("UTF-8");
+        response.setContentType("application/json");
+        response.getWriter().write(jsonResponse);
+        response.getWriter().flush();
+        response.getWriter().close();
+
+    }
 
     @GetMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request){

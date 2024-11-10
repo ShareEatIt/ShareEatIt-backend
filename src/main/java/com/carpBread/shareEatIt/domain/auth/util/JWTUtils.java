@@ -1,5 +1,7 @@
 package com.carpBread.shareEatIt.domain.auth.util;
 
+import com.carpBread.shareEatIt.global.exception.AppException;
+import com.carpBread.shareEatIt.global.exception.ErrorCode;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
@@ -13,20 +15,15 @@ import java.security.Key;
 import java.util.Date;
 
 @Component
-
 public class JWTUtils {
 
     private Key key;
-    private Key refreshKey;
 
     @Autowired
-    public JWTUtils(@Value("${spring.jwt.secret}") String secretKey,
-                    @Value("${spring.jwt.refresh-secret}")String rKey){
+    public JWTUtils(@Value("${spring.jwt.secret}") String secretKey){
         byte[] decode = Decoders.BASE64.decode(secretKey);
-        byte[] decode_refresh = Decoders.BASE64.decode(rKey);
 
         key= Keys.hmacShaKeyFor(decode);
-        refreshKey=Keys.hmacShaKeyFor(decode_refresh);
     }
 
     public String createToken(String email, String nickname){
@@ -38,18 +35,24 @@ public class JWTUtils {
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+60*60*200*1000))
+                .setExpiration(new Date(System.currentTimeMillis()+60*60*12*1000))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
     }
 
     public String getEmail(String token){
-        return Jwts.parserBuilder().setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .get("email", String.class);
+        try {
+
+            String email = Jwts.parserBuilder().setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .get("email", String.class);
+            return email;
+        }catch (Exception e){
+            throw new AppException(ErrorCode.UNAUTHORIZED_JWT,"유효하지 않은 JWT입니다","/login/oauth2/code/kakao");
+        }
 
     }
 
