@@ -47,7 +47,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
         try {
             // 1. 토큰 유무 확인
-            if (authorization==null || !authorization.startsWith("Bearer ")){
+            if (authorization==null || !authorization.startsWith("Bearer+")){
 
                 errorResponse(request,response,ErrorCode.INVALID_ACCESS_TOKEN,"토큰이 존재하지 않습니다.");
 
@@ -55,7 +55,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
             }
 
-            String token = authorization.split(" ")[1];
+            String token = authorization.split("\\+")[1];
             
             // 2. 토큰 기한 만료 여부 확인
             if (jwtUtils.isExpired(token)){
