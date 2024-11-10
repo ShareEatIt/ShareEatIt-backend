@@ -53,10 +53,6 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
         // refreshToken 찾기
         String email = (String) findAttributes.get("email");
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_MEMBER, "해당 이메일을 통해 회원가입된 멤버를 찾을 수 없습니다", "/login/oauth2/code/kakao"));
-        String refreshToken = member.getRefreshToken();
-        findAttributes.put("refreshToken",refreshToken);
 
         return new DefaultOAuth2User(authorities,findAttributes, userNameAttributeName);
 

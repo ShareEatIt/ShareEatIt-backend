@@ -6,7 +6,10 @@ import com.carpBread.shareEatIt.domain.auth.OAuth2Principal;
 import com.carpBread.shareEatIt.domain.auth.OAuth2UserService;
 import com.carpBread.shareEatIt.domain.auth.util.JWTFilter;
 import com.carpBread.shareEatIt.domain.auth.util.JWTUtils;
+import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
+import com.carpBread.shareEatIt.global.exception.AppException;
+import com.carpBread.shareEatIt.global.exception.ErrorCode;
 import com.carpBread.shareEatIt.global.response.ApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.http.Cookie;
@@ -80,7 +83,14 @@ public class SecurityConfig {
 
             String email = (String)defaultOAuth2User.getAttributes().get("email");
             String nickname = (String)defaultOAuth2User.getAttributes().get("nickname");
-            String refreshToken = (String) defaultOAuth2User.getAttributes().get("refreshToken");
+
+            String newRefreshToken = jwtUtils.createToken(email,nickname);
+            Member member = memberRepository.findByEmail(email)
+                    .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_MEMBER, "해당 이메일을 통해 회원가입된 멤버를 찾을 수 없습니다", "/login/oauth2/code/kakao"));
+
+            member.updateRefreshToken(newRefreshToken);
+            memberRepository.save(member);
+
 
             String token = "Bearer "+jwtUtils.createToken(email, nickname);
 
@@ -95,7 +105,7 @@ public class SecurityConfig {
             response.addCookie(cookie);
 
 
-            ApiResponse responseDto = new ApiResponse<AuthLoginResponseDto>(HttpStatus.CREATED.value(), "카카오 소셜 로그인 성공", new AuthLoginResponseDto(refreshToken));
+            ApiResponse responseDto = new ApiResponse<AuthLoginResponseDto>(HttpStatus.CREATED.value(), "카카오 소셜 로그인 성공", new AuthLoginResponseDto(newRefreshToken));
             String jsonResponse = objectMapper.writeValueAsString(responseDto);
 
             response.setStatus(HttpServletResponse.SC_OK);
