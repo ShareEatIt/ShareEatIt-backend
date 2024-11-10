@@ -9,6 +9,7 @@ import com.carpBread.shareEatIt.domain.auth.util.JWTUtils;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
 import com.carpBread.shareEatIt.global.response.ApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,6 +31,8 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.Map;
 
 @Configuration
@@ -44,9 +47,6 @@ public class SecurityConfig {
     private final OAuth2UserService oAuth2UserService;
     private final WebClient webClient;
     private final RedisTemplate<String , Object> redisTemplate;
-
-    @Value("${spring.jwt.refresh-secret}")
-    private String rToken;
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
@@ -80,12 +80,22 @@ public class SecurityConfig {
 
             String email = (String)defaultOAuth2User.getAttributes().get("email");
             String nickname = (String)defaultOAuth2User.getAttributes().get("nickname");
+            String refreshToken = (String) defaultOAuth2User.getAttributes().get("refreshToken");
 
             String token = "Bearer "+jwtUtils.createToken(email, nickname);
 
-            System.out.println(token);
 
-            ApiResponse responseDto = new ApiResponse<AuthLoginResponseDto>(HttpStatus.CREATED.value(), "카카오 소셜 로그인 성공", new AuthLoginResponseDto(token,rToken ));
+            String encodedToken = URLEncoder.encode(token, StandardCharsets.UTF_8.toString());
+            System.out.println(encodedToken);
+
+            // 쿠키 생성
+            Cookie cookie = new Cookie("accessToken", encodedToken);
+            cookie.setPath("/");
+            cookie.setMaxAge(60*60*24);
+            response.addCookie(cookie);
+
+
+            ApiResponse responseDto = new ApiResponse<AuthLoginResponseDto>(HttpStatus.CREATED.value(), "카카오 소셜 로그인 성공", new AuthLoginResponseDto(refreshToken));
             String jsonResponse = objectMapper.writeValueAsString(responseDto);
 
             response.setStatus(HttpServletResponse.SC_OK);

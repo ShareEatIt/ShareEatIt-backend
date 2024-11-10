@@ -37,8 +37,14 @@ public class Member extends BaseEntity {
     @NotNull
     private String nickname;
 
+    @Column(name = "kakao_access_token")
     private String accessToken;
+
+    @Column(name = "kakao_access_id")
     private Long accessId;
+
+    @Column(name = "refresh_token")
+    private String refreshToken;
 
     @Column(name = "profile_img_url")
     @Nullable
@@ -92,4 +98,9 @@ public class Member extends BaseEntity {
     }
 
 
+    public void updateRefreshToken(String newRefreshToken) {
+
+        this.refreshToken=newRefreshToken;
+
+    }
 }

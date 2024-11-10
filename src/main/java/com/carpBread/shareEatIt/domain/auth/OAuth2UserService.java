@@ -1,9 +1,12 @@
 package com.carpBread.shareEatIt.domain.auth;
 
+import com.carpBread.shareEatIt.domain.auth.util.JWTUtils;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.entity.Provider;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
 import com.carpBread.shareEatIt.domain.notice.controller.NoticeController;
+import com.carpBread.shareEatIt.global.exception.AppException;
+import com.carpBread.shareEatIt.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
@@ -25,6 +28,7 @@ import java.util.Map;
 public class OAuth2UserService extends DefaultOAuth2UserService {
 
     private final MemberRepository memberRepository;
+    private final JWTUtils jwtUtils;
 
     @Override
     // 이 메소드가 실행됨은, AccessToken이 정상적으로 발급된 상태임을 의미
@@ -47,6 +51,13 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
         checkJoin(findAttributes,accessToken,(Long) findAttributes.get("id"));
 
+        // refreshToken 찾기
+        String email = (String) findAttributes.get("email");
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_MEMBER, "해당 이메일을 통해 회원가입된 멤버를 찾을 수 없습니다", "/login/oauth2/code/kakao"));
+        String refreshToken = member.getRefreshToken();
+        findAttributes.put("refreshToken",refreshToken);
+
         return new DefaultOAuth2User(authorities,findAttributes, userNameAttributeName);
 
     }
@@ -54,6 +65,8 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
     private Map<String , Object> extractAttributes(Map<String, Object> attributes){
         Map<String, Object> findAttributes=new HashMap<String , Object>();
         Long id = (Long) attributes.get("id");
+
+
 
         Map<String, Object> account = (Map<String, Object>) attributes.get("kakao_account");
         String email = (String) account.get("email");
@@ -77,6 +90,8 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         String nickname = (String)attributes.get("nickname");
         String profileImg=(String)attributes.get("profile_image_url");
 
+        String refreshToken = jwtUtils.createToken(email, nickname);
+
         Member member = memberRepository.findByEmail(email)
                 .orElse(null);
 
@@ -86,6 +101,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
                     .accessToken(accessToken)
                     .accessId(accessId)
                     .nickname(nickname)
+                    .refreshToken(refreshToken)
                     .profileImgUrl(profileImg)
                     .provider(Provider.INDIVIDUAL)
                     .isKeywordAvail(true)
