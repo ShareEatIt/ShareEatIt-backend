@@ -1,10 +1,9 @@
-package com.carpBread.shareEatIt.domain.chatting.entity;
+package com.carpBread.shareEatIt.domain.chat.entity;
 
 import com.carpBread.shareEatIt.domain.participation.entity.Participation;
 import com.carpBread.shareEatIt.global.entity.BaseEntity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
@@ -13,7 +12,8 @@ import lombok.experimental.SuperBuilder;
 @Table(name = "CHAT_ROOM")
 @NoArgsConstructor
 @AllArgsConstructor
-@SuperBuilder @Getter
+@SuperBuilder
+@Getter
 public class ChatRoom extends BaseEntity {
 
     @Id
@@ -21,14 +21,15 @@ public class ChatRoom extends BaseEntity {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Enumerated(value = EnumType.STRING)
-    private ChatStatus status;
-
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "pt_id")
     private Participation participation;
 
+    @Enumerated(value = EnumType.STRING)
+    private ChatRoomStatus status;
 
-
-
+    // 채팅방 상태 변경
+    public void updateStatus(){
+        this.status = ChatRoomStatus.INACTIVE;
+    }
 }
