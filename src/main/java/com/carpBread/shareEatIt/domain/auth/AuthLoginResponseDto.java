@@ -7,4 +7,5 @@ import lombok.Getter;
 @Getter
 public class AuthLoginResponseDto {
     private String refreshToken;
+    private Boolean isNewMember;
 }
