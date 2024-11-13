@@ -49,10 +49,9 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
         Map<String, Object> findAttributes = extractAttributes(attributes);
 
-        checkJoin(findAttributes,accessToken,(Long) findAttributes.get("id"));
+        Boolean isNewMember = checkJoin(findAttributes,accessToken,(Long) findAttributes.get("id"));
 
-        // refreshToken 찾기
-        String email = (String) findAttributes.get("email");
+        findAttributes.put("isNewMember",isNewMember);
 
         return new DefaultOAuth2User(authorities,findAttributes, userNameAttributeName);
 
@@ -61,8 +60,6 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
     private Map<String , Object> extractAttributes(Map<String, Object> attributes){
         Map<String, Object> findAttributes=new HashMap<String , Object>();
         Long id = (Long) attributes.get("id");
-
-
 
         Map<String, Object> account = (Map<String, Object>) attributes.get("kakao_account");
         String email = (String) account.get("email");
@@ -80,7 +77,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
     }
 
     @Transactional
-    public void checkJoin(Map<String, Object> attributes, String accessToken, Long accessId){
+    public boolean checkJoin(Map<String, Object> attributes, String accessToken, Long accessId){
 
         String email = (String)attributes.get("email");
         String nickname = (String)attributes.get("nickname");
@@ -105,10 +102,11 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
                     .build();
 
 
-
             Member savedMember = memberRepository.save(newMember);
 
             NoticeController.putMemberToClients(savedMember.getId());
+
+            return true;
 
         }else if(!member.getNickname().equals(nickname)){
 
@@ -117,6 +115,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         }else{
             member.changeAccessToken(accessToken);
             Member savedMember = memberRepository.save(member);
+            return false;
         }
 
     }
