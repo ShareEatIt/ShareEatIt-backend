@@ -70,7 +70,8 @@ public class LogoutController {
 
         response.addCookie(cookie);
         response.setStatus(HttpServletResponse.SC_OK);
-        ApiResponse responseDto = new ApiResponse<AuthLoginResponseDto>(HttpStatus.CREATED.value(), "리프레시 토큰 재발급 성공", new AuthLoginResponseDto(newRefreshToken));
+        ApiResponse responseDto = new ApiResponse<AuthLoginResponseDto>(HttpStatus.CREATED.value(), "리프레시 토큰 재발급 성공", new AuthLoginResponseDto(newRefreshToken,false
+        ));
         String jsonResponse = objectMapper.writeValueAsString(responseDto);
 
         response.setStatus(HttpServletResponse.SC_OK);

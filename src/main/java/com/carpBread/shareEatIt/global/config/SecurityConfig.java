@@ -91,7 +91,6 @@ public class SecurityConfig {
             member.updateRefreshToken(newRefreshToken);
             memberRepository.save(member);
 
-
             String token = "Bearer "+jwtUtils.createToken(email, nickname);
 
 
@@ -104,8 +103,7 @@ public class SecurityConfig {
             cookie.setMaxAge(60*60*24);
             response.addCookie(cookie);
 
-
-            ApiResponse responseDto = new ApiResponse<AuthLoginResponseDto>(HttpStatus.CREATED.value(), "카카오 소셜 로그인 성공", new AuthLoginResponseDto(newRefreshToken));
+            ApiResponse responseDto = new ApiResponse<AuthLoginResponseDto>(HttpStatus.CREATED.value(), "카카오 소셜 로그인 성공", new AuthLoginResponseDto(newRefreshToken, (Boolean) defaultOAuth2User.getAttributes().get("isNewMember")));
             String jsonResponse = objectMapper.writeValueAsString(responseDto);
 
             response.setStatus(HttpServletResponse.SC_OK);
