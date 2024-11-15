@@ -22,7 +22,7 @@ public class ChatRoom extends BaseEntity {
     private Long id;
 
     @ManyToOne(cascade = CascadeType.ALL)
-    @JoinColumn(name = "pt_id")
+    @JoinColumn(name = "participation")
     private Participation participation;
 
     @Enumerated(value = EnumType.STRING)

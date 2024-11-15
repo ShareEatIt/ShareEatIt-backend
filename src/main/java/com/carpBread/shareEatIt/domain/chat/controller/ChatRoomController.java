@@ -19,10 +19,10 @@ public class ChatRoomController {
     private final ChatRoomService chatRoomService;
 
     /* 채팅방 생성 */
-    @PostMapping("/{participationId}")
+    @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<ApiResponse<ChatRoomResponseDto>> createChatRoom(@AuthUser Member member,
-                                                                           @RequestParam(name = "participationId")Long participationId){
+                                                                           @RequestParam(name = "ptId")Long participationId){
         ChatRoomResponseDto responseDto = chatRoomService.createChatRoom(member, participationId);
         ApiResponse<ChatRoomResponseDto> response = new ApiResponse<>(
                 HttpStatus.CREATED.value(),
@@ -50,7 +50,7 @@ public class ChatRoomController {
     @PatchMapping("/{chatRoomId}")
     @ResponseStatus(HttpStatus.OK)
     public ResponseEntity<ApiResponse<ChatRoomResponseDto>> existChatRoom(@AuthUser Member member,
-                                                                          @RequestParam(name = "chatRoomId") Long chatRoomId) {
+                                                                          @PathVariable(name = "chatRoomId") Long chatRoomId) {
         ChatRoomResponseDto responseDto = chatRoomService.updateChatRoomStatus(member, chatRoomId);
         ApiResponse<ChatRoomResponseDto> response = new ApiResponse<>(
                 HttpStatus.OK.value(),

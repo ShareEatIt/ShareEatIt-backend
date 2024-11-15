@@ -15,4 +15,12 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
     @Query("SELECT c FROM ChatRoom c WHERE (c.participation.giver.id = :memberId AND c.participation.isGiverInChat = true) OR (c.participation.receiver.id = :memberId AND c.participation.isReceiverInChat = true)")
     List<ChatRoom> findByUserAndStatus(@Param("memberId") Long memberId);
 
+    // 사용자가 해당 채팅방에 속한 사람인지 확인
+    @Query(value = "SELECT EXISTS(SELECT 1 FROM chatRoom c " +
+            "WHERE c.chatRoom_id  = :chatRoomId AND (c.participation.giver_id = :memberId OR c.participation.receiver_id = :memberId))",
+            nativeQuery = true)
+    boolean existsByMemberInChatRoom(@Param("memberId") Long memberId, @Param("chatRoomId") Long chatRoomId);
 }
+
+
+

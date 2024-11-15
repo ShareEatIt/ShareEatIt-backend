@@ -61,7 +61,10 @@ public enum ErrorCode {
     CANNOT_BE_NULL_IMG_FILE_FOR_REPORT(HttpStatus.NO_CONTENT),
 
     // ChatRoom
-    NOT_FOUND_CHATROOM(HttpStatus.NOT_FOUND);
+    NOT_FOUND_CHATROOM(HttpStatus.NOT_FOUND),
+
+    // Chat
+    NOT_MEMBER_OF_CHATROOM(HttpStatus.FORBIDDEN);
 
     private final HttpStatus status;
 }

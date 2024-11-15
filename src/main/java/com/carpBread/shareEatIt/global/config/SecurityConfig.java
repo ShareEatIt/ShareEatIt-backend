@@ -60,7 +60,7 @@ public class SecurityConfig {
             .httpBasic(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(request-> request
-                    .requestMatchers("/login/**").permitAll()
+                    .requestMatchers("/login/**", "/ws/**").permitAll()  // 채팅 엔드포인트 인증 제외함
                     .anyRequest().hasRole("MEMBER")
             )
             .oauth2Login(oauth2->
