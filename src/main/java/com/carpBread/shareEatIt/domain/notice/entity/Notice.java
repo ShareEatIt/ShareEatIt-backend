@@ -36,4 +36,9 @@ public class Notice extends BaseEntity {
     @ManyToOne(cascade = CascadeType.ALL)
     @JoinColumn(name = "member_id")
     private Member member;
+
+
+    public void changeIsRead(boolean isRead){
+        this.isRead =isRead;
+    }
 }
