@@ -64,4 +64,11 @@ public class Participation extends BaseEntity {
         this.status = participationStatus;
     }
 
+    public void updateIsGiverInChat() {
+        this.isGiverInChat = false;
+    }
+
+    public void updateIsReceiverInChat() {
+        this.isReceiverInChat = false;
+    }
 }
