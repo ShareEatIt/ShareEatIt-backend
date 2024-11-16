@@ -16,8 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.carpBread.shareEatIt.global.exception.ErrorCode.NOT_FOUND_CHATROOM;
-import static com.carpBread.shareEatIt.global.exception.ErrorCode.NOT_FOUND_PARTICIPATION;
+import static com.carpBread.shareEatIt.global.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -30,14 +29,14 @@ public class ChatRoomService {
     /* 채팅방 생성 */
     public ChatRoomResponseDto createChatRoom(Member member, Long participationId) {
 
-        // 해당 참여객체에 속한 사용자인지 확인
-        // participation.member.getId() == member.getId();
-
-        // 참여객체가 개설자가 아닌지 확인
-
         // Participation 객체 찾기
         Participation participation = participationRepository.findById(participationId)
                 .orElseThrow(() -> new AppException(NOT_FOUND_PARTICIPATION, "해당 Id의 participation을 찾을 수 없습니다.", "/chatRoom?" + participationId));
+
+        // 참여하려는 사용자가 개설자가 아닌지 확인
+        if(participation.getGiver().getId().equals(member.getId())){
+            throw new AppException(CAN_NOT_PARTICIPATE_MY_POST, "본인의 나눔글에는 참여할 수 없습니다. ", "/chatRoom?" + participationId);
+        }
 
         // 채팅방 객체 생성
         ChatRoom chatRoom = ChatRoom.builder()
@@ -47,7 +46,6 @@ public class ChatRoomService {
 
         // 저장
         ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
-
 
         // 응답 dto로 반환
         return ChatRoomResponseDto.from(savedChatRoom);

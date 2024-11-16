@@ -62,6 +62,7 @@ public enum ErrorCode {
 
     // ChatRoom
     NOT_FOUND_CHATROOM(HttpStatus.NOT_FOUND),
+    CAN_NOT_PARTICIPATE_MY_POST(HttpStatus.FORBIDDEN),
 
     // Chat
     NOT_MEMBER_OF_CHATROOM(HttpStatus.FORBIDDEN);
