@@ -36,6 +36,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 
 import java.net.URLEncoder;
 import java.nio.charset.StandardCharsets;
+import java.util.Arrays;
 import java.util.Map;
 
 @Configuration
@@ -51,6 +52,12 @@ public class SecurityConfig {
     private final WebClient webClient;
     private final RedisTemplate<String , Object> redisTemplate;
 
+    // 인증이 필요없는 URL 패턴 목록을 정의
+    private static final String[] AUTH_WHITELIST = {
+            "/login/**", // 로그인
+            "/ws/**",
+    };
+
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http
@@ -60,7 +67,7 @@ public class SecurityConfig {
             .httpBasic(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(request-> request
-                    .requestMatchers("/login/**", "/ws/**").permitAll()  // 채팅 엔드포인트 인증 제외함
+                    .requestMatchers(AUTH_WHITELIST).permitAll()  // 채팅 엔드포인트 인증 제외함
                     .anyRequest().hasRole("MEMBER")
             )
             .oauth2Login(oauth2->
@@ -141,6 +148,9 @@ public class SecurityConfig {
         configuration.addAllowedHeader("*");
         // 헤더에 authorization항목이 있으므로 credential을 true로 설정합니다.
         configuration.setAllowCredentials(true);
+        // 채팅 관련 설정
+        configuration.setAllowedOriginPatterns(Arrays.asList(
+                "https://jiangxy.github.io"));
 
         source.registerCorsConfiguration("/**",configuration);
 

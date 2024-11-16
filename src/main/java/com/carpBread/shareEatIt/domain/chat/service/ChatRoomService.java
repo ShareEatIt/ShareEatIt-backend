@@ -37,7 +37,7 @@ public class ChatRoomService {
 
         // Participation 객체 찾기
         Participation participation = participationRepository.findById(participationId)
-                .orElseThrow(() -> new AppException(NOT_FOUND_PARTICIPATION, "해당 Id의 participation을 찾을 수 없습니다.", "/chatRoom/" + participationId));
+                .orElseThrow(() -> new AppException(NOT_FOUND_PARTICIPATION, "해당 Id의 participation을 찾을 수 없습니다.", "/chatRoom?" + participationId));
 
         // 채팅방 객체 생성
         ChatRoom chatRoom = ChatRoom.builder()

@@ -45,6 +45,13 @@ public class JWTFilter extends OncePerRequestFilter {
 
         String authorization = request.getHeader("Authorization");
 
+        // 토큰 검증을 생략할 경로
+        if (request.getRequestURI().startsWith("/login/") || request.getRequestURI().startsWith("/members/test") || request.getRequestURI().startsWith("/ws")) {
+            filterChain.doFilter(request, response); // 다음 필터로 바로 진행
+            return;
+        }
+
+
         try {
             // 1. 토큰 유무 확인
             if (authorization==null || !authorization.startsWith("Bearer+")){

@@ -34,29 +34,23 @@ public class ChatMessageService {
     private final MemberRepository memberRepository;
 
     /* 채팅 메시지 저장 */
-    public ChatMessageResponseDto saveMessage(Member sender, Long roomId, ChatMessageRequestDto requestDto) {
+    public ChatMessageResponseDto saveMessage(ChatMessageRequestDto requestDto) {
 
         // requestDto로 받아온 roomId로 채팅방 조회
-        ChatRoom chatRoom = chatRoomRepository.findById(roomId)
-                .orElseThrow(() -> new AppException(NOT_FOUND_CHATROOM, "해당 Id의 채팅방을 찾을수 없습니다." , "/chat/" + roomId));
+        ChatRoom chatRoom = chatRoomRepository.findById(requestDto.getChatRoomId())
+                .orElseThrow(() -> new AppException(NOT_FOUND_CHATROOM, "해당 Id의 채팅방을 찾을수 없습니다." , "/chat/message"));
 
         // chatMessage 객체 생성
         ChatMessage message = ChatMessage.builder()
                 .type(requestDto.getType())
-                .chatRoomId(roomId)
-                .senderId(sender.getId())
+                .chatRoomId(requestDto.getChatRoomId())
+                .senderId(requestDto.getSenderId())
                 .content(requestDto.getContent())
                 .createdAt(LocalDateTime.now())
                 .build();
-        log.info("채팅방 번호 = {} " , message.getChatRoomId());
-        log.info("메시지 내용 = {} " , message.getContent());
-
 
         // 객체 저장
         ChatMessage savedMessage = chatMessageRepository.save(message);
-        log.info("저장된 후 채팅방 번호 = {} " , savedMessage.getChatRoomId());
-        log.info("메시지 내용 = {} " , savedMessage.getContent());
-        System.out.println(chatMessageRepository.findById("3"));
 
         // 응답 DTO 생성
         ChatMessageResponseDto responseDto = ChatMessageResponseDto.from(savedMessage);
@@ -74,6 +68,12 @@ public class ChatMessageService {
         }
 
         List<ChatMessage> chatMessageList = chatMessageRepository.findByChatRoomId(chatRoomId);
+        long count = 0L;
+        for (ChatMessage message : chatMessageList) {
+            count++;
+        }
+        System.out.println(count);
+
 
         List<ChatMessageResponseDto> dtoList = convertDtoToList(chatMessageList);
         return new ChatListResponseDto(dtoList);

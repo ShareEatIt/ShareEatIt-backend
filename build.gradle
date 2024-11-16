@@ -68,6 +68,8 @@ dependencies {
 
 	// websocket
 	implementation 'org.springframework.boot:spring-boot-starter-websocket'
+	// stomp
+	implementation 'org.webjars:stomp-websocket:2.3.3-1'
 
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	testImplementation 'org.springframework.security:spring-security-test'
