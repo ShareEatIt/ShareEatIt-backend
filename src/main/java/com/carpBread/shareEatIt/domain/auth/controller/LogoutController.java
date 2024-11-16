@@ -70,7 +70,8 @@ public class LogoutController {
 
         response.addCookie(cookie);
         response.setStatus(HttpServletResponse.SC_OK);
-        ApiResponse responseDto = new ApiResponse<AuthLoginResponseDto>(HttpStatus.CREATED.value(), "리프레시 토큰 재발급 성공", new AuthLoginResponseDto(newRefreshToken));
+        ApiResponse responseDto = new ApiResponse<AuthLoginResponseDto>(HttpStatus.CREATED.value(), "리프레시 토큰 재발급 성공", new AuthLoginResponseDto(newRefreshToken,false
+        ));
         String jsonResponse = objectMapper.writeValueAsString(responseDto);
 
         response.setStatus(HttpServletResponse.SC_OK);
@@ -86,8 +87,8 @@ public class LogoutController {
     public ResponseEntity<String> logout(HttpServletRequest request){
         String token = null;
         String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer ")) {
-            token = authHeader.substring(7);  // Extracts token after "Bearer "
+        if (authHeader != null && authHeader.startsWith("Bearer")) {
+            token = authHeader.split("\\+")[1];
         }else{
             throw new AppException(ErrorCode.UNAUTHORIZED_JWT,"유효하지 않은 인증 토큰입니다","/logout");
         }
