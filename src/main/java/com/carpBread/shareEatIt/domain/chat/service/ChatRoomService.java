@@ -30,11 +30,6 @@ public class ChatRoomService {
     /* 채팅방 생성 */
     public ChatRoomResponseDto createChatRoom(Member member, Long participationId) {
 
-        // 해당 참여객체에 속한 사용자인지 확인
-        // participation.member.getId() == member.getId();
-
-        // 참여객체가 개설자가 아닌지 확인
-
         // Participation 객체 찾기
         Participation participation = participationRepository.findById(participationId)
                 .orElseThrow(() -> new AppException(NOT_FOUND_PARTICIPATION, "해당 Id의 participation을 찾을 수 없습니다.", "/chatRoom?" + participationId));
