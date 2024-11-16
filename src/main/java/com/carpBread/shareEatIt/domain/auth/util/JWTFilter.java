@@ -100,8 +100,11 @@ public class JWTFilter extends OncePerRequestFilter {
 
 
         }catch (JwtException e){
+            System.out.println("================= jwt 필터에서 오류가 납니다. jwtException 중 하나"+ e.getMessage());
+
             throw new AppException(ErrorCode.UNAUTHORIZED_JWT,e.getMessage(),request.getRequestURI());
         }catch (Exception e){
+            System.out.println("================= jwt 필터에서 오류가 납니다. 그냥 exception 중 하나"+ e.getMessage());
             System.out.println(e.getMessage());
         }
 
