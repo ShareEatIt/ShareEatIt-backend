@@ -45,6 +45,8 @@ public class JWTFilter extends OncePerRequestFilter {
 
         String authorization = request.getHeader("Authorization");
 
+        checkOmissionUrl(request,response,filterChain);
+
         try {
             // 1. 토큰 유무 확인
             if (authorization==null || !authorization.startsWith("Bearer")){
@@ -109,6 +111,17 @@ public class JWTFilter extends OncePerRequestFilter {
         }
 
         filterChain.doFilter(request, response);
+    }
+
+    private void checkOmissionUrl(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException{
+        // 토큰 검증을 생략할 경로
+        if (request.getRequestURI().startsWith("/login/")) {
+            filterChain.doFilter(request, response); // 다음 필터로 바로 진행
+            return;
+        }
+
+        return;
+
     }
 
     private void errorResponse(HttpServletRequest request, HttpServletResponse response, ErrorCode errorCode, String message) throws Exception{
