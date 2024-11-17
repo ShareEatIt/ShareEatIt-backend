@@ -1,7 +1,10 @@
 package com.carpBread.shareEatIt.global.config;
 
+import com.carpBread.shareEatIt.domain.chat.stompWebSocket.FilterChannelInterceptor;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.messaging.simp.config.ChannelRegistration;
 import org.springframework.messaging.simp.config.MessageBrokerRegistry;
 import org.springframework.web.socket.config.annotation.EnableWebSocketMessageBroker;
 import org.springframework.web.socket.config.annotation.StompEndpointRegistry;
@@ -10,8 +13,10 @@ import org.springframework.web.socket.config.annotation.WebSocketMessageBrokerCo
 @Configuration
 @EnableWebSocketMessageBroker  // WebSocket 메시지 처리를 가능하게 해주는 메시지 브로커를 활성화
 @RequiredArgsConstructor
+@Slf4j
 public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
 
+    private final FilterChannelInterceptor filterChannelInterceptor;
 
     @Override
     public void registerStompEndpoints(StompEndpointRegistry registry){
@@ -30,5 +35,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
         config.setApplicationDestinationPrefixes("/app");  // @MessageMapping이 붙은 메서드에 바인딩되는 메시지의 경로를 지정
     }
 
+    @Override
+    public void configureClientInboundChannel(ChannelRegistration registration) {
+        log.info("소켓 통신 연결 전(CONNECT) 토큰 인증 과정");
+        registration.interceptors(filterChannelInterceptor);
+    }
 
 }
