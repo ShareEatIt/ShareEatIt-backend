@@ -27,6 +27,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 
 import static com.carpBread.shareEatIt.global.exception.ErrorCode.*;
+import static com.carpBread.shareEatIt.global.exception.ErrorCode.CAN_NOT_PARTICIPATE_MY_POST;
 
 @Service
 @Transactional
@@ -47,6 +48,10 @@ public class ParticipationService {
         SharingPost post = sharingPostRepository.findById(requestDto.getSharingPostId())
                 .orElseThrow(() -> new AppException(NOT_FOUND_SHARINGPOST, "해당ID의 나눔글을 찾지 못했습니다.", "/participations"));
 
+        // 참여하려는 사용자가 개설자가 아닌지 확인
+        if(post.getWriter().getId().equals(receiver.getId())){
+            throw new AppException(CAN_NOT_PARTICIPATE_MY_POST, "본인의 나눔글에는 참여할 수 없습니다. ", "/participations");
+        }
 
         // Participation 객체 생성
         Participation participation = Participation.builder()
