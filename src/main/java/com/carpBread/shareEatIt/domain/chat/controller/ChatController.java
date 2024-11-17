@@ -26,7 +26,7 @@ public class ChatController {
     private final ChatMessageService chatMessageService;
     private final SimpMessageSendingOperations messagingTemplate;
 
-    /* 채팅 */
+    /* 채팅 - 메시지 전달*/
     @MessageMapping("/chat/message/{chatRoomId}")  // app/chat/message/{chatRoomId} 로 메세지 발송
     public ChatMessageResponseDto sendMessage(@Payload ChatMessageRequestDto requestDto) {
         ChatMessageResponseDto responseDto = chatMessageService.saveMessage(requestDto);
