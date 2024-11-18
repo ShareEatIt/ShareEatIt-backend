@@ -43,19 +43,15 @@ public class JWTFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException, AppException {
 
-        String authorization = request.getHeader("Authorization");
-
-        // 토큰 검증을 생략할 경로
-        if (request.getRequestURI().startsWith("/login/") || request.getRequestURI().startsWith("/members/test") || request.getRequestURI().startsWith("/ws")) {
-            filterChain.doFilter(request, response); // 다음 필터로 바로 진행
+        if (isOmissionUrl(request,response,filterChain)){
+            filterChain.doFilter(request, response);
             return;
         }
-
-        checkOmissionUrl(request,response,filterChain);
+        String authorization = request.getHeader("Authorization");
 
         try {
             // 1. 토큰 유무 확인
-            if (authorization==null || !authorization.startsWith("Bearer")){
+            if (authorization==null || !authorization.startsWith("Bearer ")){
 
                 errorResponse(request,response,ErrorCode.INVALID_ACCESS_TOKEN,"토큰이 존재하지 않습니다.");
 
@@ -63,7 +59,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
             }
 
-            String token = authorization.split("\\+")[1];
+            String token = authorization.split(" ")[1];
             
             // 2. 토큰 기한 만료 여부 확인
             if (jwtUtils.isExpired(token)){
@@ -108,25 +104,21 @@ public class JWTFilter extends OncePerRequestFilter {
 
 
         }catch (JwtException e){
-            System.out.println("================= jwt 필터에서 오류가 납니다. jwtException 중 하나"+ e.getMessage());
-
             throw new AppException(ErrorCode.UNAUTHORIZED_JWT,e.getMessage(),request.getRequestURI());
         }catch (Exception e){
-            System.out.println("================= jwt 필터에서 오류가 납니다. 그냥 exception 중 하나"+ e.getMessage());
             System.out.println(e.getMessage());
         }
 
         filterChain.doFilter(request, response);
     }
 
-    private void checkOmissionUrl(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException{
+    private boolean isOmissionUrl(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException{
         // 토큰 검증을 생략할 경로
-        if (request.getRequestURI().startsWith("/login/")) {
-            filterChain.doFilter(request, response); // 다음 필터로 바로 진행
-            return;
+        if (request.getRequestURI().startsWith("/login") || request.getRequestURI().startsWith("/favicon.ico") ) {
+            return true;
         }
 
-        return;
+        return false;
 
     }
 
