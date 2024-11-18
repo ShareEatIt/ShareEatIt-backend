@@ -47,7 +47,6 @@ public class JWTFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-
         String authorization = request.getHeader("Authorization");
 
         try {

@@ -1,5 +1,6 @@
 package com.carpBread.shareEatIt.domain.participation.service;
 
+import com.carpBread.shareEatIt.domain.chat.service.ChatRoomService;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.notice.dto.NoticeCreateDto;
 import com.carpBread.shareEatIt.domain.notice.dto.NoticeRelatedObjectResponseComponent;
@@ -8,7 +9,6 @@ import com.carpBread.shareEatIt.domain.notice.entity.NoticeType;
 import com.carpBread.shareEatIt.domain.notice.repository.NoticeRepository;
 import com.carpBread.shareEatIt.domain.notice.service.NoticeService;
 import com.carpBread.shareEatIt.domain.participation.dto.*;
-import com.carpBread.shareEatIt.domain.participation.entity.GratitudeSticker;
 import com.carpBread.shareEatIt.domain.participation.entity.Participation;
 import com.carpBread.shareEatIt.domain.participation.entity.ParticipationStatus;
 import com.carpBread.shareEatIt.domain.participation.repository.GratitudeStickerRepository;
@@ -18,17 +18,16 @@ import com.carpBread.shareEatIt.domain.sharingPost.entity.PostType;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
 import com.carpBread.shareEatIt.global.exception.AppException;
-import com.carpBread.shareEatIt.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.carpBread.shareEatIt.global.exception.ErrorCode.*;
+import static com.carpBread.shareEatIt.global.exception.ErrorCode.CAN_NOT_PARTICIPATE_MY_POST;
 
 @Service
 @Transactional
@@ -40,6 +39,7 @@ public class ParticipationService {
     private final SharingPostRepository sharingPostRepository;
     private final GratitudeStickerRepository gratitudeStickerRepository;
     private final NoticeRepository noticeRepository;
+    private final ChatRoomService chatRoomService;
 
     /* 참여 생성 - 나눔글 채팅 참여 */
     public ParticipationResponseDto createParticipation(Member receiver, ParticipationRequestDto requestDto) {
@@ -48,6 +48,10 @@ public class ParticipationService {
         SharingPost post = sharingPostRepository.findById(requestDto.getSharingPostId())
                 .orElseThrow(() -> new AppException(NOT_FOUND_SHARINGPOST, "해당ID의 나눔글을 찾지 못했습니다.", "/participations"));
 
+        // 참여하려는 사용자가 개설자가 아닌지 확인
+        if(post.getWriter().getId().equals(receiver.getId())){
+            throw new AppException(CAN_NOT_PARTICIPATE_MY_POST, "본인의 나눔글에는 참여할 수 없습니다. ", "/participations");
+        }
 
         // Participation 객체 생성
         Participation participation = Participation.builder()
@@ -61,6 +65,9 @@ public class ParticipationService {
 
         // Participation 객체 저장
         Participation savedParticipation = participationRepository.save(participation);
+
+        // 채팅방 생성
+        chatRoomService.createChatRoom(receiver, participation.getId());
 
         // 응답 DTO 생성
         ParticipationResponseDto responseDto = ParticipationResponseDto.from(savedParticipation);
