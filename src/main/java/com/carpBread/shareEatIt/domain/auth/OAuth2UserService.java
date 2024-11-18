@@ -36,8 +36,6 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
         // super.loadUser()로 AccessToken으로 user 정보를 조회함
         Map<String, Object> attributes = super.loadUser(userRequest).getAttributes();
 
-        System.out.println(attributes);
-
         String accessToken = userRequest.getAccessToken().getTokenValue();
 
         List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_MEMBER");

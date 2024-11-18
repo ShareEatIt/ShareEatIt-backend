@@ -91,19 +91,19 @@ public class SecurityConfig {
             member.updateRefreshToken(newRefreshToken);
             memberRepository.save(member);
 
-            String token = "Bearer "+jwtUtils.createToken(email, nickname);
+            String accessToken = "Bearer "+jwtUtils.createToken(email, nickname);
 
 
-            String encodedToken = URLEncoder.encode(token, StandardCharsets.UTF_8.toString());
-            System.out.println(encodedToken);
+//            String encodedToken = URLEncoder.encode(token, StandardCharsets.UTF_8.toString());
+//            System.out.println(encodedToken);
+//
+//            // 쿠키 생성
+//            Cookie cookie = new Cookie("accessToken", encodedToken);
+//            cookie.setPath("/");
+//            cookie.setMaxAge(60*60*24);
+//            response.addCookie(cookie);
 
-            // 쿠키 생성
-            Cookie cookie = new Cookie("accessToken", encodedToken);
-            cookie.setPath("/");
-            cookie.setMaxAge(60*60*24);
-            response.addCookie(cookie);
-
-            ApiResponse responseDto = new ApiResponse<AuthLoginResponseDto>(HttpStatus.CREATED.value(), "카카오 소셜 로그인 성공", new AuthLoginResponseDto(newRefreshToken, (Boolean) defaultOAuth2User.getAttributes().get("isNewMember")));
+            ApiResponse responseDto = new ApiResponse<AuthLoginResponseDto>(HttpStatus.CREATED.value(), "카카오 소셜 로그인 성공", new AuthLoginResponseDto(accessToken,newRefreshToken, (Boolean) defaultOAuth2User.getAttributes().get("isNewMember")));
             String jsonResponse = objectMapper.writeValueAsString(responseDto);
 
             response.setStatus(HttpServletResponse.SC_OK);
