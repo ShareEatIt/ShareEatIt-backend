@@ -114,7 +114,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
     private boolean isOmissionUrl(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException{
         // 토큰 검증을 생략할 경로
-        if (request.getRequestURI().startsWith("/login") || request.getRequestURI().startsWith("/favicon.ico") ) {
+        if (request.getRequestURI().startsWith("/login") || request.getRequestURI().startsWith("/favicon.ico") || request.getRequestURI().startsWith("/ws")) {
             return true;
         }
 
