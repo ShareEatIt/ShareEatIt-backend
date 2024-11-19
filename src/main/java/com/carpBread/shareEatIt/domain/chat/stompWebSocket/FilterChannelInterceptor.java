@@ -90,7 +90,7 @@ public class FilterChannelInterceptor implements ChannelInterceptor {
                 throw new JwtException("토큰이 존재하지 않습니다.");
             }
 
-            String token = authorization.split("\\+")[1];
+            String token = authorization.split(" ")[1];
 
             // 2. 토큰 기한 만료 여부 확인
             if (jwtUtils.isExpired(token)) {
