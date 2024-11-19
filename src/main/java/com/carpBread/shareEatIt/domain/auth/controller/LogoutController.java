@@ -4,6 +4,7 @@ import com.carpBread.shareEatIt.domain.auth.AuthLoginResponseDto;
 import com.carpBread.shareEatIt.domain.auth.AuthUser;
 import com.carpBread.shareEatIt.domain.auth.dto.RefreshRequestDto;
 import com.carpBread.shareEatIt.domain.auth.util.JWTUtils;
+import com.carpBread.shareEatIt.domain.member.dto.LogoutResponseDto;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
 import com.carpBread.shareEatIt.global.exception.AppException;
@@ -70,8 +71,7 @@ public class LogoutController {
 
         response.addCookie(cookie);
         response.setStatus(HttpServletResponse.SC_OK);
-        ApiResponse responseDto = new ApiResponse<AuthLoginResponseDto>(HttpStatus.CREATED.value(), "리프레시 토큰 재발급 성공", new AuthLoginResponseDto(newRefreshToken,false
-        ));
+        ApiResponse responseDto = new ApiResponse<LogoutResponseDto>(HttpStatus.CREATED.value(), "리프레시 토큰 재발급 성공", new LogoutResponseDto(newRefreshToken));
         String jsonResponse = objectMapper.writeValueAsString(responseDto);
 
         response.setStatus(HttpServletResponse.SC_OK);
