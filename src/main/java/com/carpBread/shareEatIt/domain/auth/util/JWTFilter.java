@@ -15,23 +15,19 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
-import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.time.LocalDateTime;
 import java.util.Collections;
-import java.util.Objects;
 import java.util.Set;
 
+@Slf4j
 @AllArgsConstructor
 public class JWTFilter extends OncePerRequestFilter {
 
@@ -54,6 +50,7 @@ public class JWTFilter extends OncePerRequestFilter {
             if (authorization==null || !authorization.startsWith("Bearer ")){
 
                 errorResponse(request,response,ErrorCode.INVALID_ACCESS_TOKEN,"토큰이 존재하지 않습니다.");
+                log.error("토큰이 존재하지 않습니다");
 
                 throw new JwtException("토큰이 존재하지 않습니다.");
 
@@ -64,6 +61,7 @@ public class JWTFilter extends OncePerRequestFilter {
             // 2. 토큰 기한 만료 여부 확인
             if (jwtUtils.isExpired(token)){
                 errorResponse(request,response, ErrorCode.INVALID_ACCESS_TOKEN,"토큰 기한이 만료되었습니다.");
+                log.error("토큰 기한이 만료되었습니다");
 
                 throw new JwtException("토큰 기한이 만료되었습니다.");
             }
@@ -81,6 +79,7 @@ public class JWTFilter extends OncePerRequestFilter {
                     String logoutToken = (String)redisTemplate.opsForValue().get(key);
 
                     if (token.equals(logoutToken)){
+                        log.error("로그아웃된 토큰입니다. 다시 로그인해주세요.");
 
                         throw new JwtException("로그아웃된 토큰입니다. 다시 로그인해주세요.");                    }
 
