@@ -83,7 +83,7 @@ public class SharingPostService {
             throw new AppException(ErrorCode.INVALID_PROVIDER_WITH_POSTTYPE_STORE,"회원의 PROVIDER가 INDIVIDUAL일 경우 SharingPost를 STORE TYPE으로 설정하여 게시할 수 없습니다","/sharing");
         }
 
-        Point point = geometryFactory.createPoint(new Coordinate(dto.getLongitude(), dto.getLatitude()));
+        Point point = geometryFactory.createPoint(new Coordinate(dto.getLongitude()-90.0, dto.getLatitude()-90.0));
         point.setSRID(4326);
 
         SharingPost newPost = SharingPost.builder()
@@ -258,7 +258,7 @@ public class SharingPostService {
             throw new AppException(ErrorCode.UNAUTHORIZED_UPDATE_POST, "참여가 완료된 나눔이므로 POST에 대한 내용 수정이 불가합니다", "/sharing" + id);
         }
 
-        Point point = geometryFactory.createPoint(new Coordinate(dto.getLongitude(), dto.getLatitude()));
+        Point point = geometryFactory.createPoint(new Coordinate(dto.getLongitude()-90.0, dto.getLatitude()-90.0));
         point.setSRID(4326);
 
         targetPost.updatePost(dto, point);
