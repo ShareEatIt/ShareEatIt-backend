@@ -92,7 +92,7 @@ public class MemberService {
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_MEMBER,
                         "member profile update - PUT error", "/members"));
 
-        Point point = geometryFactory.createPoint(new Coordinate(updateRequestDto.getLongitude(), updateRequestDto.getLatitude()));
+        Point point = geometryFactory.createPoint(new Coordinate(updateRequestDto.getLongitude()-90.0, updateRequestDto.getLatitude()-90.0));
         point.setSRID(4326);
 
         String imgUrl=findMember.getProfileImgUrl();
