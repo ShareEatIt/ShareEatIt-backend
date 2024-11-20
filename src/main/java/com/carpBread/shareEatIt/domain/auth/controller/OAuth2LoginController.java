@@ -22,7 +22,7 @@ public class OAuth2LoginController {
 
     private final OAuth2Service oAuth2Service;
 
-    @PostMapping
+    @GetMapping
     public ResponseEntity<ApiResponse<AuthLoginResponseDto>> oauth2Login(@RequestParam(name = "code")String code, HttpServletRequest request){
         String oauth2AccessToken="";
         AuthLoginResponseDto responseDto=null;
