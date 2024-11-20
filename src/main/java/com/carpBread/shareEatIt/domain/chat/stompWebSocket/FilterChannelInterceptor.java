@@ -8,6 +8,7 @@ import com.carpBread.shareEatIt.global.exception.AppException;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -37,7 +38,7 @@ public class FilterChannelInterceptor implements ChannelInterceptor {
 
     private final JWTUtils jwtUtils;
     private final MemberRepository memberRepository;
-    private final RedisTemplate redisTemplate;
+    private final RedisTemplate<String, Object> redisTemplate;
 
     @Override
     public Message<?> preSend(Message<?> message, MessageChannel channel) {
