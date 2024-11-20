@@ -64,29 +64,36 @@ public class OAuth2Service {
 
         System.out.println("로그 확인용2 : getAccessOAuth2Token");
 
-        // connection open
-        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-        conn.setRequestMethod("POST");
-        conn.setRequestProperty("Content-Type","application/x-www-form-urlencoded;charset=utf-8");
+        try{
+            // connection open
+            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+            conn.setRequestMethod("POST");
+            conn.setRequestProperty("Content-Type","application/x-www-form-urlencoded;charset=utf-8");
 
-        // response
-        BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-        String line="";
-        String result = "";
+            // response
+            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+            String line="";
+            String result = "";
+            while((line=br.readLine())!=null){
+                result+=line;
+            }
+            System.out.println("로그 확인용33"+"getAccessOAuth2Token");
 
-        System.out.println("로그 확인용33"+"getAccessOAuth2Token");
+            ObjectMapper objectMapper = new ObjectMapper();
+            Map<String, Object> response = objectMapper.readValue(result, new TypeReference<Map<String, Object>>() {
+            });
 
+            return (String) response.get("access_token");
 
-
-        while((line=br.readLine())!=null){
-            result+=line;
+        }catch (Exception e){
+            System.out.println(e.getMessage());
         }
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        Map<String, Object> response = objectMapper.readValue(result, new TypeReference<Map<String, Object>>() {
-        });
 
-        return (String) response.get("access_token");
+
+
+        return null;
+
 
     }
 
