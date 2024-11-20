@@ -51,54 +51,34 @@ public class OAuth2Service {
 
     public String getAccessOAuth2Token(String code) throws IOException, URISyntaxException {
 
-        // url build
-        String reqURL = "https://kauth.kakao.com/oauth/token?"
-                +"grant_type=authorization_code"
-                +"&client_id="+clientId
-                +"&redirect_uri="+redirectUri
-                +"&code="+code
-                +"&client_secret="+clientSecret;
-        URL url=new URL(reqURL);
+        URIBuilder uriBuilder = new URIBuilder(tokenUri);
+        uriBuilder.addParameter("grant_type",authorizedGrantType);
+        uriBuilder.addParameter("client_id",clientId);
+        uriBuilder.addParameter("redirect_uri",redirectUri);
+        uriBuilder.addParameter("code",code);
+        uriBuilder.addParameter("client_secret",clientSecret);
 
-//        URIBuilder uriBuilder = new URIBuilder(tokenUri);
-//        uriBuilder.addParameter("grant_type",authorizedGrantType);
-//        uriBuilder.addParameter("client_id",clientId);
-//        uriBuilder.addParameter("redirect_uri",redirectUri);
-//        uriBuilder.addParameter("code",code);
-//        uriBuilder.addParameter("client_secret",clientSecret);
-//
-//
-//        URL url = uriBuilder.build().toURL();
 
-        System.out.println("로그 확인용2 : getAccessOAuth2Token");
+        URL url = uriBuilder.build().toURL();
 
-        try{
-            // connection open
-            HttpURLConnection conn = (HttpURLConnection) url.openConnection();
-            conn.setRequestMethod("POST");
-            conn.setRequestProperty("Content-Type","application/x-www-form-urlencoded;charset=utf-8");
+        // connection open
+        HttpURLConnection conn = (HttpURLConnection) url.openConnection();
+        conn.setRequestMethod("POST");
+        conn.setRequestProperty("Content-Type","application/x-www-form-urlencoded;charset=utf-8");
 
-            // response
-            BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
-            String line="";
-            String result = "";
-            while((line=br.readLine())!=null){
-                result+=line;
-            }
-            System.out.println("로그 확인용33"+"getAccessOAuth2Token");
-
-            ObjectMapper objectMapper = new ObjectMapper();
-            Map<String, Object> response = objectMapper.readValue(result, new TypeReference<Map<String, Object>>() {
-            });
-
-            return (String) response.get("access_token");
-
-        }catch (Exception e){
-            System.out.println(e.getMessage());
+        // response
+        BufferedReader br = new BufferedReader(new InputStreamReader(conn.getInputStream()));
+        String line="";
+        String result = "";
+        while((line=br.readLine())!=null){
+            result+=line;
         }
 
+        ObjectMapper objectMapper = new ObjectMapper();
+        Map<String, Object> response = objectMapper.readValue(result, new TypeReference<Map<String, Object>>() {
+        });
 
-        return null;
+        return (String) response.get("access_token");
 
 
     }
@@ -118,8 +98,6 @@ public class OAuth2Service {
 
         String line ="";
         String result="";
-
-        System.out.println("로그 확인용"+"getMemberInfo");
 
         while((line=br.readLine())!=null){
             result+=line;

@@ -23,12 +23,9 @@ public class OAuth2LoginController {
     private final OAuth2Service oAuth2Service;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<AuthLoginResponseDto>> oauth2Login(@RequestParam(name = "code")String code, HttpServletRequest request){
+    public ResponseEntity<ApiResponse<AuthLoginResponseDto>> oauth2Login(@RequestParam(name = "code")String code){
         String oauth2AccessToken="";
         AuthLoginResponseDto responseDto=null;
-
-        System.out.println(request.getRemoteAddr());
-        System.out.println(request.getRemotePort());
 
         try{
             oauth2AccessToken=oAuth2Service.getAccessOAuth2Token(code);
@@ -39,7 +36,6 @@ public class OAuth2LoginController {
 
         ApiResponse<AuthLoginResponseDto> response = new ApiResponse<>(HttpStatus.OK.value(), "소셜 로그인 성공", responseDto);
 
-        System.out.println(responseDto.getAccessToken());
         return ResponseEntity.ok().body(response);
 
     }
