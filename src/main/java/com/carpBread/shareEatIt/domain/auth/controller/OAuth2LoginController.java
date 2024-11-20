@@ -1,6 +1,5 @@
 package com.carpBread.shareEatIt.domain.auth.controller;
 
-
 import com.carpBread.shareEatIt.domain.auth.AuthLoginResponseDto;
 import com.carpBread.shareEatIt.domain.auth.OAuth2Principal;
 import com.carpBread.shareEatIt.domain.auth.dto.OAuthLoginDto;

@@ -44,12 +44,16 @@ public class JWTFilter extends OncePerRequestFilter {
         }
         String authorization = request.getHeader("Authorization");
 
+        System.out.println(request.getRequestURI()+"======로그확인용2=====");
+
         try {
             // 1. 토큰 유무 확인
             if (authorization==null || !authorization.startsWith("Bearer ")){
 
                 errorResponse(request,response,ErrorCode.INVALID_ACCESS_TOKEN,"토큰이 존재하지 않습니다.");
                 log.error("토큰이 존재하지 않습니다");
+
+                System.out.println(request.getRequestURI()+"======로그확인용3=====");
 
                 throw new JwtException("토큰이 존재하지 않습니다.");
 
@@ -118,6 +122,8 @@ public class JWTFilter extends OncePerRequestFilter {
                 || request.getRequestURI().startsWith("/favicon.ico")
                 || request.getRequestURI().startsWith("/oauth2/authorize")
                 || request.getRequestURI().startsWith("/ws")) {
+
+            System.out.println(request.getRequestURI()+"======로그확인용=====");
             return true;
         }
 
