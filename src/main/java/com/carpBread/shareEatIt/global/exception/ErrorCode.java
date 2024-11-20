@@ -44,6 +44,8 @@ public enum ErrorCode {
     // auth
     LOGOUT_FAIL(HttpStatus.CONFLICT),
     UNAUTHORIZED_JWT(HttpStatus.UNAUTHORIZED),
+    LOGIN_FAIL(HttpStatus.CONFLICT),
+    NOT_FOUND_OAUTH2_REGISTRATION_ID(HttpStatus.NOT_FOUND),
 
     // Keyword
     ALREADY_USING_KEYWORD(HttpStatus.IM_USED),

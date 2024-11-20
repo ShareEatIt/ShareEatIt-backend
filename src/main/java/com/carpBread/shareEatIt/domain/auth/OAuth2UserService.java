@@ -12,6 +12,7 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
+import org.springframework.security.oauth2.core.OAuth2AccessToken;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -30,30 +31,37 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
     private final MemberRepository memberRepository;
     private final JWTUtils jwtUtils;
 
-    @Override
-    // 이 메소드가 실행됨은, AccessToken이 정상적으로 발급된 상태임을 의미
-    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
-        // super.loadUser()로 AccessToken으로 user 정보를 조회함
-        Map<String, Object> attributes = super.loadUser(userRequest).getAttributes();
+    public OAuth2User loadUserconnit(String  accessToken) throws OAuth2AuthenticationException {
 
-        String accessToken = userRequest.getAccessToken().getTokenValue();
-
-        List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_MEMBER");
-
-        String userNameAttributeName = userRequest.getClientRegistration()
-                .getProviderDetails()
-                .getUserInfoEndpoint()
-                .getUserNameAttributeName();
-
-        Map<String, Object> findAttributes = extractAttributes(attributes);
-
-        Boolean isNewMember = checkJoin(findAttributes,accessToken,(Long) findAttributes.get("id"));
-
-        findAttributes.put("isNewMember",isNewMember);
-
-        return new DefaultOAuth2User(authorities,findAttributes, userNameAttributeName);
-
+        System.out.println("로그 확인용 : OAuth2UserService");
+        // DefaultOAuth2UserService의 loadUser 메서드를 호출하여 사용자 정보를 가져옴
+        return super.loadUser(null);
     }
+
+    //    @Override
+//    // 이 메소드가 실행됨은, AccessToken이 정상적으로 발급된 상태임을 의미
+//    public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
+//        // super.loadUser()로 AccessToken으로 user 정보를 조회함
+//        Map<String, Object> attributes = super.loadUser(userRequest).getAttributes();
+//
+//        String accessToken = userRequest.getAccessToken().getTokenValue();
+//
+//        List<GrantedAuthority> authorities = AuthorityUtils.createAuthorityList("ROLE_MEMBER");
+//
+//        String userNameAttributeName = userRequest.getClientRegistration()
+//                .getProviderDetails()
+//                .getUserInfoEndpoint()
+//                .getUserNameAttributeName();
+//
+//        Map<String, Object> findAttributes = extractAttributes(attributes);
+//
+//        Boolean isNewMember = checkJoin(findAttributes,accessToken,(Long) findAttributes.get("id"));
+//
+//        findAttributes.put("isNewMember",isNewMember);
+//
+//        return new DefaultOAuth2User(authorities,findAttributes, userNameAttributeName);
+//
+//    }
 
     private Map<String , Object> extractAttributes(Map<String, Object> attributes){
         Map<String, Object> findAttributes=new HashMap<String , Object>();

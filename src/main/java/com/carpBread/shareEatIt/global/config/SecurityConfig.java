@@ -56,6 +56,7 @@ public class SecurityConfig {
     private static final String[] AUTH_WHITELIST = {
             "/login/**", // 로그인
             "/ws/**",
+            "/oauth2/**"
     };
 
     @Bean

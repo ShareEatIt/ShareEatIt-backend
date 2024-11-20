@@ -5,9 +5,7 @@ import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.notice.dto.NoticeListResponseDto;
 import com.carpBread.shareEatIt.domain.notice.dto.NoticeResponseDto;
 import com.carpBread.shareEatIt.domain.notice.service.NoticeService;
-import com.carpBread.shareEatIt.domain.sharingPost.dto.SharingPostResponseDto;
 import com.carpBread.shareEatIt.global.response.ApiResponse;
-import lombok.Data;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -16,11 +14,9 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-
 import java.io.IOException;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.logging.Logger;
 
 @RestController
 @RequestMapping("/notice")
@@ -102,8 +98,6 @@ public class NoticeController {
     public SseEmitter testNotice(@AuthUser Member member){
         SseEmitter sseEmitter = new SseEmitter();
         clients.put(member.getId(),sseEmitter);
-
-        System.out.println("print logger");
 
         // 연결이 닫히면 클라이언트 목록에서 제거
         sseEmitter.onCompletion(() -> clients.remove(member.getId()));
