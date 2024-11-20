@@ -62,6 +62,8 @@ public class OAuth2Service {
 
         URL url = uriBuilder.build().toURL();
 
+        System.out.println("로그 확인용2 : getAccessOAuth2Token");
+
         // connection open
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
         conn.setRequestMethod("POST");
@@ -72,7 +74,9 @@ public class OAuth2Service {
         String line="";
         String result = "";
 
-        System.out.println("로그 확인용"+"getAccessOAuth2Token");
+        System.out.println("로그 확인용33"+"getAccessOAuth2Token");
+
+gi
 
         while((line=br.readLine())!=null){
             result+=line;
