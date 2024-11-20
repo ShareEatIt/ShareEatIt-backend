@@ -52,15 +52,23 @@ public class OAuth2Service {
     public String getAccessOAuth2Token(String code) throws IOException, URISyntaxException {
 
         // url build
-        URIBuilder uriBuilder = new URIBuilder(tokenUri);
-        uriBuilder.addParameter("grant_type",authorizedGrantType);
-        uriBuilder.addParameter("client_id",clientId);
-        uriBuilder.addParameter("redirect_uri",redirectUri);
-        uriBuilder.addParameter("code",code);
-        uriBuilder.addParameter("client_secret",clientSecret);
+        String reqURL = "https://kauth.kakao.com/oauth/token?"
+                +"grant_type=authorization_code"
+                +"&client_id="+clientId
+                +"&redirect_uri="+redirectUri
+                +"&code="+code
+                +"&client_secret="+clientSecret;
+        URL url=new URL(reqURL);
 
-
-        URL url = uriBuilder.build().toURL();
+//        URIBuilder uriBuilder = new URIBuilder(tokenUri);
+//        uriBuilder.addParameter("grant_type",authorizedGrantType);
+//        uriBuilder.addParameter("client_id",clientId);
+//        uriBuilder.addParameter("redirect_uri",redirectUri);
+//        uriBuilder.addParameter("code",code);
+//        uriBuilder.addParameter("client_secret",clientSecret);
+//
+//
+//        URL url = uriBuilder.build().toURL();
 
         System.out.println("로그 확인용2 : getAccessOAuth2Token");
 
