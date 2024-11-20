@@ -8,6 +8,7 @@ import com.carpBread.shareEatIt.domain.auth.util.JWTUtils;
 import com.carpBread.shareEatIt.global.exception.AppException;
 import com.carpBread.shareEatIt.global.exception.ErrorCode;
 import com.carpBread.shareEatIt.global.response.ApiResponse;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
@@ -25,9 +26,12 @@ public class OAuth2LoginController {
     private final OAuth2Service oAuth2Service;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<AuthLoginResponseDto>> oauth2Login(@RequestParam(name = "code")String code){
+    public ResponseEntity<ApiResponse<AuthLoginResponseDto>> oauth2Login(@RequestParam(name = "code")String code, HttpServletRequest request){
         String oauth2AccessToken="";
         AuthLoginResponseDto responseDto=null;
+
+        System.out.println(request.getRemoteAddr());
+        System.out.println(request.getRemotePort());
 
         try{
             oauth2AccessToken=oAuth2Service.getAccessOAuth2Token(code);
