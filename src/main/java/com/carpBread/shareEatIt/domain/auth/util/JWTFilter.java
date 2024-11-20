@@ -48,6 +48,9 @@ public class JWTFilter extends OncePerRequestFilter {
             // 1. 토큰 유무 확인
             if (authorization==null || !authorization.startsWith("Bearer ")){
 
+                System.out.println("JWTFilter.doFilterInternal");
+                System.out.println(authorization);
+
                 errorResponse(request,response,ErrorCode.INVALID_ACCESS_TOKEN,"토큰이 존재하지 않습니다.");
                 log.error("토큰이 존재하지 않습니다");
 
