@@ -45,7 +45,9 @@ dependencies {
 	runtimeOnly 'com.mysql:mysql-connector-j'
 	annotationProcessor 'org.projectlombok:lombok'
 
+	// http 요청 request
 	implementation 'org.springframework.boot:spring-boot-starter-webflux'
+	implementation 'org.apache.httpcomponents.client5:httpclient5:5.2'
 
 	// jwt 관련 import
 	implementation 'io.jsonwebtoken:jjwt-api:0.11.5'
