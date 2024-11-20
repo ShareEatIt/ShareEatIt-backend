@@ -76,7 +76,7 @@ public class OAuth2Service {
 
         System.out.println("로그 확인용33"+"getAccessOAuth2Token");
 
-gi
+
 
         while((line=br.readLine())!=null){
             result+=line;
