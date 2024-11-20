@@ -6,18 +6,25 @@ import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.service.MemberService;
 import com.carpBread.shareEatIt.domain.notice.controller.NoticeController;
 import com.carpBread.shareEatIt.global.response.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.service.annotation.GetExchange;
 
+import java.awt.*;
+
 @RestController
 @RequestMapping("/members")
 @RequiredArgsConstructor
 public class MemberController {
     private final MemberService memberService;
+    private final GeometryFactory geometryFactory = new GeometryFactory();
 
     @GetMapping("/test")
     public ResponseEntity<String> test(@AuthUser Member member){
@@ -29,6 +36,13 @@ public class MemberController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<MemberProfileResponseDto>> memberProfile(@AuthUser Member member){
+        Point point;
+        if (member.getLocationPoint()==null){
+            point= geometryFactory.createPoint(new Coordinate(127.02-90.0, 37.63-90.0));
+        }else{
+            point=member.getLocationPoint();
+        }
+
         MemberProfileResponseDto responseDto = MemberProfileResponseDto.builder()
                 .id(member.getId())
                 .profileImg(member.getProfileImgUrl())
@@ -37,8 +51,8 @@ public class MemberController {
                 .location(LocationResponseDtoComponent.builder()
                         .addressSt(member.getAddressSt())
                         .addressDetail(member.getAddressDetail())
-                        .latitude(member.getLocationPoint().getY())
-                        .longitude(member.getLocationPoint().getX())
+                        .latitude(point.getY())
+                        .longitude(point.getX())
                         .build())
                 .provider(member.getProvider().name())
                 .joinedAt(member.getCreatedAt())
@@ -76,7 +90,7 @@ public class MemberController {
     @PutMapping
     public ResponseEntity<ApiResponse> updateMemberProfile(@AuthUser Member member,
                                                            @RequestPart(name = "imgFile",required = false) MultipartFile imgFile,
-                                                           @RequestPart(name = "dto") MemberProfileUpdateRequestDto dto){
+                                                           @Valid @RequestPart(name = "dto") MemberProfileUpdateRequestDto dto){
 
         MemberProfileResponseDto responseDto = memberService.updateProfile(member.getId(),imgFile, dto);
 
@@ -89,7 +103,7 @@ public class MemberController {
 
     @PatchMapping("/avail")
     public ResponseEntity<ApiResponse<MemberStickerResponseDto>> updateMemberAvail(@AuthUser Member member,
-                                                         @RequestBody MemberAvailRequestDto dto){
+                                                         @Valid @RequestBody MemberAvailRequestDto dto){
         MemberStickerResponseDto responseDto = memberService.updateAvail(dto,member.getId());
         ApiResponse<MemberStickerResponseDto> response = new ApiResponse<>(HttpStatus.OK.value(),
                 "회원 keyword avail, notice avail 수정",
