@@ -33,6 +33,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
     public OAuth2User loadUserconnit(String  accessToken) throws OAuth2AuthenticationException {
 
+        System.out.println("로그 확인용 : OAuth2UserService");
         // DefaultOAuth2UserService의 loadUser 메서드를 호출하여 사용자 정보를 가져옴
         return super.loadUser(null);
     }

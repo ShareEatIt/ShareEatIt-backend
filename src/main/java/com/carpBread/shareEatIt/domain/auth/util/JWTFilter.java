@@ -123,7 +123,6 @@ public class JWTFilter extends OncePerRequestFilter {
                 || request.getRequestURI().startsWith("/oauth2/authorize")
                 || request.getRequestURI().startsWith("/ws")) {
 
-            System.out.println(request.getRequestURI()+"======로그확인용=====");
             return true;
         }
 
