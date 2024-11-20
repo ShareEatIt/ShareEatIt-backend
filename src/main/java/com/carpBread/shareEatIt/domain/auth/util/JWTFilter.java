@@ -116,7 +116,8 @@ public class JWTFilter extends OncePerRequestFilter {
         // 토큰 검증을 생략할 경로
         if (request.getRequestURI().startsWith("/login")
                 || request.getRequestURI().startsWith("/favicon.ico")
-                || request.getRequestURI().startsWith("/oauth2/authorize")) {
+                || request.getRequestURI().startsWith("/oauth2/authorize")
+                || request.getRequestURI().startsWith("/ws")) {
             return true;
         }
 

@@ -22,7 +22,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry){
         // 엔드포인트(client가 WebSocket 연결을 요청할 때 사용하는 주소) 주소 설정
         registry.addEndpoint("/ws")
-                .setAllowedOrigins("https://jiangxy.github.io", "http://localhost:3000")
+                .setAllowedOrigins("https://jiangxy.github.io", "http://localhost:3000", "http://54.180.228.54")
                 .setAllowedOriginPatterns("*")  // CORS 설정 - 모든 도메인에서 오는 요청 허용
                 .withSockJS();
     }
