@@ -72,6 +72,8 @@ public class OAuth2Service {
         String line="";
         String result = "";
 
+        System.out.println("로그 확인용"+"getAccessOAuth2Token");
+
         while((line=br.readLine())!=null){
             result+=line;
         }
@@ -99,6 +101,8 @@ public class OAuth2Service {
 
         String line ="";
         String result="";
+
+        System.out.println("로그 확인용"+"getMemberInfo");
 
         while((line=br.readLine())!=null){
             result+=line;
