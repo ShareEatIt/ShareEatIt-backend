@@ -1,7 +1,6 @@
 package com.carpBread.shareEatIt.domain.auth.util;
 
 import com.carpBread.shareEatIt.domain.auth.OAuth2Principal;
-import com.carpBread.shareEatIt.domain.auth.OAuth2UserService;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.entity.Provider;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
@@ -81,7 +80,9 @@ public class JWTFilter extends OncePerRequestFilter {
                     if (token.equals(logoutToken)){
                         log.error("로그아웃된 토큰입니다. 다시 로그인해주세요.");
 
-                        throw new JwtException("로그아웃된 토큰입니다. 다시 로그인해주세요.");                    }
+                        throw new JwtException("로그아웃된 토큰입니다. 다시 로그인해주세요.");
+
+                    }
 
                 }
             }
@@ -113,7 +114,9 @@ public class JWTFilter extends OncePerRequestFilter {
 
     private boolean isOmissionUrl(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException{
         // 토큰 검증을 생략할 경로
-        if (request.getRequestURI().startsWith("/login") || request.getRequestURI().startsWith("/favicon.ico") ) {
+        if (request.getRequestURI().startsWith("/login")
+                || request.getRequestURI().startsWith("/favicon.ico")
+                || request.getRequestURI().startsWith("/oauth2/authorize")) {
             return true;
         }
 
