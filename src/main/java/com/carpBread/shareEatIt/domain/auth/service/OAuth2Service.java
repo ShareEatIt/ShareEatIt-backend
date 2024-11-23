@@ -136,7 +136,7 @@ public class OAuth2Service {
 
             String accessToken = "Bearer "+ jwtUtils.createToken(newMember.getEmail(), newMember.getNickname());
 
-            System.out.println(accessToken);
+            NoticeController.putMemberToClients(newMember.getId());
 
             return AuthLoginResponseDto.builder()
                     .isNewMember(true)

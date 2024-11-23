@@ -23,7 +23,7 @@ import java.util.concurrent.ConcurrentHashMap;
 @RequiredArgsConstructor
 public class NoticeController {
 
-    private static Map<Long, SseEmitter> clients = new ConcurrentHashMap<>();
+    private static Map<Long, SseEmitter>  clients = new ConcurrentHashMap<>();
 
     public static void putMemberToClients(Long memberId){
         clients.put(memberId,new SseEmitter());
@@ -62,10 +62,7 @@ public class NoticeController {
     public SseEmitter subscribe(@AuthUser Member member){
         SseEmitter sseEmitter = new SseEmitter();
         clients.put(member.getId(), sseEmitter);
-        System.out.println( clients
-
-
-        );
+        System.out.println( clients        );
 
         // 연결 로그 출력
         System.out.println("Client connected: " + member.getId());
@@ -78,45 +75,5 @@ public class NoticeController {
 
     }
 
-    @GetMapping("/send")
-    public String sendNotification(@AuthUser Member member){
-        SseEmitter sseEmitter = clients.get(member.getId());
-        System.out.println( clients        );
-        if (sseEmitter != null){
-            try{
-                sseEmitter.send(SseEmitter.event().name("notification").data("you have a new notice!"));
-            }catch (IOException e){
-                clients.remove(member.getId());
-                return "Error - sending notice";
-            }
-            return "notice sent!";
-        }
-        return "no client connected";
-    }
 
-    @GetMapping
-    public SseEmitter testNotice(@AuthUser Member member){
-        SseEmitter sseEmitter = new SseEmitter();
-        clients.put(member.getId(),sseEmitter);
-
-        // 연결이 닫히면 클라이언트 목록에서 제거
-        sseEmitter.onCompletion(() -> clients.remove(member.getId()));
-        sseEmitter.onTimeout(() -> clients.remove(member.getId()));
-
-        return sseEmitter;
-    }
-
-
-
-    public void sendNotification(Long userId, String message){
-        SseEmitter emitter = clients.get(userId);
-
-        if (emitter != null){
-            try{
-                emitter.send(SseEmitter.event().name("notification").data(message));
-            }catch (Exception e){
-                clients.remove(userId);
-            }
-        }
-    }
 }
