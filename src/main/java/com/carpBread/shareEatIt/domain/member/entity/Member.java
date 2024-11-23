@@ -92,11 +92,13 @@ public class Member extends BaseEntity {
         this.profileImgUrl=url;
 
     }
-    public void changeAvail(MemberAvailRequestDto dto){
-        this.isKeywordAvail=dto.getIsKeywordAvail();
-        this.isNoticeAvail=dto.getIsNoticeAvail();
+    public void updateAvailKeyword(Boolean isKeywordAvail){
+        this.isKeywordAvail=isKeywordAvail;
     }
 
+    public void updateAvailNotice(Boolean isNoticeAvail){
+        this.isNoticeAvail=isNoticeAvail;
+    }
 
     public void updateRefreshToken(String newRefreshToken) {
 

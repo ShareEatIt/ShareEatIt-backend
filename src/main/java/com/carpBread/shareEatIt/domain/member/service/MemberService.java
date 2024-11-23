@@ -140,22 +140,28 @@ public class MemberService {
 
     }
 
-    public MemberStickerResponseDto updateAvail(MemberAvailRequestDto dto, Long memberId) {
-        Member findMember = memberRepository.findById(memberId)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_MEMBER,
-                        "member profile update - PATCH error", "/members"));
+    public AvailResponseDto updateAvailKeyword(Member member, Boolean keyword) {
+        member.updateAvailKeyword(keyword);
+        Member updatedMember = memberRepository.save(member);
 
-        findMember.changeAvail(dto);
+        return AvailResponseDto.builder()
+                .id(updatedMember.getId())
+                .isKeywordAvail(updatedMember.getIsKeywordAvail())
+                .isNoticeAvail(updatedMember.getIsNoticeAvail())
+                .build();
 
-        Member savedMember = memberRepository.save(findMember);
+    }
 
-        if (!dto.getIsNoticeAvail()){
-            NoticeController.removeMemberFromClients(memberId);
-        }else{
-            NoticeController.putMemberToClients(memberId);
-        }
+    public AvailResponseDto updateAvailNotice(Member member, Boolean notice) {
+        member.updateAvailNotice(notice);
+        Member updatedMember = memberRepository.save(member);
 
-        return findStickers(savedMember.getId());
+        return AvailResponseDto.builder()
+                .id(updatedMember.getId())
+                .isKeywordAvail(updatedMember.getIsKeywordAvail())
+                .isNoticeAvail(updatedMember.getIsNoticeAvail())
+                .build();
+
 
     }
 
@@ -269,4 +275,7 @@ public class MemberService {
                 .build();
 
     }
+
+
+
 }
