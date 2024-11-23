@@ -149,7 +149,6 @@ public class MemberService {
                 .isKeywordAvail(updatedMember.getIsKeywordAvail())
                 .isNoticeAvail(updatedMember.getIsNoticeAvail())
                 .build();
-
     }
 
     public AvailResponseDto updateAvailNotice(Member member, Boolean notice) {
@@ -164,6 +163,8 @@ public class MemberService {
 
 
     }
+
+
 
     public MemberWithdrawalResponseDto withdrawal(Long memberId) {
         Member findMember = memberRepository.findById(memberId)

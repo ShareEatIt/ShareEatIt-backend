@@ -548,6 +548,8 @@ public class SharingPostService {
 
     }
 
+
+    // keyword notice 보내기
     @Transactional(value = Transactional.TxType.REQUIRES_NEW)
     private void isSendNotification(SharingPost post){
         List<Member> memberList = memberRepository.findMemberWithRadius(post.getLocationPoint().getY(), post.getLocationPoint().getX(), mapRadius);
@@ -555,6 +557,11 @@ public class SharingPostService {
         String foodName = post.getFoodName();
 
         for (Member member : memberList){
+
+            // isKeywordAvail 또는 isNoticeAvail 이 false인 경우 알람 보내지 않음
+            if(!member.getIsKeywordAvail() || !member.getIsNoticeAvail())
+                continue;
+
             List<Keywords> keywordsList = member.getKeywordsList();
 
             for(Keywords keywords : keywordsList){

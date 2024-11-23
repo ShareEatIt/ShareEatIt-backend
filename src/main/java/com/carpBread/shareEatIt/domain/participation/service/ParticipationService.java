@@ -158,16 +158,27 @@ public class ParticipationService {
         // 변경한 내용 저장
         participationRepository.save(participation);
 
+        // 알림 보내기
+        sendNotification(participation, ptStatus);
+
         // 응답 DTO 생성
         ParticipationUpdateStatusResponseDto responseDto = ParticipationUpdateStatusResponseDto.from(participation);
         return responseDto;
 
     }
 
+
+    // review notice 보내기
     private void sendNotification(Participation participation,ParticipationStatus status){
+        // 1. 참여자가 Notice 설정을 하지 않은 경우 반환
+        if (!participation.getReceiver().getIsNoticeAvail())
+            return;
+
+        // 검증 2. Participation 상태가 COMPLETED가 아닌 경우 반환
         if (status!=ParticipationStatus.COMPLETED)
             return;
 
+        // 검증 3. Gratitude Sticker, 반응이 완료된 상태이면 반환
         Boolean isExists = gratitudeStickerRepository.existsByPost(participation.getPost());
         if (isExists)
             return;
