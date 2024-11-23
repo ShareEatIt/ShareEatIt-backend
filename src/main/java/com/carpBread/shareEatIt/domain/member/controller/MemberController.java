@@ -8,6 +8,7 @@ import com.carpBread.shareEatIt.domain.notice.controller.NoticeController;
 import com.carpBread.shareEatIt.global.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.hibernate.metamodel.model.domain.internal.MapMember;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
@@ -101,12 +102,24 @@ public class MemberController {
         return ResponseEntity.ok().body(response);
     }
 
-    @PatchMapping("/avail")
-    public ResponseEntity<ApiResponse<MemberStickerResponseDto>> updateMemberAvail(@AuthUser Member member,
-                                                         @Valid @RequestBody MemberAvailRequestDto dto){
-        MemberStickerResponseDto responseDto = memberService.updateAvail(dto,member.getId());
-        ApiResponse<MemberStickerResponseDto> response = new ApiResponse<>(HttpStatus.OK.value(),
-                "회원 keyword avail, notice avail 수정",
+    @PatchMapping("/avail/keyword")
+    public ResponseEntity<ApiResponse<AvailResponseDto>> updateMemberAvailKeyword(@AuthUser Member member,
+                                                                                          @RequestParam(name = "keyword")Boolean keyword){
+
+        AvailResponseDto responseDto = memberService.updateAvailKeyword(member, keyword);
+        ApiResponse<AvailResponseDto> response = new ApiResponse<>(HttpStatus.OK.value(),
+                "회원 keyword avail 수정",
+                responseDto);
+
+        return ResponseEntity.ok().body(response);
+    }
+
+    @PatchMapping("/avail/notice")
+    public ResponseEntity<ApiResponse<AvailResponseDto>> updateMemberAvail(@AuthUser Member member,
+                                                         @RequestParam(name = "notice") Boolean notice){
+        AvailResponseDto responseDto = memberService.updateAvailNotice(member, notice);
+        ApiResponse<AvailResponseDto> response = new ApiResponse<>(HttpStatus.OK.value(),
+                "회원 notice avail 수정",
                 responseDto);
 
         return ResponseEntity.ok().body(response);
