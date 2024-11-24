@@ -104,7 +104,7 @@ public class MemberController {
 
     @PatchMapping("/avail/keyword")
     public ResponseEntity<ApiResponse<AvailResponseDto>> updateMemberAvailKeyword(@AuthUser Member member,
-                                                                                          @RequestParam(name = "keyword")Boolean keyword){
+                                                                                  @RequestParam(name = "keyword")Boolean keyword){
 
         AvailResponseDto responseDto = memberService.updateAvailKeyword(member, keyword);
         ApiResponse<AvailResponseDto> response = new ApiResponse<>(HttpStatus.OK.value(),
@@ -116,7 +116,7 @@ public class MemberController {
 
     @PatchMapping("/avail/notice")
     public ResponseEntity<ApiResponse<AvailResponseDto>> updateMemberAvail(@AuthUser Member member,
-                                                         @RequestParam(name = "notice") Boolean notice){
+                                                                            @RequestParam(name = "notice") Boolean notice){
         AvailResponseDto responseDto = memberService.updateAvailNotice(member, notice);
         ApiResponse<AvailResponseDto> response = new ApiResponse<>(HttpStatus.OK.value(),
                 "회원 notice avail 수정",
