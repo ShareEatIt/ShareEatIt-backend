@@ -179,7 +179,7 @@ public class MemberService {
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_MEMBER,
                         "member withdrawal - DELETE error", "/members"));
 
-        NoticeController.removeMemberFromClients(memberId);
+        sseService.unregisterClient(memberId);
 
         // 이미지 url 삭제 로직 추가 예정
         String profileImgUrl = findMember.getProfileImgUrl();
