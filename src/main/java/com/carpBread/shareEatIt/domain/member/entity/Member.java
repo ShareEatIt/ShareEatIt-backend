@@ -74,12 +74,11 @@ public class Member extends BaseEntity {
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     List<Keywords> keywordsList = new ArrayList<>();
 
-    public void changeAccessToken(String accessToken){
+    public void updateAccessToken(String accessToken){
         this.accessToken=accessToken;
     }
 
-    public void changeMemberProfile(MemberProfileUpdateRequestDto dto,Point point, String imgUrl){
-        this.profileImgUrl=dto.getProfileImg();
+    public void updateMemberProfile(MemberProfileUpdateRequestDto dto,Point point, String imgUrl){
         this.nickname=dto.getNickname();
         this.locationPoint=point;
         this.profileImgUrl=imgUrl;
@@ -88,10 +87,15 @@ public class Member extends BaseEntity {
         this.provider=Provider.toEnum(dto.getProvider());
     }
 
-    public void changeImgUrl(String url){
+    public void updateImgUrl(String url){
         this.profileImgUrl=url;
 
     }
+
+    public void updateLocationPoint(Point point){
+        this.locationPoint=point;
+    }
+
     public void updateAvailKeyword(Boolean isKeywordAvail){
         this.isKeywordAvail=isKeywordAvail;
     }

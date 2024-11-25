@@ -37,12 +37,7 @@ public class MemberController {
 
     @GetMapping
     public ResponseEntity<ApiResponse<MemberProfileResponseDto>> memberProfile(@AuthUser Member member){
-        Point point;
-        if (member.getLocationPoint()==null){
-            point= geometryFactory.createPoint(new Coordinate(127.02-90.0, 37.63-90.0));
-        }else{
-            point=member.getLocationPoint();
-        }
+        Point point=member.getLocationPoint();
 
         MemberProfileResponseDto responseDto = MemberProfileResponseDto.builder()
                 .id(member.getId())

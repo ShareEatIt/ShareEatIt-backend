@@ -119,7 +119,7 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
             throw new RuntimeException("회원가입되지 않은 사용자입니다.");
 
         }else{
-            member.changeAccessToken(accessToken);
+            member.updateAccessToken(accessToken);
             Member savedMember = memberRepository.save(member);
             return false;
         }

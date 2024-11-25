@@ -6,6 +6,7 @@ import com.carpBread.shareEatIt.domain.member.dto.*;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
 import com.carpBread.shareEatIt.domain.notice.controller.NoticeController;
+import com.carpBread.shareEatIt.domain.notice.service.SseService;
 import com.carpBread.shareEatIt.domain.participation.repository.GratitudeStickerRepository;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.PostCategory;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
@@ -42,6 +43,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final GratitudeStickerRepository gratitudeStickerRepository;
     private final SharingPostRepository sharingPostRepository;
+    private final SseService sseService;
     private final AmazonS3 s3Client;
 
     private final GeometryFactory geometryFactory = new GeometryFactory();
@@ -119,7 +121,7 @@ public class MemberService {
         }
 
 
-        findMember.changeMemberProfile(updateRequestDto,point,imgUrl);
+        findMember.updateMemberProfile(updateRequestDto,point,imgUrl);
         Member updatedMember = memberRepository.save(findMember);
 
         return MemberProfileResponseDto.builder()
@@ -151,16 +153,22 @@ public class MemberService {
                 .build();
     }
 
+    // notice avail 설정 변경
     public AvailResponseDto updateAvailNotice(Member member, Boolean notice) {
         member.updateAvailNotice(notice);
         Member updatedMember = memberRepository.save(member);
+
+        if(notice){
+            sseService.isRegistered(member.getId());
+        }else{
+            sseService.unregisterClient(member.getId());
+        }
 
         return AvailResponseDto.builder()
                 .id(updatedMember.getId())
                 .isKeywordAvail(updatedMember.getIsKeywordAvail())
                 .isNoticeAvail(updatedMember.getIsNoticeAvail())
                 .build();
-
 
     }
 
