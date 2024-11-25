@@ -36,7 +36,7 @@ public class OAuth2Service {
     private final MemberRepository memberRepository;
     private final SseService sseService;
     private final JWTUtils jwtUtils;
-    private final GeometryFactory geometryFactory;
+    private final GeometryFactory geometryFactory=new GeometryFactory();;
 
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String clientId;
