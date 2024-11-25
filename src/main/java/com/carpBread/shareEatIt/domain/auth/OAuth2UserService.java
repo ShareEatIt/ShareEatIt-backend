@@ -110,7 +110,6 @@ public class OAuth2UserService extends DefaultOAuth2UserService {
 
             Member savedMember = memberRepository.save(newMember);
 
-            NoticeController.putMemberToClients(savedMember.getId());
 
             return true;
 
