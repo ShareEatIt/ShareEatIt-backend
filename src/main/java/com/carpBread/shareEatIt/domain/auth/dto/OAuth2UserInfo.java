@@ -5,7 +5,9 @@ import com.carpBread.shareEatIt.domain.member.entity.Provider;
 import com.carpBread.shareEatIt.global.exception.AppException;
 import com.carpBread.shareEatIt.global.exception.ErrorCode;
 import lombok.Builder;
+import org.locationtech.jts.geom.Point;
 
+import java.awt.*;
 import java.util.Map;
 
 @Builder
@@ -38,13 +40,16 @@ public record OAuth2UserInfo(
                 .build();
     }
 
-    public Member toEntity(String accessToken, String refreshToken){
+    public Member toEntity(String accessToken, String refreshToken, Point point){
+
+
         return Member.builder()
                 .accessId(this.id)
                 .email(this.email)
                 .nickname(this.nickname)
                 .accessToken(accessToken)
                 .refreshToken(refreshToken)
+                .locationPoint(point)
                 .profileImgUrl(this.image)
                 .provider(Provider.INDIVIDUAL)
                 .isKeywordAvail(true)
