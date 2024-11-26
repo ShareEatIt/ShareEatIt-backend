@@ -159,7 +159,7 @@ public class MemberService {
         Member updatedMember = memberRepository.save(member);
 
         if(notice){
-            sseService.isRegistered(member.getId());
+            sseService.registerClient(member.getId());
         }else{
             sseService.unregisterClient(member.getId());
         }
