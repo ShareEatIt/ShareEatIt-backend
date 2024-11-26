@@ -557,7 +557,10 @@ public class SharingPostService {
     private void isSendNotification(SharingPost post){
         List<Member> memberList = memberRepository.findMemberWithRadius(post.getLocationPoint().getY(), post.getLocationPoint().getX(), radius);
 
-        String foodName = post.getFoodName();
+        if (memberList.size()==0)
+            System.out.println("멤버 리스트 없음");
+        else
+            System.out.println(memberList.get(0));
 
         for (Member member : memberList){
 
@@ -566,6 +569,11 @@ public class SharingPostService {
                 continue;
 
             List<Keywords> keywordsList = member.getKeywordsList();
+
+            if (keywordsList.size()==0)
+                System.out.println("키워드 리스트 없음");
+            else
+                System.out.println(keywordsList.get(0));
 
 
             for(Keywords keywords : keywordsList){
