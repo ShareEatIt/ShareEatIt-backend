@@ -63,6 +63,8 @@ public class ChatMessageService {
         // 객체 저장
         ChatMessage savedMessage = chatMessageRepository.save(message);
 
+        sendNotification(savedMessage);
+
         // 응답 DTO 생성
         ChatMessageResponseDto responseDto = ChatMessageResponseDto.from(savedMessage);
         return responseDto;
