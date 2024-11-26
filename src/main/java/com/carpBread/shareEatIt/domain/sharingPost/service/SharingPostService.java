@@ -87,12 +87,8 @@ public class SharingPostService {
             throw new AppException(ErrorCode.INVALID_PROVIDER_WITH_POSTTYPE_STORE,"회원의 PROVIDER가 INDIVIDUAL일 경우 SharingPost를 STORE TYPE으로 설정하여 게시할 수 없습니다","/sharing");
         }
 
-        System.out.println("raw"+" la : "+dto.getLatitude()+" long : "+dto.getLongitude());
-
         Point point = geometryFactory.createPoint(new Coordinate(dto.getLongitude()-90.0, dto.getLatitude()-90.0));
         point.setSRID(4326);
-
-        System.out.println("raw"+" la : "+point.getY()+" long : "+point.getX());
 
         SharingPost newPost = SharingPost.builder()
                 .title(dto.getTitle())
@@ -561,6 +557,17 @@ public class SharingPostService {
     private void isSendNotification(SharingPost post){
         List<Member> memberList = memberRepository.findMemberWithRadius(post.getLocationPoint().getY(), post.getLocationPoint().getX(), radius);
 
+        double latitude = post.getWriter().getLocationPoint().getY();
+        double longitude = post.getWriter().getLocationPoint().getX();
+        System.out.println("사용자: la : "+latitude+"\nlong : "+longitude);
+
+        System.out.println("사용자: la : "+post.getLocationPoint().getY()+"\nlong : "+post.getLocationPoint().getX());
+
+        if (memberList.size()==0)
+            System.out.println("멤버 리스트 없음");
+        else
+            System.out.println(memberList.get(0));
+
         for (Member member : memberList){
 
             // isKeywordAvail가 false 또는 clients에 등록되지 않은 경우 경우 알람 보내지 않음
@@ -569,8 +576,15 @@ public class SharingPostService {
 
             List<Keywords> keywordsList = member.getKeywordsList();
 
+            if (keywordsList.size()==0)
+                System.out.println("키워드 리스트 없음");
+            else
+                System.out.println(keywordsList.get(0));
+
+
             for(Keywords keywords : keywordsList){
                 String keyword = keywords.getKeyword();
+                System.out.println(keyword);
                 if (post.getCategory().name().equals(keyword)){
                     String title="새로운 나눔글이 등록되었어요!✨";
                     String message = member.getNickname() + "님을 위한 " + keyword + "과 관련된 새로운 나눔글이 등록되었어요!✨ \n관심 키워드로 등록한 나눔글을 확인해보세요❤️";
