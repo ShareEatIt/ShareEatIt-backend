@@ -55,11 +55,6 @@ public class SseService {
     public void sendNotification(Long memberId, NoticeCreateDto dto){
         SseEmitter emitter = clients.get(memberId);
 
-        if (isRegistered(memberId))
-            System.out.println("있음");
-        else
-            System.out.println("없음!!");
-
         if (emitter != null){
             try{
                 System.out.println("알림 로그"+System.nanoTime()+dto.getMessage()+'['+dto.getTitle()+']');
@@ -76,7 +71,7 @@ public class SseService {
 
     // 알람 목록 clients에 등록되어 있는 사용자인지 확인
     public Boolean isRegistered(Long userId){
-        return clients.containsKey(userId);
+        return redisTemplate.opsForHash().hasKey("sse:clients", userId.toString());
     }
 
 }
