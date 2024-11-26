@@ -58,7 +58,7 @@ public class SseService {
         if (isRegistered(memberId))
             System.out.println("있음");
         else
-            System.out.println("없음!!");
+            System.out.println("없음");
 
         if (emitter != null){
             try{
@@ -76,7 +76,7 @@ public class SseService {
 
     // 알람 목록 clients에 등록되어 있는 사용자인지 확인
     public Boolean isRegistered(Long userId){
-        return clients.containsKey(userId);
+        return redisTemplate.opsForHash().hasKey("sse:clients", userId.toString());
     }
 
 }
