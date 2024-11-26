@@ -38,12 +38,17 @@ public class NoticeService {
                     .message(notice.getMessage())
                     .build();
             componentList.add(component);
-            notice.changeIsRead(true);
-            noticeRepository.save(notice);
+//            notice.changeIsRead(true);
+//            noticeRepository.save(notice);
         }
 
+        Boolean isRead=false;
+        if (componentList.size()==0)
+            isRead=true;
+
+
         return NoticeListResponseDto.builder()
-                .isRead(false)
+                .isRead(isRead)
                 .noticeList(componentList)
                 .build();
 
