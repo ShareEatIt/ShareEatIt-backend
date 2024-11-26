@@ -58,7 +58,7 @@ public class SharingPostService {
     private String bucketName;
 
     // 위치 기반 주변 post 반경 (10km 설정)
-    private final double radius = 10000;
+    private final double radius = 1000000000;
 
     // 키워드 알람 설정 1km
     private final double mapRadius = 1000;
@@ -556,6 +556,12 @@ public class SharingPostService {
     @Transactional(value = Transactional.TxType.REQUIRES_NEW)
     private void isSendNotification(SharingPost post){
         List<Member> memberList = memberRepository.findMemberWithRadius(post.getLocationPoint().getY(), post.getLocationPoint().getX(), radius);
+
+        double latitude = post.getWriter().getLocationPoint().getY();
+        double longitude = post.getWriter().getLocationPoint().getX();
+        System.out.println("사용자: la : "+latitude+"\nlong : "+longitude);
+
+        System.out.println("사용자: la : "+post.getLocationPoint().getY()+"\nlong : "+post.getLocationPoint().getX());
 
         if (memberList.size()==0)
             System.out.println("멤버 리스트 없음");
