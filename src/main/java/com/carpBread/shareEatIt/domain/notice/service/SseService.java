@@ -55,11 +55,6 @@ public class SseService {
     public void sendNotification(Long memberId, NoticeCreateDto dto){
         SseEmitter emitter = clients.get(memberId);
 
-        if (isRegistered(memberId))
-            System.out.println("있음");
-        else
-            System.out.println("없음!!");
-
         if (emitter != null){
             try{
                 System.out.println("알림 로그"+System.nanoTime()+dto.getMessage()+'['+dto.getTitle()+']');
