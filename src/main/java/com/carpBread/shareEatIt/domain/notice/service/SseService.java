@@ -29,7 +29,7 @@ public class SseService {
 
     // client 연결
     public SseEmitter registerClient(Long userId){
-        SseEmitter emitter = new SseEmitter(0L);
+        SseEmitter emitter = new SseEmitter(10000L * 45L);
         clients.put(userId, emitter);
 
         // 연결 종료 처리
@@ -62,6 +62,7 @@ public class SseService {
 
         if (emitter != null){
             try{
+                System.out.println("알림 로그"+System.nanoTime()+dto.getMessage()+'['+dto.getTitle()+']');
                 log.debug("알림 로그"+System.nanoTime()+dto.getMessage()+'['+dto.getTitle()+']');
                 emitter.send(SseEmitter.event().name("notice:"+dto.getNoticeType()+":"+dto.getId()).data(dto));
             }catch (IOException e){
