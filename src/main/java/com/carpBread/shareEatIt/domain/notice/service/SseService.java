@@ -40,7 +40,7 @@ public class SseService {
         log.debug("알람 객체에 등록됨"+userId);
 
         // redis에 사용자 등록 정보 저장
-        redisTemplate.opsForHash().put("sse:clients", userId.toString(), emitter);
+        redisTemplate.opsForHash().put("sse:clients", userId.toString(),"connected");
         return emitter;
 
     }
