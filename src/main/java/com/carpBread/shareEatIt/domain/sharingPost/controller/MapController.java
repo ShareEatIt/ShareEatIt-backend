@@ -8,15 +8,13 @@ import com.carpBread.shareEatIt.domain.sharingPost.dto.map.MapRequestDto;
 import com.carpBread.shareEatIt.domain.sharingPost.service.SharingPostService;
 import com.carpBread.shareEatIt.global.response.ApiResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
@@ -27,7 +25,14 @@ public class MapController {
 
     @GetMapping("/list")
     public ResponseEntity<ApiResponse<MapListResponseDto>> getMapList(@AuthUser Member member,
-                                                                      @Valid @RequestBody MapRequestDto dto){
+                                                                      @NotBlank @RequestParam(name = "longitude")Double longitude,
+                                                                      @NotBlank @RequestParam(name = "latitude")Double latitude){
+        MapRequestDto dto = MapRequestDto.builder()
+                .longitude(longitude)
+                .latitude(latitude)
+                .build();
+
+
         MapListResponseDto responseDto = sharingPostService.getMapList(member,dto);
 
         ApiResponse<MapListResponseDto> response = new ApiResponse<>(HttpStatus.OK.value(),"지도 나눔글 목록 조회 성공", responseDto);
