@@ -1,6 +1,7 @@
-package com.carpBread.shareEatIt.domain.member.dto;
+package com.carpBread.shareEatIt.domain.member.dto.request;
 
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -18,9 +19,9 @@ public class MemberProfileUpdateRequestDto {
     @NotBlank
     private String provider;
 
-    @NotBlank
+    @NotNull
     private Double latitude;
-    @NotBlank
+    @NotNull
     private Double longitude;
 
     @NotBlank
