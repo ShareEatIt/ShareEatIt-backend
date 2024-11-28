@@ -2,23 +2,18 @@ package com.carpBread.shareEatIt.domain.member.controller;
 
 import com.carpBread.shareEatIt.domain.auth.AuthUser;
 import com.carpBread.shareEatIt.domain.member.dto.*;
+import com.carpBread.shareEatIt.domain.member.dto.request.MemberProfileUpdateRequestDto;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.service.MemberService;
-import com.carpBread.shareEatIt.domain.notice.controller.NoticeController;
 import com.carpBread.shareEatIt.global.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.hibernate.metamodel.model.domain.internal.MapMember;
-import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.springframework.web.service.annotation.GetExchange;
-
-import java.awt.*;
 
 @RestController
 @RequestMapping("/members")
