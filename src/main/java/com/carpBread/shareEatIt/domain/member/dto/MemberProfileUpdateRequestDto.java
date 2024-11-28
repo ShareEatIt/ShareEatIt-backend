@@ -9,16 +9,23 @@ import lombok.NoArgsConstructor;
 @Getter @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@NotBlank
 public class MemberProfileUpdateRequestDto {
     private String profileImg;
+
+    @NotBlank
     private String nickname;
+
+    @NotBlank
     private String provider;
 
+    @NotBlank
     private Double latitude;
+    @NotBlank
     private Double longitude;
 
+    @NotBlank
     private String addressSt;
+    @NotBlank
     private String addressDetail;
 
 
