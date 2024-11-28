@@ -1,20 +1,16 @@
 package com.carpBread.shareEatIt.domain.member.entity;
 
-import com.carpBread.shareEatIt.domain.member.dto.MemberAvailRequestDto;
-import com.carpBread.shareEatIt.domain.member.dto.MemberProfileResponseDto;
-import com.carpBread.shareEatIt.domain.member.dto.MemberProfileUpdateRequestDto;
+import com.carpBread.shareEatIt.domain.member.dto.request.MemberProfileUpdateRequestDto;
 import com.carpBread.shareEatIt.global.entity.BaseEntity;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.locationtech.jts.geom.Point;
 
-import javax.print.attribute.standard.MediaSize;
 import java.util.ArrayList;
 import java.util.List;
 

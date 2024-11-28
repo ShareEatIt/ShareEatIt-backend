@@ -1,4 +1,4 @@
-package com.carpBread.shareEatIt.domain.member.dto;
+package com.carpBread.shareEatIt.domain.member.dto.request;
 
 import lombok.Getter;
 import lombok.NoArgsConstructor;
