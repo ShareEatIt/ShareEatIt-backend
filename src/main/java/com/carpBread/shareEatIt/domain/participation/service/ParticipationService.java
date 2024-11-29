@@ -1,5 +1,6 @@
 package com.carpBread.shareEatIt.domain.participation.service;
 
+import com.carpBread.shareEatIt.domain.chat.entity.ChatRoom;
 import com.carpBread.shareEatIt.domain.chat.service.ChatRoomService;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.notice.dto.NoticeCreateDto;
@@ -69,10 +70,10 @@ public class ParticipationService {
         Participation savedParticipation = participationRepository.save(participation);
 
         // 채팅방 생성
-        chatRoomService.createChatRoom(receiver, participation.getId());
+        ChatRoom savedChatRoom = chatRoomService.createChatRoom(receiver, participation.getId());
 
         // 응답 DTO 생성
-        ParticipationResponseDto responseDto = ParticipationResponseDto.from(savedParticipation);
+        ParticipationResponseDto responseDto = ParticipationResponseDto.from(savedParticipation, savedChatRoom);
         return responseDto;
 
     }
