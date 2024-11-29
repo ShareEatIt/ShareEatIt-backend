@@ -17,32 +17,32 @@ public class ParticipationHistoryResponseDto {
     private PostType provider;
     private String writerName;
     private PostCategory category;
-    private PostImgUrl imgUrl;
+    private String firstImgUrl;
     private PostStatus status;
     private LocalDateTime endDate;
     private LocalDateTime createdAt;  // LocalDateTime
 
-    public ParticipationHistoryResponseDto(Long sharingPostId, String title, PostType provider, String writerName, PostCategory category, PostImgUrl imgUrl, PostStatus status, LocalDateTime endDate, LocalDateTime createdAt) {
+    public ParticipationHistoryResponseDto(Long sharingPostId, String title, PostType provider, String writerName, PostCategory category, String firstImgUrl, PostStatus status, LocalDateTime endDate, LocalDateTime createdAt) {
         this.sharingPostId = sharingPostId;
         this.title = title;
         this.provider = provider;
         this.writerName = writerName;
         this.category = category;
-        this.imgUrl = imgUrl;
+        this.firstImgUrl = firstImgUrl;
         this.status = status;
         this.endDate = endDate;
         this.createdAt = createdAt;
     }
 
     @Builder
-    public static ParticipationHistoryResponseDto from(SharingPost post){
+    public static ParticipationHistoryResponseDto from(SharingPost post, String firstImgUrl){
         return new ParticipationHistoryResponseDto(
                 post.getId(),
                 post.getTitle(),
                 post.getPostType(),
                 post.getWriter().getNickname(),
                 post.getCategory(),
-                post.getPostImgUrlList().get(0), // image
+                firstImgUrl, // image
                 post.getStatus(),
                 post.getEndAt(),
                 post.getCreatedAt()
