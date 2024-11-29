@@ -15,11 +15,14 @@ import com.carpBread.shareEatIt.domain.participation.entity.Participation;
 import com.carpBread.shareEatIt.domain.participation.entity.ParticipationStatus;
 import com.carpBread.shareEatIt.domain.participation.repository.GratitudeStickerRepository;
 import com.carpBread.shareEatIt.domain.participation.repository.ParticipationRepository;
+import com.carpBread.shareEatIt.domain.sharingPost.entity.PostImgUrl;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.PostStatus;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.PostType;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
+import com.carpBread.shareEatIt.domain.sharingPost.service.SharingPostService;
 import com.carpBread.shareEatIt.global.exception.AppException;
+import com.carpBread.shareEatIt.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -43,6 +46,7 @@ public class ParticipationService {
     private final NoticeRepository noticeRepository;
     private final ChatRoomService chatRoomService;
     private final SseService sseService;
+    private final SharingPostService sharingPostService;
 
     /* 참여 생성 - 나눔글 채팅 참여 */
     public ParticipationResponseDto createParticipation(Member receiver, ParticipationRequestDto requestDto) {
@@ -81,34 +85,40 @@ public class ParticipationService {
 
     /* 사용자가 나눔받은 모든 기록 조회 */
     public ParticipationHistoryListResponseDto findAllParticipation(Member receiver) {
-
         // 사용자 = receiver이고 나눔완료 상태인 모든 '참여'의 나눔글 조회
-        List<SharingPost> participatedPosts = participationRepository.findSharingPostByUserAndStatus(receiver.getId());
-
-        // 조회된 각 나눔글을 응답dto 리스트로 변환
-        List<ParticipationHistoryResponseDto> dtoList = convertDtoToList(participatedPosts);
+        List<ParticipationHistoryResponseDto> dtoList = participationRepository.findSharingPostByUserAndStatus(receiver.getId())
+                .stream()
+                .map(this::convertToDtoWithFirstImg) // 첫 번째 이미지를 포함해 DTO로 변환
+                .collect(Collectors.toList());
         return new ParticipationHistoryListResponseDto(dtoList);
-
     }
 
 
     /* 사용자가 특정 provider의 나눔을 받은 모든 기록 조회 */
     public ParticipationHistoryListResponseDto findAllParticipationByProvider(Member receiver, PostType provider) {
-
         // 사용자 = receiver이고 상태 = 나눔완료인 모든 '참여'의 나눔글 중 특정 provider의 글 조회
-        List<SharingPost> participatedPosts = participationRepository.findSharingPostByUserAndStatusAndPostType(receiver.getId(), provider);
-
-        // 조회된 각 나눔글을 응답dto 리스트로 변환
-        List<ParticipationHistoryResponseDto> dtoList = convertDtoToList(participatedPosts);
+        List<ParticipationHistoryResponseDto> dtoList = participationRepository.findSharingPostByUserAndStatusAndPostType(receiver.getId(), provider)
+                .stream()
+                .map(this::convertToDtoWithFirstImg) // 첫 번째 이미지를 포함해 DTO로 변환
+                .collect(Collectors.toList());
         return new ParticipationHistoryListResponseDto(dtoList);
-
     }
 
-    // list를 dto로 변환
-    private List<ParticipationHistoryResponseDto> convertDtoToList(List<SharingPost> participatedPosts){
-        return participatedPosts.stream()
-                .map(ParticipationHistoryResponseDto::from)
-                .collect(Collectors.toList());
+
+    // 게시글을 DTO로 변환하며 첫 번째 이미지를 추가
+    private ParticipationHistoryResponseDto convertToDtoWithFirstImg(SharingPost post) {
+        String firstImgUrl = findFirstImgUrl(post); // 첫 번째 이미지 조회
+        return ParticipationHistoryResponseDto.from(post, firstImgUrl); // DTO 생성 시 이미지 URL 추가
+    }
+
+    // 게시글에서 첫 번째 이미지 URL 조회
+    private String findFirstImgUrl(SharingPost post) {
+        return sharingPostService.getPostImgUrlList(post).stream()
+                .filter(imgUrl -> imgUrl.getImgOrder() == 1) // imgOrder가 1인 이미지 필터링
+                .map(PostImgUrl::getUrl) // URL만 추출
+                .findFirst() // 첫 번째 URL 가져오기
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_POST_IMAGE,
+                        "현재 POST에 해당하는 IMAGE를 찾을 수 없습니다", "/sharing"));
     }
 
 
