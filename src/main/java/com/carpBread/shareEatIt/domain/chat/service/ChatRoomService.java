@@ -28,7 +28,7 @@ public class ChatRoomService {
     private final ChatRoomRepository chatRoomRepository;
 
     /* 채팅방 생성 */
-    public ChatRoomResponseDto createChatRoom(Member member, Long participationId) {
+    public ChatRoom createChatRoom(Member member, Long participationId) {
 
         // Participation 객체 찾기
         Participation participation = participationRepository.findById(participationId)
@@ -40,12 +40,15 @@ public class ChatRoomService {
                 .status(ChatRoomStatus.ACTIVE)
                 .build();
 
-        // 저장
-        ChatRoom savedChatRoom = chatRoomRepository.save(chatRoom);
+        // 저장 & 반환
+        return chatRoomRepository.save(chatRoom);
 
+    }
 
+    // 채팅방 생성 dto로 반환
+    public ChatRoomResponseDto changeChatRoomToDto(ChatRoom chatRoom){
         // 응답 dto로 반환
-        return ChatRoomResponseDto.from(savedChatRoom);
+        return ChatRoomResponseDto.from(chatRoom);
     }
 
 
