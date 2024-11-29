@@ -3,6 +3,7 @@ package com.carpBread.shareEatIt.domain.chat.controller;
 import com.carpBread.shareEatIt.domain.auth.AuthUser;
 import com.carpBread.shareEatIt.domain.chat.dto.ChatRoomListResponseDto;
 import com.carpBread.shareEatIt.domain.chat.dto.ChatRoomResponseDto;
+import com.carpBread.shareEatIt.domain.chat.entity.ChatRoom;
 import com.carpBread.shareEatIt.domain.chat.service.ChatRoomService;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.global.response.ApiResponse;
@@ -23,7 +24,8 @@ public class ChatRoomController {
     @ResponseStatus(HttpStatus.CREATED)
     public ResponseEntity<ApiResponse<ChatRoomResponseDto>> createChatRoom(@AuthUser Member member,
                                                                            @RequestParam(name = "ptId")Long participationId){
-        ChatRoomResponseDto responseDto = chatRoomService.createChatRoom(member, participationId);
+        ChatRoom savedChatRoom = chatRoomService.createChatRoom(member, participationId);
+        ChatRoomResponseDto responseDto = chatRoomService.changeChatRoomToDto(savedChatRoom);
         ApiResponse<ChatRoomResponseDto> response = new ApiResponse<>(
                 HttpStatus.CREATED.value(),
                 "채팅방 생성",
