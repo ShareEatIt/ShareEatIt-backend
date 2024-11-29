@@ -39,8 +39,8 @@ public class SharingPostController {
     @GetMapping("/list")
     public ResponseEntity<ApiResponse<SharingPostListResponseDto>> findSharingPostListByProviderType(@AuthUser Member member,
                                                                                                      @NotBlank @RequestParam(name = "postType")String postType,
-                                                                                                     @NotBlank @RequestParam(name = "latitude")Double latitude,
-                                                                                                     @NotBlank @RequestParam(name = "longitude")Double longitude){
+                                                                                                     @NotNull @RequestParam(name = "latitude")Double latitude,
+                                                                                                     @NotNull @RequestParam(name = "longitude")Double longitude){
         SharingPostListRequestDto dto = SharingPostListRequestDto.builder()
                 .postType(postType)
                 .latitude(latitude)
