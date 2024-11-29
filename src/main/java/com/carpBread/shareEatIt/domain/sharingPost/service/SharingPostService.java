@@ -15,6 +15,7 @@ import com.carpBread.shareEatIt.domain.notice.entity.Notice;
 import com.carpBread.shareEatIt.domain.notice.entity.NoticeType;
 import com.carpBread.shareEatIt.domain.notice.repository.NoticeRepository;
 import com.carpBread.shareEatIt.domain.notice.service.NoticeService;
+import com.carpBread.shareEatIt.domain.notice.service.SseService;
 import com.carpBread.shareEatIt.domain.participation.entity.GratitudeSticker;
 import com.carpBread.shareEatIt.domain.participation.entity.GratitudeType;
 import com.carpBread.shareEatIt.domain.participation.entity.Participation;
@@ -56,8 +57,10 @@ public class SharingPostService {
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
-    // 위치 기반 반경 (10km 설정)
-    private final double radius = 10000;
+    // 위치 기반 주변 post 반경 (10km 설정)
+    private final double radius = 1000000000;
+
+    // 키워드 알람 설정 1km
     private final double mapRadius = 1000;
 
     private final GeometryFactory geometryFactory = new GeometryFactory();
@@ -66,6 +69,7 @@ public class SharingPostService {
     private final MemberRepository memberRepository;
     private final ParticipationRepository participationRepository;
     private final NoticeRepository noticeRepository;
+    private final SseService sseService;
     private final PostImgUrlRepository postImgUrlRepository;
     private final GratitudeStickerRepository gratitudeStickerRepository;
 
@@ -481,7 +485,6 @@ public class SharingPostService {
 
     }
 
-
     private List<SharingPostSimpleResponseComponent> changeSharingPostEntityListToComponentList(List<SharingPost> entityList){
         List<SharingPostSimpleResponseComponent> componentList = new ArrayList<>();
 
@@ -548,19 +551,41 @@ public class SharingPostService {
 
     }
 
+
+    // keyword notice 보내기
     @Transactional(value = Transactional.TxType.REQUIRES_NEW)
     private void isSendNotification(SharingPost post){
-        List<Member> memberList = memberRepository.findMemberWithRadius(post.getLocationPoint().getY(), post.getLocationPoint().getX(), mapRadius);
+        List<Member> memberList = memberRepository.findMemberWithRadius(post.getLocationPoint().getY(), post.getLocationPoint().getX(), radius);
 
-        String foodName = post.getFoodName();
+        double latitude = post.getWriter().getLocationPoint().getY();
+        double longitude = post.getWriter().getLocationPoint().getX();
+        System.out.println("사용자: la : "+latitude+"\nlong : "+longitude);
+
+        System.out.println("사용자: la : "+post.getLocationPoint().getY()+"\nlong : "+post.getLocationPoint().getX());
+
+        if (memberList.size()==0)
+            System.out.println("멤버 리스트 없음");
+        else
+            System.out.println(memberList.get(0));
 
         for (Member member : memberList){
+
+            // isKeywordAvail가 false 또는 clients에 등록되지 않은 경우 경우 알람 보내지 않음
+            if(!member.getIsKeywordAvail() || !sseService.isRegistered(member.getId()))
+                continue;
+
             List<Keywords> keywordsList = member.getKeywordsList();
+
+            if (keywordsList.size()==0)
+                System.out.println("키워드 리스트 없음");
+            else
+                System.out.println(keywordsList.get(0));
+
 
             for(Keywords keywords : keywordsList){
                 String keyword = keywords.getKeyword();
-                if ((keyword.length()>=foodName.length() && foodName.contains(keyword) )
-                    || (keyword.length()< foodName.length() && keyword.contains(foodName))){
+                System.out.println(keyword);
+                if (post.getCategory().name().equals(keyword)){
                     String title="새로운 나눔글이 등록되었어요!✨";
                     String message = member.getNickname() + "님을 위한 " + keyword + "과 관련된 새로운 나눔글이 등록되었어요!✨ \n관심 키워드로 등록한 나눔글을 확인해보세요❤️";
 
@@ -588,7 +613,7 @@ public class SharingPostService {
                             .createdAt(savedNotice.getCreatedAt())
                             .build();
 
-                    NoticeService.sendNotification(member, noticeDto);
+                    sseService.sendNotification(member.getId(), noticeDto);
 
                 }
             }

@@ -19,11 +19,14 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
+/*notice 관련 db 리스트 조회 기능을 담당하는 service*/
 @Service @Transactional(value = Transactional.TxType.REQUIRES_NEW)
 @RequiredArgsConstructor
 public class NoticeService {
 
     private final NoticeRepository noticeRepository;
+
+
     public NoticeListResponseDto findUnreadNoticeList(Member member) {
         List<Notice> unReadNoticeList = noticeRepository.findByMemberAndIsRead(member, false);
 
@@ -35,12 +38,17 @@ public class NoticeService {
                     .message(notice.getMessage())
                     .build();
             componentList.add(component);
-            notice.changeIsRead(true);
-            noticeRepository.save(notice);
+//            notice.changeIsRead(true);
+//            noticeRepository.save(notice);
         }
 
+        Boolean isRead=false;
+        if (componentList.size()==0)
+            isRead=true;
+
+
         return NoticeListResponseDto.builder()
-                .isRead(false)
+                .isRead(isRead)
                 .noticeList(componentList)
                 .build();
 
@@ -65,21 +73,6 @@ public class NoticeService {
                 .build();
 
     }
-
-
-    public static void sendNotification(Member member, NoticeCreateDto dto){
-        SseEmitter emitter = NoticeController.getSseEmitterByMemberId(member.getId());
-
-        if (emitter != null){
-            try{
-                emitter.send(SseEmitter.event().name("notice:"+dto.getNoticeType()+":"+dto.getId()).data(dto));
-            }catch (IOException e){
-                NoticeController.removeMemberFromClients(member.getId());
-                throw new AppException(ErrorCode.NOTICE_SEND_FAIL,"알림을 전송하는 과정에서 오류가 발생했습니다","[INNER LOGIC FAIL _ NO URL]");
-            }
-        }
-    }
-
 
 
 }

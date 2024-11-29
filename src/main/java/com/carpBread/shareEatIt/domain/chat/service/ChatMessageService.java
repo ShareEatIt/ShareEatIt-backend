@@ -9,12 +9,21 @@ import com.carpBread.shareEatIt.domain.chat.repository.ChatMessageRepository;
 import com.carpBread.shareEatIt.domain.chat.repository.ChatRoomRepository;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
+import com.carpBread.shareEatIt.domain.notice.dto.NoticeCreateDto;
+import com.carpBread.shareEatIt.domain.notice.dto.NoticeRelatedObjectResponseComponent;
+import com.carpBread.shareEatIt.domain.notice.entity.Notice;
+import com.carpBread.shareEatIt.domain.notice.entity.NoticeType;
+import com.carpBread.shareEatIt.domain.notice.repository.NoticeRepository;
+import com.carpBread.shareEatIt.domain.notice.service.SseService;
+import com.carpBread.shareEatIt.domain.participation.entity.Participation;
 import com.carpBread.shareEatIt.domain.participation.repository.ParticipationRepository;
 import com.carpBread.shareEatIt.global.exception.AppException;
+import com.carpBread.shareEatIt.global.exception.ErrorCode;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -32,6 +41,8 @@ public class ChatMessageService {
     private final ChatRoomRepository chatRoomRepository;
     private final ParticipationRepository participationRepository;
     private final MemberRepository memberRepository;
+    private final SseService sseService;
+    private final NoticeRepository noticeRepository;
 
     /* 채팅 메시지 저장 */
     public ChatMessageResponseDto saveMessage(ChatMessageRequestDto requestDto) {
@@ -51,6 +62,8 @@ public class ChatMessageService {
 
         // 객체 저장
         ChatMessage savedMessage = chatMessageRepository.save(message);
+
+        sendNotification(savedMessage);
 
         // 응답 DTO 생성
         ChatMessageResponseDto responseDto = ChatMessageResponseDto.from(savedMessage);
@@ -84,6 +97,57 @@ public class ChatMessageService {
         return chatMessageList.stream()
                 .map(ChatMessageResponseDto::from)
                 .collect(Collectors.toList());
+
+    }
+
+    // chatting 알람 보내기
+    private void sendNotification(ChatMessage chat){
+        // 사용자 탐색
+        ChatRoom chatRoom = chatRoomRepository.findById(chat.getChatRoomId())
+                .orElseThrow(() -> new AppException(NOT_FOUND_CHATROOM, "해당 Id의 채팅방을 찾을수 없습니다." , "/chat/message"));
+        Participation participation = chatRoom.getParticipation();
+        Member recipient;
+        Member receiver = participation.getReceiver();
+        Member giver = participation.getGiver();
+
+        if(chat.getSenderId() == receiver.getId())
+            recipient=receiver;
+        else recipient=giver;
+
+        // 검증. 받는 사람이 notice 설정을 하지 않은 경우 반환
+        if(!sseService.isRegistered(recipient.getId()))
+            return;
+
+        // 알림 생성
+        String title="채팅방에 메세지가 도착했습니다! 확인해보세요🗨️";
+        String message = "["+participation.getPost().getTitle()+"] 게시글 채팅방에서 새로운 메세지가 도착했습니다."
+                +"\n채팅방에서 답장을 남겨주세요🥰";
+        Notice newNotice = Notice.builder()
+                .title(title)
+                .message(message)
+                .member(recipient)
+                .type(NoticeType.CHATTING)
+                .isRead(false)
+                .build();
+
+        Notice savedNotice = noticeRepository.save(newNotice);
+
+        NoticeRelatedObjectResponseComponent noticeObject=NoticeRelatedObjectResponseComponent.builder()
+                .id(chatRoom.getId())
+                .category(participation.getPost().getCategory().name())
+                .build();
+
+        NoticeCreateDto noticeDto = NoticeCreateDto.builder()
+                .id(savedNotice.getId())
+                .title(savedNotice.getTitle())
+                .message(savedNotice.getMessage())
+                .noticeType(NoticeType.CHATTING.name())
+                .noticeObject(noticeObject)
+                .createdAt(savedNotice.getCreatedAt())
+                .build();
+
+        // 알림 보내기
+        sseService.sendNotification(recipient.getId(), noticeDto);
 
     }
 }

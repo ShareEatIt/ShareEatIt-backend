@@ -6,6 +6,7 @@ import com.carpBread.shareEatIt.domain.sharingPost.dto.*;
 import com.carpBread.shareEatIt.domain.sharingPost.service.SharingPostService;
 import com.carpBread.shareEatIt.global.response.ApiResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -15,6 +16,7 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
 
+/* 나눔글 CRUD controller */
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/sharing")
@@ -34,9 +36,17 @@ public class SharingPostController {
         return ResponseEntity.ok().body(response);
     }
 
-    @GetMapping
+    @GetMapping("/list")
     public ResponseEntity<ApiResponse<SharingPostListResponseDto>> findSharingPostListByProviderType(@AuthUser Member member,
-                                                                  @Valid @RequestBody SharingPostListRequestDto dto){
+                                                                                                     @NotBlank @RequestParam(name = "postType")String postType,
+                                                                                                     @NotBlank @RequestParam(name = "latitude")Double latitude,
+                                                                                                     @NotBlank @RequestParam(name = "longitude")Double longitude){
+        SharingPostListRequestDto dto = SharingPostListRequestDto.builder()
+                .postType(postType)
+                .latitude(latitude)
+                .longitude(longitude)
+                .build();
+
         SharingPostListResponseDto responseDto = sharingPostService.findPostListByProviderType(member, dto);
 
         ApiResponse<SharingPostListResponseDto> response = new ApiResponse<>(HttpStatus.OK.value(),"나눔글 리스트 조회 성공", responseDto);

@@ -8,6 +8,7 @@ import com.carpBread.shareEatIt.domain.notice.entity.Notice;
 import com.carpBread.shareEatIt.domain.notice.entity.NoticeType;
 import com.carpBread.shareEatIt.domain.notice.repository.NoticeRepository;
 import com.carpBread.shareEatIt.domain.notice.service.NoticeService;
+import com.carpBread.shareEatIt.domain.notice.service.SseService;
 import com.carpBread.shareEatIt.domain.participation.dto.*;
 import com.carpBread.shareEatIt.domain.participation.entity.Participation;
 import com.carpBread.shareEatIt.domain.participation.entity.ParticipationStatus;
@@ -40,6 +41,7 @@ public class ParticipationService {
     private final GratitudeStickerRepository gratitudeStickerRepository;
     private final NoticeRepository noticeRepository;
     private final ChatRoomService chatRoomService;
+    private final SseService sseService;
 
     /* 참여 생성 - 나눔글 채팅 참여 */
     public ParticipationResponseDto createParticipation(Member receiver, ParticipationRequestDto requestDto) {
@@ -158,21 +160,33 @@ public class ParticipationService {
         // 변경한 내용 저장
         participationRepository.save(participation);
 
+        // 알림 보내기
+        sendNotification(participation, ptStatus);
+
         // 응답 DTO 생성
         ParticipationUpdateStatusResponseDto responseDto = ParticipationUpdateStatusResponseDto.from(participation);
         return responseDto;
 
     }
 
+
+    // review notice 보내기
     private void sendNotification(Participation participation,ParticipationStatus status){
+        // 검증 1. 참여자가 Notice 설정을 하지 않은 경우 반환
+        if (!sseService.isRegistered(participation.getReceiver().getId()))
+            return;
+
+        // 검증 2. Participation 상태가 COMPLETED가 아닌 경우 반환
         if (status!=ParticipationStatus.COMPLETED)
             return;
 
+        // 검증 3. Gratitude Sticker, 반응이 완료된 상태이면 반환
         Boolean isExists = gratitudeStickerRepository.existsByPost(participation.getPost());
         if (isExists)
             return;
 
 
+        // 알림 생성
         String title = "나눔이 완료되었습니다! 후기를 남겨주세요😺";
         String message = participation.getGiver().getNickname()+"님과의 "+participation.getPost().getFoodName()+" 나눔이 완료되었습니다! "
                 +"\n나눔글 페이지에서 후기를 남겨주세요❤️";
@@ -199,7 +213,9 @@ public class ParticipationService {
                 .noticeObject(noticeObject)
                 .createdAt(savedNotice.getCreatedAt())
                 .build();
-        NoticeService.sendNotification(participation.getReceiver(), noticeDto);
+
+        // 알림 보내기
+        sseService.sendNotification(participation.getReceiver().getId(), noticeDto);
 
 
     }

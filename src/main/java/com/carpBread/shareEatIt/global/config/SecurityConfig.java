@@ -2,8 +2,6 @@ package com.carpBread.shareEatIt.global.config;
 
 import com.carpBread.shareEatIt.domain.auth.AuthLoginResponseDto;
 import com.carpBread.shareEatIt.domain.auth.OAuth2LogoutHandler;
-import com.carpBread.shareEatIt.domain.auth.OAuth2Principal;
-import com.carpBread.shareEatIt.domain.auth.OAuth2UserService;
 import com.carpBread.shareEatIt.domain.auth.util.JWTFilter;
 import com.carpBread.shareEatIt.domain.auth.util.JWTUtils;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
@@ -12,10 +10,8 @@ import com.carpBread.shareEatIt.global.exception.AppException;
 import com.carpBread.shareEatIt.global.exception.ErrorCode;
 import com.carpBread.shareEatIt.global.response.ApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -34,10 +30,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.net.URLEncoder;
-import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
-import java.util.Map;
 
 @Configuration
 @EnableWebSecurity
@@ -48,7 +41,6 @@ public class SecurityConfig {
     private final JWTUtils jwtUtils;
     private final MemberRepository memberRepository;
     private final ObjectMapper objectMapper;
-    private final OAuth2UserService oAuth2UserService;
     private final WebClient webClient;
     private final RedisTemplate<String , Object> redisTemplate;
 
@@ -70,10 +62,6 @@ public class SecurityConfig {
             .authorizeHttpRequests(request-> request
                     .requestMatchers(AUTH_WHITELIST).permitAll()  // 채팅 엔드포인트 인증 제외함
                     .anyRequest().hasRole("MEMBER")
-            )
-            .oauth2Login(oauth2->
-                    oauth2.userInfoEndpoint(o->o.userService(oAuth2UserService))
-                            .successHandler(successHandler())
             )
             .addFilterBefore(new JWTFilter(jwtUtils,memberRepository,objectMapper,redisTemplate), UsernamePasswordAuthenticationFilter.class)
             .logout(logout -> logout
@@ -141,6 +129,7 @@ public class SecurityConfig {
 
         configuration.addAllowedMethod("GET");
         configuration.addAllowedMethod("POST");
+        configuration.addAllowedMethod("PUT");
         configuration.addAllowedMethod("PATCH");
         configuration.addAllowedMethod("DELETE");
         configuration.addAllowedMethod("OPTIONS");

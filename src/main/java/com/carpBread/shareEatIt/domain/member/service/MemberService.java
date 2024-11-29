@@ -3,12 +3,12 @@ package com.carpBread.shareEatIt.domain.member.service;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.carpBread.shareEatIt.domain.member.dto.*;
+import com.carpBread.shareEatIt.domain.member.dto.request.MemberProfileUpdateRequestDto;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
-import com.carpBread.shareEatIt.domain.notice.controller.NoticeController;
+import com.carpBread.shareEatIt.domain.notice.service.SseService;
 import com.carpBread.shareEatIt.domain.participation.repository.GratitudeStickerRepository;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.PostCategory;
-import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
 import com.carpBread.shareEatIt.global.exception.AppException;
 import com.carpBread.shareEatIt.global.exception.ErrorCode;
@@ -42,6 +42,7 @@ public class MemberService {
     private final MemberRepository memberRepository;
     private final GratitudeStickerRepository gratitudeStickerRepository;
     private final SharingPostRepository sharingPostRepository;
+    private final SseService sseService;
     private final AmazonS3 s3Client;
 
     private final GeometryFactory geometryFactory = new GeometryFactory();
@@ -92,6 +93,7 @@ public class MemberService {
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_MEMBER,
                         "member profile update - PUT error", "/members"));
 
+
         Point point = geometryFactory.createPoint(new Coordinate(updateRequestDto.getLongitude()-90.0, updateRequestDto.getLatitude()-90.0));
         point.setSRID(4326);
 
@@ -118,7 +120,7 @@ public class MemberService {
         }
 
 
-        findMember.changeMemberProfile(updateRequestDto,point,imgUrl);
+        findMember.updateMemberProfile(updateRequestDto,point,imgUrl);
         Member updatedMember = memberRepository.save(findMember);
 
         return MemberProfileResponseDto.builder()
@@ -139,31 +141,44 @@ public class MemberService {
 
     }
 
-    public MemberStickerResponseDto updateAvail(MemberAvailRequestDto dto, Long memberId) {
-        Member findMember = memberRepository.findById(memberId)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_MEMBER,
-                        "member profile update - PATCH error", "/members"));
+    public AvailResponseDto updateAvailKeyword(Member member, Boolean keyword) {
+        member.updateAvailKeyword(keyword);
+        Member updatedMember = memberRepository.save(member);
 
-        findMember.changeAvail(dto);
+        return AvailResponseDto.builder()
+                .id(updatedMember.getId())
+                .isKeywordAvail(updatedMember.getIsKeywordAvail())
+                .isNoticeAvail(updatedMember.getIsNoticeAvail())
+                .build();
+    }
 
-        Member savedMember = memberRepository.save(findMember);
+    // notice avail 설정 변경
+    public AvailResponseDto updateAvailNotice(Member member, Boolean notice) {
+        member.updateAvailNotice(notice);
+        Member updatedMember = memberRepository.save(member);
 
-        if (!dto.getIsNoticeAvail()){
-            NoticeController.removeMemberFromClients(memberId);
+        if(notice){
+            sseService.registerClient(member.getId());
         }else{
-            NoticeController.putMemberToClients(memberId);
+            sseService.unregisterClient(member.getId());
         }
 
-        return findStickers(savedMember.getId());
+        return AvailResponseDto.builder()
+                .id(updatedMember.getId())
+                .isKeywordAvail(updatedMember.getIsKeywordAvail())
+                .isNoticeAvail(updatedMember.getIsNoticeAvail())
+                .build();
 
     }
+
+
 
     public MemberWithdrawalResponseDto withdrawal(Long memberId) {
         Member findMember = memberRepository.findById(memberId)
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_MEMBER,
                         "member withdrawal - DELETE error", "/members"));
 
-        NoticeController.removeMemberFromClients(memberId);
+        sseService.unregisterClient(memberId);
 
         // 이미지 url 삭제 로직 추가 예정
         String profileImgUrl = findMember.getProfileImgUrl();
@@ -268,4 +283,7 @@ public class MemberService {
                 .build();
 
     }
+
+
+
 }

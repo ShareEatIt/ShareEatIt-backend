@@ -1,20 +1,16 @@
 package com.carpBread.shareEatIt.domain.member.entity;
 
-import com.carpBread.shareEatIt.domain.member.dto.MemberAvailRequestDto;
-import com.carpBread.shareEatIt.domain.member.dto.MemberProfileResponseDto;
-import com.carpBread.shareEatIt.domain.member.dto.MemberProfileUpdateRequestDto;
+import com.carpBread.shareEatIt.domain.member.dto.request.MemberProfileUpdateRequestDto;
 import com.carpBread.shareEatIt.global.entity.BaseEntity;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 import org.locationtech.jts.geom.Point;
 
-import javax.print.attribute.standard.MediaSize;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -74,12 +70,11 @@ public class Member extends BaseEntity {
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     List<Keywords> keywordsList = new ArrayList<>();
 
-    public void changeAccessToken(String accessToken){
+    public void updateAccessToken(String accessToken){
         this.accessToken=accessToken;
     }
 
-    public void changeMemberProfile(MemberProfileUpdateRequestDto dto,Point point, String imgUrl){
-        this.profileImgUrl=dto.getProfileImg();
+    public void updateMemberProfile(MemberProfileUpdateRequestDto dto,Point point, String imgUrl){
         this.nickname=dto.getNickname();
         this.locationPoint=point;
         this.profileImgUrl=imgUrl;
@@ -88,15 +83,22 @@ public class Member extends BaseEntity {
         this.provider=Provider.toEnum(dto.getProvider());
     }
 
-    public void changeImgUrl(String url){
+    public void updateImgUrl(String url){
         this.profileImgUrl=url;
 
     }
-    public void changeAvail(MemberAvailRequestDto dto){
-        this.isKeywordAvail=dto.getIsKeywordAvail();
-        this.isNoticeAvail=dto.getIsNoticeAvail();
+
+    public void updateLocationPoint(Point point){
+        this.locationPoint=point;
     }
 
+    public void updateAvailKeyword(Boolean isKeywordAvail){
+        this.isKeywordAvail=isKeywordAvail;
+    }
+
+    public void updateAvailNotice(Boolean isNoticeAvail){
+        this.isNoticeAvail=isNoticeAvail;
+    }
 
     public void updateRefreshToken(String newRefreshToken) {
 
