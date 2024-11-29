@@ -9,6 +9,7 @@ import com.carpBread.shareEatIt.domain.sharingPost.service.SharingPostService;
 import com.carpBread.shareEatIt.global.response.ApiResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +26,8 @@ public class MapController {
 
     @GetMapping("/list")
     public ResponseEntity<ApiResponse<MapListResponseDto>> getMapList(@AuthUser Member member,
-                                                                      @NotBlank @RequestParam(name = "longitude")Double longitude,
-                                                                      @NotBlank @RequestParam(name = "latitude")Double latitude){
+                                                                      @NotNull @RequestParam(name = "longitude")Double longitude,
+                                                                      @NotNull @RequestParam(name = "latitude")Double latitude){
         MapRequestDto dto = MapRequestDto.builder()
                 .longitude(longitude)
                 .latitude(latitude)
