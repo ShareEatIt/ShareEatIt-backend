@@ -1,5 +1,6 @@
 package com.carpBread.shareEatIt.domain.chat.service;
 
+import com.carpBread.shareEatIt.domain.chat.dto.ChatRoomListDetailResponseDto;
 import com.carpBread.shareEatIt.domain.chat.dto.ChatRoomListResponseDto;
 import com.carpBread.shareEatIt.domain.chat.dto.ChatRoomResponseDto;
 import com.carpBread.shareEatIt.domain.chat.entity.ChatRoom;
@@ -16,8 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.carpBread.shareEatIt.global.exception.ErrorCode.NOT_FOUND_CHATROOM;
-import static com.carpBread.shareEatIt.global.exception.ErrorCode.NOT_FOUND_PARTICIPATION;
+import static com.carpBread.shareEatIt.global.exception.ErrorCode.*;
 
 @Service
 @RequiredArgsConstructor
@@ -55,19 +55,28 @@ public class ChatRoomService {
     /* 채팅방 목록 조회 */
     public ChatRoomListResponseDto findAllChatRoom(Member member) {
 
-        // 사용자가 == giver 이면서 giverStatus가 true이거나 receiver이면서 receiverStatus= true인 참여 객체의 채팅방 조회
+        // 사용자가 참여한 채팅방 목록 조회
         List<ChatRoom> chatRoomList = chatRoomRepository.findByUserAndStatus(member.getId());
 
-        List<ChatRoomResponseDto> dtoList = convertDtoToList(chatRoomList);
+        // DTO 리스트 변환: 각 채팅방마다 상대방을 포함
+        List<ChatRoomListDetailResponseDto> dtoList = chatRoomList.stream()
+                .map(chatRoom -> {
+                    Member opponent = findOpponent(member.getId(), chatRoom);
+                    return ChatRoomListDetailResponseDto.from(chatRoom, opponent);
+                })
+                .collect(Collectors.toList());
+
         return new ChatRoomListResponseDto(dtoList);
     }
 
-    // list를 dto로 변환
-    private List<ChatRoomResponseDto> convertDtoToList(List<ChatRoom> chatRoomList){
-        return chatRoomList.stream()
-                .map(ChatRoomResponseDto::from)
-                .collect(Collectors.toList());
-
+    // 특정 채팅방에서 상대방 찾기
+    private Member findOpponent(Long memberId, ChatRoom chatRoom) {
+        if (!chatRoom.getParticipation().getGiver().getId().equals(memberId)) {
+            return chatRoom.getParticipation().getGiver();
+        } else if (!chatRoom.getParticipation().getReceiver().getId().equals(memberId)) {
+            return chatRoom.getParticipation().getReceiver();
+        }
+        throw new AppException(NOT_FOUND_OPPONENT, "채팅방에 상대방이 존재하지 않습니다.", "/chatRoom");
     }
 
 
