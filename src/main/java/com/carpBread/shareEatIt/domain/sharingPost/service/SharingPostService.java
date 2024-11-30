@@ -78,7 +78,10 @@ public class SharingPostService {
     @Transactional
     public SharingPostCreateResponseDto createSharingPost(List<MultipartFile> imgList, SharingPostRequestDto dto, Member member){
 
+
         List<String> imgUrlList = uploadPostImgToS3Bucket(imgList);
+
+        System.out.println("이미지 성공");
 
         // post 저장
 
@@ -134,6 +137,8 @@ public class SharingPostService {
                 .latitude(savedPost.getLocationPoint().getY())
                 .longitude(savedPost.getLocationPoint().getX())
                 .build();
+
+
         return SharingPostCreateResponseDto.builder()
                 .id(savedPost.getId())
                 .writer(writer)
