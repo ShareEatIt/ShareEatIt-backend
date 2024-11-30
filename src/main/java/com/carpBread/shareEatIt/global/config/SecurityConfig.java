@@ -48,7 +48,8 @@ public class SecurityConfig {
     private static final String[] AUTH_WHITELIST = {
             "/login/**", // 로그인
             "/ws/**",
-            "/oauth2/**"
+            "/oauth2/**",
+            "/auth/refresh"
     };
 
     @Bean
@@ -82,7 +83,7 @@ public class SecurityConfig {
         configuration.addAllowedOrigin("http://localhost:3000");
         configuration.addAllowedOrigin("http://localhost:5173");
         configuration.addAllowedOrigin("http://localhost:6379");
-        configuration.addAllowedOrigin("http://localhost:8080");
+//        configuration.addAllowedOrigin("http://localhost:8080");
         configuration.addAllowedOrigin("https://shareeatit.netlify.app");
         configuration.addAllowedOrigin("https://api.shareeat.r-e.kr");
 //        configuration.addAllowedOrigin("http://54.180.228.54:8080");

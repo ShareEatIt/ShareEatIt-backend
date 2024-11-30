@@ -66,14 +66,6 @@ public class JWTFilter extends OncePerRequestFilter {
             }
 
             String token = authorization.split(" ")[1];
-
-            if(request.getRequestURI().equals("/auth/refresh")){
-                System.out.println("리프레시 토큰 발급");
-                getNewRefreshToken(request,response,token);
-                filterChain.doFilter(request, response);
-
-                return;
-            }
             
             // 2. 토큰 기한 만료 여부 확인
             if (jwtUtils.isExpired(token)){
@@ -160,41 +152,6 @@ public class JWTFilter extends OncePerRequestFilter {
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json");
         response.getWriter().write(responseJson);
-        response.getWriter().flush();
-        response.getWriter().close();
-    }
-
-    private void getNewRefreshToken(HttpServletRequest request, HttpServletResponse response, String token) throws Exception{
-        String email = jwtUtils.getEmail(token);
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_MEMBER, "해당 이메일에 맞는 회원 정보를 찾을 수 없습니다", "/auth/refresh"));
-
-        System.out.println("리프레시 토큰 관련 log");
-        String refreshToken = request.getParameter("refreshToken");
-
-        if (!member.getRefreshToken().equals(refreshToken))
-            throw new AppException(ErrorCode.INVALID_REFRESH_TOKEN,"Refresh Token이 회원 정보와 일치하지 않습니다. 다시 로그인해주십시오.","/auth/refresh");
-
-        String newAccessToken = "Bearer "+ jwtUtils.createToken(member.getEmail(), member.getNickname());
-        String newRefreshToken = jwtUtils.createToken(member.getEmail(), member.getNickname());
-        member.updateRefreshToken(newRefreshToken);
-        memberRepository.save(member);
-
-        RefreshTokenResponseDto dto = RefreshTokenResponseDto.builder()
-                .refreshToken(newRefreshToken)
-                .accessToken(newAccessToken).build();
-
-        response.setStatus(HttpServletResponse.SC_OK);
-        ApiResponse responseDto = new ApiResponse<RefreshTokenResponseDto>(HttpStatus.CREATED.value(), "리프레시 토큰 재발급 성공", dto);
-        String jsonResponse = objectMapper.writeValueAsString(responseDto);
-
-        System.out.println(newAccessToken);
-        System.out.println(refreshToken);
-        System.out.println("=================");
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.setCharacterEncoding("UTF-8");
-        response.setContentType("application/json");
-        response.getWriter().write(jsonResponse);
         response.getWriter().flush();
         response.getWriter().close();
     }
