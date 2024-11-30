@@ -124,6 +124,7 @@ public class SecurityConfig {
         configuration.addAllowedOrigin("http://localhost:5173");
         configuration.addAllowedOrigin("http://localhost:6379");
         configuration.addAllowedOrigin("http://localhost:8080");
+        configuration.addAllowedOrigin("https://shareeatit.netlify.app");
         configuration.addAllowedOrigin("http://54.180.228.54:8080");
 
 
