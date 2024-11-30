@@ -84,6 +84,8 @@ public class FilterChannelInterceptor implements ChannelInterceptor {
     // 토큰 인증 - 일반적인 HTTP 메소드가 아니므로 JWTFilter의 인증 과정 사용 불가하여 따로 작성한 것
     private void checkToken(String authorization) {
 
+        System.out.println("인터셉터 checkToken함수 실행");
+
         try {
             // 1. 토큰 유무 확인
             if (authorization == null || !authorization.startsWith("Bearer ")) {
