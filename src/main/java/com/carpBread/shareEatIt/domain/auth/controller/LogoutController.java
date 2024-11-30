@@ -48,40 +48,40 @@ public class LogoutController {
     @Value("${spring.oauth2.logout.direct-url}")
     String logoutRedirectUri;
 
-    @PostMapping("/refresh")
-    public void refreshAccessToken(@AuthUser Member member,
-                                                     @RequestBody @Valid RefreshRequestDto dto,
-                                                     HttpServletResponse response)throws Exception{
-
-        if (!member.getRefreshToken().equals(dto.getRefreshToken())){
-            throw new AppException(ErrorCode.UNAUTHORIZED_USER,"refreshToken에 대한 사용 권한이 없습니다","/auth/refresh");
-        }
-        String token = jwtUtils.createToken(member.getEmail(), member.getNickname());
-        String encodedToken = URLEncoder.encode(token, StandardCharsets.UTF_8.toString());
-
-
-        String newRefreshToken = jwtUtils.createToken(member.getEmail(), member.getNickname());
-        member.updateRefreshToken(newRefreshToken);
-        memberRepository.save(member);
-
-
-        Cookie cookie = new Cookie("accessToken",encodedToken);
-        cookie.setPath("/");
-        cookie.setMaxAge(60*60*24);
-
-        response.addCookie(cookie);
-        response.setStatus(HttpServletResponse.SC_OK);
-        ApiResponse responseDto = new ApiResponse<LogoutResponseDto>(HttpStatus.CREATED.value(), "리프레시 토큰 재발급 성공", new LogoutResponseDto(newRefreshToken));
-        String jsonResponse = objectMapper.writeValueAsString(responseDto);
-
-        response.setStatus(HttpServletResponse.SC_OK);
-        response.setCharacterEncoding("UTF-8");
-        response.setContentType("application/json");
-        response.getWriter().write(jsonResponse);
-        response.getWriter().flush();
-        response.getWriter().close();
-
-    }
+//    @PostMapping("/refresh")
+//    public void refreshAccessToken(@AuthUser Member member,
+//                                                     @RequestBody @Valid RefreshRequestDto dto,
+//                                                     HttpServletResponse response)throws Exception{
+//
+//        if (!member.getRefreshToken().equals(dto.getRefreshToken())){
+//            throw new AppException(ErrorCode.UNAUTHORIZED_USER,"refreshToken에 대한 사용 권한이 없습니다","/auth/refresh");
+//        }
+//        String token = jwtUtils.createToken(member.getEmail(), member.getNickname());
+//        String encodedToken = URLEncoder.encode(token, StandardCharsets.UTF_8.toString());
+//
+//
+//        String newRefreshToken = jwtUtils.createToken(member.getEmail(), member.getNickname());
+//        member.updateRefreshToken(newRefreshToken);
+//        memberRepository.save(member);
+//
+//
+//        Cookie cookie = new Cookie("accessToken",encodedToken);
+//        cookie.setPath("/");
+//        cookie.setMaxAge(60*60*24);
+//
+//        response.addCookie(cookie);
+//        response.setStatus(HttpServletResponse.SC_OK);
+//        ApiResponse responseDto = new ApiResponse<LogoutResponseDto>(HttpStatus.CREATED.value(), "리프레시 토큰 재발급 성공", new LogoutResponseDto(newRefreshToken));
+//        String jsonResponse = objectMapper.writeValueAsString(responseDto);
+//
+//        response.setStatus(HttpServletResponse.SC_OK);
+//        response.setCharacterEncoding("UTF-8");
+//        response.setContentType("application/json");
+//        response.getWriter().write(jsonResponse);
+//        response.getWriter().flush();
+//        response.getWriter().close();
+//
+//    }
 
     @GetMapping("/logout")
     public ResponseEntity<String> logout(HttpServletRequest request){
