@@ -133,7 +133,7 @@ public class OAuth2Service {
             }
             Member updatedMember = memberRepository.save(joinedMember);
 
-            String accessToken = "Bearer "+jwtUtils.createToken(updatedMember.getEmail(), updatedMember.getNickname(),1000*60*60*12);
+            String accessToken = "Bearer "+jwtUtils.createToken(updatedMember.getEmail(), updatedMember.getNickname());
 
             if (updatedMember.getIsNoticeAvail() && !sseService.isRegistered(updatedMember.getId()))
                 sseService.registerClient(updatedMember.getId());
@@ -144,7 +144,7 @@ public class OAuth2Service {
                     .refreshToken(updatedMember.getRefreshToken())
                     .build();
         }else{
-            String refreshToken = jwtUtils.createToken(oauth2UserInfo.email(), oauth2UserInfo.nickname(),1000*60*60*24);
+            String refreshToken = jwtUtils.createToken(oauth2UserInfo.email(), oauth2UserInfo.nickname());
 
             Point point = geometryFactory.createPoint(new Coordinate(127.02-90.0, 37.63-90.0));
             point.setSRID(4326);
@@ -152,7 +152,7 @@ public class OAuth2Service {
             Member newMember = oauth2UserInfo.toEntity(oauth2AccessToken,refreshToken, point);
             newMember = memberRepository.save(newMember);
 
-            String accessToken = "Bearer "+ jwtUtils.createToken(newMember.getEmail(), newMember.getNickname(),1000*60*60*12);
+            String accessToken = "Bearer "+ jwtUtils.createToken(newMember.getEmail(), newMember.getNickname());
 
             sseService.registerClient(newMember.getId());
 

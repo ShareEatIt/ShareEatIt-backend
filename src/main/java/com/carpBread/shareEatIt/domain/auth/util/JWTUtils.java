@@ -26,7 +26,7 @@ public class JWTUtils {
         key= Keys.hmacShaKeyFor(decode);
     }
 
-    public String createToken(String email, String nickname,long time){
+    public String createToken(String email, String nickname){
         Claims claims = Jwts.claims();
 
         claims.put("nickname",nickname);
@@ -35,7 +35,7 @@ public class JWTUtils {
         return Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(new Date(System.currentTimeMillis()))
-                .setExpiration(new Date(System.currentTimeMillis()+time))
+                .setExpiration(new Date(System.currentTimeMillis()+1000*60*60*12L))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 

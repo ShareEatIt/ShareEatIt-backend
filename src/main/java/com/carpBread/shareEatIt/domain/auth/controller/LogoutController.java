@@ -58,8 +58,8 @@ public class LogoutController {
         if(!dto.getRefreshToken().equals(member.getRefreshToken()))
             throw new AppException(ErrorCode.INVALID_REFRESH_TOKEN,"유효하지 않은 리프레시 토큰입니다. 재로그인해주십시오","/auth/refresh");
 
-        String newAccessToken = jwtUtils.createToken(member.getEmail(), member.getNickname(), 1000 * 60 * 60 * 12);
-        String newRefreshToken = jwtUtils.createToken(member.getEmail(), member.getNickname(), 1000 * 60 * 60 * 24);
+        String newAccessToken = jwtUtils.createToken(member.getEmail(), member.getNickname());
+        String newRefreshToken = jwtUtils.createToken(member.getEmail(), member.getNickname());
         member.updateRefreshToken(newRefreshToken);
         memberRepository.save(member);
 
