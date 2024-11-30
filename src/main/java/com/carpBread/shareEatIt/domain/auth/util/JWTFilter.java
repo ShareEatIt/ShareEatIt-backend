@@ -127,7 +127,8 @@ public class JWTFilter extends OncePerRequestFilter {
         if (request.getRequestURI().startsWith("/login")
                 || request.getRequestURI().startsWith("/favicon.ico")
                 || request.getRequestURI().startsWith("/oauth2/authorize")
-                || request.getRequestURI().startsWith("/ws")) {
+                || request.getRequestURI().startsWith("/ws")
+                || request.getRequestURI().startsWith("/auth/refresh")) {
 
             return true;
         }
