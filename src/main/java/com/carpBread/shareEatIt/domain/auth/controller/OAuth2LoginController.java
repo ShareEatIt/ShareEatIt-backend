@@ -26,12 +26,13 @@ public class OAuth2LoginController {
     public ResponseEntity<ApiResponse<AuthLoginResponseDto>> oauth2Login(@RequestParam(name = "code")String code){
         String oauth2AccessToken="";
         AuthLoginResponseDto responseDto=null;
-
-        System.out.println("로그인 url 도달");
+        System.out.println("OAuth2LoginController.oauth2Login-로그인도달0");
 
         try{
             oauth2AccessToken=oAuth2Service.getAccessOAuth2Token(code);
+            System.out.println("OAuth2LoginController.oauth2Login-로그인도달1");
             responseDto=oAuth2Service.getMemberInfo(oauth2AccessToken);
+            System.out.println("OAuth2LoginController.oauth2Login-로그인도달2");
         }catch (Exception e){
             throw new AppException(ErrorCode.LOGOUT_FAIL,e.getMessage(),"/oauth2/authorize");
         }
