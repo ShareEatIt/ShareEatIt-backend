@@ -26,7 +26,7 @@ public class JWTUtils {
         key= Keys.hmacShaKeyFor(decode);
     }
 
-    public String createToken(String email, String nickname,Long time){
+    public String createToken(String email, String nickname,long time){
         Claims claims = Jwts.claims();
 
         claims.put("nickname",nickname);
