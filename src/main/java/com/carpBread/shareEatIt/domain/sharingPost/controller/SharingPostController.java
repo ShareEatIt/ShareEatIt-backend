@@ -29,7 +29,9 @@ public class SharingPostController {
                                                                                           @RequestPart(name = "imgList") @NotNull List<MultipartFile> imgList,
                                                                                           @RequestPart(name = "dto") @Valid SharingPostRequestDto dto){
 
+        System.out.println("post post 도달");
         SharingPostCreateResponseDto responseDto = sharingPostService.createSharingPost(imgList,dto,member);
+        System.out.println("post post 성공");
 
         ApiResponse<SharingPostCreateResponseDto> response = new ApiResponse<>(HttpStatus.CREATED.value(),"나눔글 생성 성공", responseDto);
 
