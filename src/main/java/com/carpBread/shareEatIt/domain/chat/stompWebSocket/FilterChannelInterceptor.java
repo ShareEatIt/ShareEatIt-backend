@@ -84,8 +84,6 @@ public class FilterChannelInterceptor implements ChannelInterceptor {
     // 토큰 인증 - 일반적인 HTTP 메소드가 아니므로 JWTFilter의 인증 과정 사용 불가하여 따로 작성한 것
     private void checkToken(String authorization) {
 
-        System.out.println("인터셉터 checkToken함수 실행");
-
         try {
             // 1. 토큰 유무 확인
             if (authorization == null || !authorization.startsWith("Bearer ")) {
@@ -131,10 +129,8 @@ public class FilterChannelInterceptor implements ChannelInterceptor {
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
         } catch (JwtException e) {
-            System.out.println("================= jwt 필터에서 오류가 납니다. jwtException 중 하나 " + e.getMessage());
             throw new JwtException("JwtException - jwt 인증 오류");  // preSend에서 catch문에 걸리기 위함
         } catch (Exception e) {
-            System.out.println("================= jwt 필터에서 오류가 납니다. 그냥 exception 중 하나 " + e.getMessage());
             throw new AppException(UNAUTHORIZED_JWT, "Exception - jwt 인증 오류", "/ws" );  // preSend에서 catch문에 걸리기 위함
 
         }
