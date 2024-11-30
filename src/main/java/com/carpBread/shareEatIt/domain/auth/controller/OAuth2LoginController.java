@@ -27,6 +27,8 @@ public class OAuth2LoginController {
         String oauth2AccessToken="";
         AuthLoginResponseDto responseDto=null;
 
+        System.out.println("로그인 url 도달");
+
         try{
             oauth2AccessToken=oAuth2Service.getAccessOAuth2Token(code);
             responseDto=oAuth2Service.getMemberInfo(oauth2AccessToken);
