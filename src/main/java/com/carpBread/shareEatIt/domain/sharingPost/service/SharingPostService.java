@@ -82,10 +82,13 @@ public class SharingPostService {
 
         // post 저장
 
-        System.out.println(dto.getPostType());
-        System.out.println(member.getProvider().name());
+        System.out.println(dto.getPostType()); // INDIVIDUAL
+        System.out.println(member.getProvider().name()); // STORE
         // STORE로 설정할 경우 사용자가 STORE PROVIDER인지 점검
         if (dto.getPostType().equals("STORE") && member.getProvider()== Provider.INDIVIDUAL){
+            System.out.println(dto.getPostType().equals("STORE") );
+            System.out.println(member.getProvider()== Provider.INDIVIDUAL);
+            System.out.println("SharingPostService.createSharingPost");
             throw new AppException(ErrorCode.INVALID_PROVIDER_WITH_POSTTYPE_STORE,"회원의 PROVIDER가 INDIVIDUAL일 경우 SharingPost를 STORE TYPE으로 설정하여 게시할 수 없습니다","/sharing");
         }
 
