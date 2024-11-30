@@ -72,47 +72,6 @@ public class SecurityConfig {
 
     }
 
-    @Bean
-    public AuthenticationSuccessHandler successHandler(){
-        return ((request, response, authentication) -> {
-            DefaultOAuth2User defaultOAuth2User = (DefaultOAuth2User) authentication.getPrincipal();
-
-            String email = (String)defaultOAuth2User.getAttributes().get("email");
-            String nickname = (String)defaultOAuth2User.getAttributes().get("nickname");
-
-            String newRefreshToken = jwtUtils.createToken(email,nickname);
-            Member member = memberRepository.findByEmail(email)
-                    .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_MEMBER, "해당 이메일을 통해 회원가입된 멤버를 찾을 수 없습니다", "/login/oauth2/code/kakao"));
-
-            member.updateRefreshToken(newRefreshToken);
-            memberRepository.save(member);
-
-            String accessToken = "Bearer "+jwtUtils.createToken(email, nickname);
-
-
-//            String encodedToken = URLEncoder.encode(token, StandardCharsets.UTF_8.toString());
-//            System.out.println(encodedToken);
-//
-//            // 쿠키 생성
-//            Cookie cookie = new Cookie("accessToken", encodedToken);
-//            cookie.setPath("/");
-//            cookie.setMaxAge(60*60*24);
-//            response.addCookie(cookie);
-
-            ApiResponse responseDto = new ApiResponse<AuthLoginResponseDto>(HttpStatus.CREATED.value(), "카카오 소셜 로그인 성공", new AuthLoginResponseDto(accessToken,newRefreshToken, (Boolean) defaultOAuth2User.getAttributes().get("isNewMember")));
-            String jsonResponse = objectMapper.writeValueAsString(responseDto);
-
-            response.setStatus(HttpServletResponse.SC_OK);
-            response.setCharacterEncoding("UTF-8");
-            response.setContentType("application/json");
-            response.getWriter().write(jsonResponse);
-            response.getWriter().flush();
-            response.getWriter().close();
-
-
-        });
-    }
-
 
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {

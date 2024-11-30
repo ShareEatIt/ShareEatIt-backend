@@ -70,6 +70,7 @@ public class JWTFilter extends OncePerRequestFilter {
             if(request.getRequestURI().equals("/auth/refresh")){
                 System.out.println("리프레시 토큰 발급");
                 getRefreshToken(request,response,token);
+                filterChain.doFilter(request, response);
 
                 return;
             }
@@ -186,6 +187,9 @@ public class JWTFilter extends OncePerRequestFilter {
         ApiResponse responseDto = new ApiResponse<RefreshTokenResponseDto>(HttpStatus.CREATED.value(), "리프레시 토큰 재발급 성공", dto);
         String jsonResponse = objectMapper.writeValueAsString(responseDto);
 
+        System.out.println(newAccessToken);
+        System.out.println(refreshToken);
+        System.out.println("=================");
         response.setStatus(HttpServletResponse.SC_OK);
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json");
