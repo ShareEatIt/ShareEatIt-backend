@@ -69,7 +69,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
             if(request.getRequestURI().equals("/auth/refresh")){
                 System.out.println("리프레시 토큰 발급");
-                getRefreshToken(request,response,token);
+                getNewRefreshToken(request,response,token);
                 filterChain.doFilter(request, response);
 
                 return;
@@ -164,11 +164,12 @@ public class JWTFilter extends OncePerRequestFilter {
         response.getWriter().close();
     }
 
-    private void getRefreshToken(HttpServletRequest request, HttpServletResponse response, String token) throws Exception{
+    private void getNewRefreshToken(HttpServletRequest request, HttpServletResponse response, String token) throws Exception{
         String email = jwtUtils.getEmail(token);
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_MEMBER, "해당 이메일에 맞는 회원 정보를 찾을 수 없습니다", "/auth/refresh"));
 
+        System.out.println("리프레시 토큰 관련 log");
         String refreshToken = request.getParameter("refreshToken");
 
         if (!member.getRefreshToken().equals(refreshToken))

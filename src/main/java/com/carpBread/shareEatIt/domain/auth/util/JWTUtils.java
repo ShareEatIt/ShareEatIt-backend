@@ -49,8 +49,11 @@ public class JWTUtils {
                     .parseClaimsJws(token)
                     .getBody()
                     .get("email", String.class);
+
             return email;
         }catch (Exception e){
+            System.out.println("리프레시 토큰 관련 log");
+            System.out.println(e.getMessage());
             throw new AppException(ErrorCode.UNAUTHORIZED_JWT,"유효하지 않은 JWT입니다","/login/oauth2/code/kakao");
         }
 
