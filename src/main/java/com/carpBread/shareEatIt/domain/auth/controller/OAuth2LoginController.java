@@ -34,6 +34,7 @@ public class OAuth2LoginController {
             responseDto=oAuth2Service.getMemberInfo(oauth2AccessToken);
             System.out.println("OAuth2LoginController.oauth2Login-로그인도달2");
         }catch (Exception e){
+            System.out.println(e.getMessage());
             throw new AppException(ErrorCode.LOGOUT_FAIL,e.getMessage(),"/oauth2/authorize");
         }
 
