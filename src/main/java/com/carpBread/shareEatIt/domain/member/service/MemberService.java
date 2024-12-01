@@ -99,6 +99,8 @@ public class MemberService {
 
         String imgUrl=findMember.getProfileImgUrl();
 
+        System.out.println("바꾸기 전 url : "+imgUrl);
+
 
         if (!imgFile.isEmpty()){
 
@@ -117,11 +119,17 @@ public class MemberService {
 
             imgUrl = s3Client.getUrl(bucketName, key).toString();
 
+            System.out.println("if 문 내부 : "+ imgUrl);
+
         }
+
+        System.out.println("현재 이미지 url (바뀌었는가?) : "+imgUrl);
 
 
         findMember.updateMemberProfile(updateRequestDto,point,imgUrl);
         Member updatedMember = memberRepository.save(findMember);
+
+        System.out.println("보내지는 url :"+updatedMember.getProfileImgUrl());
 
         return MemberProfileResponseDto.builder()
                 .id(updatedMember.getId())
