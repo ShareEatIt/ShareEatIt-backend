@@ -93,7 +93,7 @@ public class SharingPostService {
 
         System.out.println(dto.getLongitude()+" "+ dto.getLatitude());
 
-        Point point = geometryFactory.createPoint(new Coordinate(dto.getLongitude()-90.0, dto.getLatitude()-90.0));
+        Point point = geometryFactory.createPoint(new Coordinate(dto.getLongitude(), dto.getLatitude()));
         point.setSRID(4326);
 
         System.out.println(point.getX()+" "+ point.getY());
@@ -272,7 +272,7 @@ public class SharingPostService {
             throw new AppException(ErrorCode.UNAUTHORIZED_UPDATE_POST, "참여가 완료된 나눔이므로 POST에 대한 내용 수정이 불가합니다", "/sharing" + id);
         }
 
-        Point point = geometryFactory.createPoint(new Coordinate(dto.getLongitude()-90.0, dto.getLatitude()-90.0));
+        Point point = geometryFactory.createPoint(new Coordinate(dto.getLongitude(), dto.getLatitude()));
         point.setSRID(4326);
 
         targetPost.updatePost(dto, point);
