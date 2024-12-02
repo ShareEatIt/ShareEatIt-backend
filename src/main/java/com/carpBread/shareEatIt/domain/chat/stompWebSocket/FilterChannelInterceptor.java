@@ -129,10 +129,8 @@ public class FilterChannelInterceptor implements ChannelInterceptor {
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
         } catch (JwtException e) {
-            System.out.println("================= jwt 필터에서 오류가 납니다. jwtException 중 하나 " + e.getMessage());
             throw new JwtException("JwtException - jwt 인증 오류");  // preSend에서 catch문에 걸리기 위함
         } catch (Exception e) {
-            System.out.println("================= jwt 필터에서 오류가 납니다. 그냥 exception 중 하나 " + e.getMessage());
             throw new AppException(UNAUTHORIZED_JWT, "Exception - jwt 인증 오류", "/ws" );  // preSend에서 catch문에 걸리기 위함
 
         }

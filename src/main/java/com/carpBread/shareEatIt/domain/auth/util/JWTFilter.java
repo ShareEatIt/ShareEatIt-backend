@@ -1,27 +1,34 @@
 package com.carpBread.shareEatIt.domain.auth.util;
 
 import com.carpBread.shareEatIt.domain.auth.OAuth2Principal;
+import com.carpBread.shareEatIt.domain.auth.dto.RefreshTokenResponseDto;
+import com.carpBread.shareEatIt.domain.member.dto.LogoutResponseDto;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.entity.Provider;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
 import com.carpBread.shareEatIt.global.exception.AppException;
 import com.carpBread.shareEatIt.global.exception.ErrorCode;
 import com.carpBread.shareEatIt.global.exception.ErrorResponseDto;
+import com.carpBread.shareEatIt.global.response.ApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Set;
@@ -38,6 +45,8 @@ public class JWTFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException, AppException {
 
+        System.out.println(request.getRequestURI());
+        System.out.println("================");
         if (isOmissionUrl(request,response,filterChain)){
             filterChain.doFilter(request, response);
             return;
@@ -120,7 +129,8 @@ public class JWTFilter extends OncePerRequestFilter {
         if (request.getRequestURI().startsWith("/login")
                 || request.getRequestURI().startsWith("/favicon.ico")
                 || request.getRequestURI().startsWith("/oauth2/authorize")
-                || request.getRequestURI().startsWith("/ws")) {
+                || request.getRequestURI().startsWith("/ws")
+                || request.getRequestURI().startsWith("/auth/refresh")) {
 
             return true;
         }
