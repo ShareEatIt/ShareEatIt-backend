@@ -22,8 +22,10 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     public void registerStompEndpoints(StompEndpointRegistry registry){
         // 엔드포인트(client가 WebSocket 연결을 요청할 때 사용하는 주소) 주소 설정
         registry.addEndpoint("/ws")
-//                .setAllowedOrigins("https://jiangxy.github.io", "http://localhost:3000", "http://54.180.228.54", "https://api.shareeat.r-e.kr", "ws://localhost:8080", "wss://api.shareeat.r-e.kr", "https://shareeatit.netlify.app/")
-                .setAllowedOriginPatterns("*")  // CORS 설정 - 모든 도메인에서 오는 요청 허용
+                .setAllowedOrigins("https://jiangxy.github.io",                 // 테스트 페이지 주소
+                        "http://localhost:3000",                                // 프런트 로컬 주소
+                        "http://54.180.228.54", "https://api.shareeat.r-e.kr",  // 백 API 배포 주소 (http, https)
+                        "https://shareeatit.netlify.app/")                      // 프론트 배포 주소
                 .withSockJS()
                 .setHeartbeatTime(30000);  // 클라이언트-서버 가 30초마다 핑/퐁 메시지를 주고 받도록 설정
     }
