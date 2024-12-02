@@ -94,7 +94,7 @@ public class SharingPostService {
 
         // 점검 : MySQL 8.4 Reference Manual 에 정의된 메뉴얼에 따라, latitude(위도)는 [-90.0, 90.0] / longitude(경도)는 [-180.0, 180.0] 범위로 지정
         if ((dto.getLatitude()>90.0 || dto.getLatitude()<-90.0)
-                || (dto.getLongitude()>180.0 || dto.getLongitude()<180.0)){
+                || (dto.getLongitude()>180.0 || dto.getLongitude()<-180.0)){
             throw new AppException(ErrorCode.VALUE_OUT_OF_RANGE,"입력한 위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.","/members");
         }
 
@@ -206,7 +206,7 @@ public class SharingPostService {
 
         // 점검 : MySQL 8.4 Reference Manual 에 정의된 메뉴얼에 따라, latitude(위도)는 [-90.0, 90.0] / longitude(경도)는 [-180.0, 180.0] 범위로 지정
         if ((dto.getLatitude()>90.0 || dto.getLatitude()<-90.0)
-                || (dto.getLongitude()>180.0 || dto.getLongitude()<180.0)){
+                || (dto.getLongitude()>180.0 || dto.getLongitude()<-180.0)){
             throw new AppException(ErrorCode.VALUE_OUT_OF_RANGE,"입력한 위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.","/sharing/list");
         }
 
@@ -285,7 +285,7 @@ public class SharingPostService {
 
         // 점검 : MySQL 8.4 Reference Manual 에 정의된 메뉴얼에 따라, latitude(위도)는 [-90.0, 90.0] / longitude(경도)는 [-180.0, 180.0] 범위로 지정
         if ((dto.getLatitude()>90.0 || dto.getLatitude()<-90.0)
-                || (dto.getLongitude()>180.0 || dto.getLongitude()<180.0)){
+                || (dto.getLongitude()>180.0 || dto.getLongitude()<-180.0)){
             throw new AppException(ErrorCode.VALUE_OUT_OF_RANGE,"입력한 위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.","/members");
         }
 
@@ -388,7 +388,7 @@ public class SharingPostService {
 
         // 점검 : MySQL 8.4 Reference Manual 에 정의된 메뉴얼에 따라, latitude(위도)는 [-90.0, 90.0] / longitude(경도)는 [-180.0, 180.0] 범위로 지정
         if ((dto.getLatitude()>90.0 || dto.getLatitude()<-90.0)
-                || (dto.getLongitude()>180.0 || dto.getLongitude()<180.0)){
+                || (dto.getLongitude()>180.0 || dto.getLongitude()<-180.0)){
             throw new AppException(ErrorCode.VALUE_OUT_OF_RANGE,"입력한 위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.","/map/list");
         }
 
@@ -595,7 +595,7 @@ public class SharingPostService {
 
         // 점검 : MySQL 8.4 Reference Manual 에 정의된 메뉴얼에 따라, latitude(위도)는 [-90.0, 90.0] / longitude(경도)는 [-180.0, 180.0] 범위로 지정
         if ((latitude>90.0 || latitude<-90.0)
-                || (longitude>180.0 || longitude<180.0)){
+                || (longitude>180.0 || longitude<-180.0)){
             throw new AppException(ErrorCode.VALUE_OUT_OF_RANGE,"위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.","/sharing");
         }
 
