@@ -567,7 +567,7 @@ public class SharingPostService {
     private void isSendNotification(SharingPost post){
         System.out.println("x값 , longitude : "+post.getLocationPoint().getX()+"/ y값, latitude :" +post.getLocationPoint().getY());
 
-        List<Member> memberList = memberRepository.findMemberWithRadius(post.getLocationPoint().getX(), post.getLocationPoint().getY(), radius);
+        List<Member> memberList = memberRepository.findMemberWithRadius(post.getLocationPoint().getY(),post.getLocationPoint().getX(), radius);
 
         double latitude = post.getWriter().getLocationPoint().getY();
         double longitude = post.getWriter().getLocationPoint().getX();
