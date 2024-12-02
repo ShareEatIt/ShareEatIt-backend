@@ -128,9 +128,9 @@ public class MemberController {
 
 
     /* 채팅 - 상대 프로필 조회 */
-    @GetMapping("/{memberId}")
+    @GetMapping("/{opponentId}")
     public ResponseEntity<ApiResponse<OpponentInfoResponseDto>> getOpponentInfo(@AuthUser Member member,
-                                                                                @PathVariable(name = "memmberId") Long opponentId){
+                                                                                @PathVariable(name = "opponentId") Long opponentId){
         OpponentInfoResponseDto responseDto = memberService.findOpponentInfo(opponentId);
         ApiResponse response = new ApiResponse<>(HttpStatus.OK.value(),
                 "채팅 - 상대 프로필 조회 성공",
