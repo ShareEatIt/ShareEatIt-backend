@@ -128,7 +128,7 @@ public class OAuth2Service {
             Member joinedMember = member.get();
             joinedMember.updateAccessToken(oauth2AccessToken);
             if(joinedMember.getLocationPoint()==null){
-                Point point = geometryFactory.createPoint(new Coordinate(127.02-90.0, 37.63-90.0));
+                Point point = geometryFactory.createPoint(new Coordinate(127.0016985, 37.5642135));
                 point.setSRID(4326);
                 joinedMember.updateLocationPoint(point);
             }
@@ -147,7 +147,7 @@ public class OAuth2Service {
         }else{
             String refreshToken = jwtUtils.createToken(oauth2UserInfo.email(), oauth2UserInfo.nickname());
 
-            Point point = geometryFactory.createPoint(new Coordinate(127.02-90.0, 37.63-90.0));
+            Point point = geometryFactory.createPoint(new Coordinate(127.0016985, 37.5642135));
             point.setSRID(4326);
 
             Member newMember = oauth2UserInfo.toEntity(oauth2AccessToken,refreshToken, point);
