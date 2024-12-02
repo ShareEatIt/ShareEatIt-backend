@@ -126,4 +126,16 @@ public class MemberController {
         return ResponseEntity.ok().body(response);
     }
 
+
+    /* 채팅 - 상대 프로필 조회 */
+    @GetMapping("/{memberId}")
+    public ResponseEntity<ApiResponse<OpponentInfoResponseDto>> getOpponentInfo(@AuthUser Member member,
+                                                                                @PathVariable(name = "memmberId") Long opponentId){
+        OpponentInfoResponseDto responseDto = memberService.findOpponentInfo(opponentId);
+        ApiResponse response = new ApiResponse<>(HttpStatus.OK.value(),
+                "채팅 - 상대 프로필 조회 성공",
+                responseDto);
+
+        return ResponseEntity.ok().body(response);
+    }
 }

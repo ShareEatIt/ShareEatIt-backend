@@ -292,6 +292,16 @@ public class MemberService {
 
     }
 
+    /*채팅 - 상대방 프로필 조회 */
+    public OpponentInfoResponseDto findOpponentInfo(Long opponentId) {
+        Member opponent = memberRepository.findById(opponentId)
+                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_MEMBER, "opponent profile - GET error", "/members/"+opponentId));
 
+        return OpponentInfoResponseDto.builder()
+                .id(opponent.getId())
+                .nickname(opponent.getNickname())
+                .profileImg(opponent.getProfileImgUrl())
+                .build();
 
+    }
 }
