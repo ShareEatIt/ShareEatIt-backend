@@ -82,15 +82,21 @@ public class SharingPostService {
 
         // post 저장
 
-        System.out.println(dto.getPostType());
-        System.out.println(member.getProvider().name());
+        System.out.println(dto.getPostType()); // INDIVIDUAL
+        System.out.println(member.getProvider().name()); // STORE
         // STORE로 설정할 경우 사용자가 STORE PROVIDER인지 점검
         if (dto.getPostType().equals("STORE") && member.getProvider()== Provider.INDIVIDUAL){
+            System.out.println(dto.getPostType().equals("STORE") );
+            System.out.println(member.getProvider()== Provider.INDIVIDUAL);
             throw new AppException(ErrorCode.INVALID_PROVIDER_WITH_POSTTYPE_STORE,"회원의 PROVIDER가 INDIVIDUAL일 경우 SharingPost를 STORE TYPE으로 설정하여 게시할 수 없습니다","/sharing");
         }
 
+        System.out.println(dto.getLongitude()+" "+ dto.getLatitude());
+
         Point point = geometryFactory.createPoint(new Coordinate(dto.getLongitude()-90.0, dto.getLatitude()-90.0));
         point.setSRID(4326);
+
+        System.out.println(point.getX()+" "+ point.getY());
 
         SharingPost newPost = SharingPost.builder()
                 .title(dto.getTitle())
