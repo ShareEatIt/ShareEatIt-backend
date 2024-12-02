@@ -13,6 +13,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
+import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,6 +29,7 @@ public class ChatController {
 
     /* 채팅 - 메시지 전달*/
     @MessageMapping("/chat/message/{chatRoomId}")  // app/chat/message/{chatRoomId} 로 메세지 발송
+    @SendTo("/topic/chatRoom/{chatRoomId}") // 동적으로 chatRoomId에 맞는 경로로 메시지 발송하도록 명확히 지정 (아니면 순환 참조 문제 발생 가능)
     public ChatMessageResponseDto sendMessage(@Payload ChatMessageRequestDto requestDto) {
         ChatMessageResponseDto responseDto = chatMessageService.saveMessage(requestDto);
         messagingTemplate.convertAndSend("/topic/chatRoom/"+ responseDto.getChatRoomId(), responseDto);
