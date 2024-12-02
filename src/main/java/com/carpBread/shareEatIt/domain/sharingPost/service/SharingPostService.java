@@ -58,7 +58,7 @@ public class SharingPostService {
     private String bucketName;
 
     // 위치 기반 주변 post 반경 (10km 설정)
-    private final double radius = 1000;
+    private final double radius = 100000;
 
     // 키워드 알람 설정 1km
     private final double mapRadius = 1000;
@@ -91,7 +91,12 @@ public class SharingPostService {
             throw new AppException(ErrorCode.INVALID_PROVIDER_WITH_POSTTYPE_STORE,"회원의 PROVIDER가 INDIVIDUAL일 경우 SharingPost를 STORE TYPE으로 설정하여 게시할 수 없습니다","/sharing");
         }
 
-        System.out.println(dto.getLongitude()+" "+ dto.getLatitude());
+
+        // 점검 : MySQL 8.4 Reference Manual 에 정의된 메뉴얼에 따라, latitude(위도)는 [-90.0, 90.0] / longitude(경도)는 [-180.0, 180.0] 범위로 지정
+        if ((dto.getLatitude()>90.0 || dto.getLatitude()<-90.0)
+                || (dto.getLongitude()>180.0 || dto.getLongitude()<180.0)){
+            throw new AppException(ErrorCode.VALUE_OUT_OF_RANGE,"입력한 위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.","/members");
+        }
 
         Point point = geometryFactory.createPoint(new Coordinate(dto.getLongitude(), dto.getLatitude()));
         point.setSRID(4326);
@@ -199,6 +204,12 @@ public class SharingPostService {
 
         List<SharingPost> postList = new ArrayList<>();
 
+        // 점검 : MySQL 8.4 Reference Manual 에 정의된 메뉴얼에 따라, latitude(위도)는 [-90.0, 90.0] / longitude(경도)는 [-180.0, 180.0] 범위로 지정
+        if ((dto.getLatitude()>90.0 || dto.getLatitude()<-90.0)
+                || (dto.getLongitude()>180.0 || dto.getLongitude()<180.0)){
+            throw new AppException(ErrorCode.VALUE_OUT_OF_RANGE,"입력한 위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.","/sharing/list");
+        }
+
 
         if (dto.getPostType().equals("ALL")){
             postList = sharingPostRepository.findSharingPostsWithinRadius(dto.getLatitude(), dto.getLongitude(), radius);
@@ -270,6 +281,12 @@ public class SharingPostService {
         List<Participation> participationList = participationRepository.findByPostIdAndStatus(targetPost.getId());
         if (participationList.size()!=0 || targetPost.getStatus()==PostStatus.COMPLETED) {
             throw new AppException(ErrorCode.UNAUTHORIZED_UPDATE_POST, "참여가 완료된 나눔이므로 POST에 대한 내용 수정이 불가합니다", "/sharing" + id);
+        }
+
+        // 점검 : MySQL 8.4 Reference Manual 에 정의된 메뉴얼에 따라, latitude(위도)는 [-90.0, 90.0] / longitude(경도)는 [-180.0, 180.0] 범위로 지정
+        if ((dto.getLatitude()>90.0 || dto.getLatitude()<-90.0)
+                || (dto.getLongitude()>180.0 || dto.getLongitude()<180.0)){
+            throw new AppException(ErrorCode.VALUE_OUT_OF_RANGE,"입력한 위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.","/members");
         }
 
         Point point = geometryFactory.createPoint(new Coordinate(dto.getLongitude(), dto.getLatitude()));
@@ -368,6 +385,13 @@ public class SharingPostService {
 
     @Transactional
     public MapListResponseDto getMapList(Member member, MapRequestDto dto) {
+
+        // 점검 : MySQL 8.4 Reference Manual 에 정의된 메뉴얼에 따라, latitude(위도)는 [-90.0, 90.0] / longitude(경도)는 [-180.0, 180.0] 범위로 지정
+        if ((dto.getLatitude()>90.0 || dto.getLatitude()<-90.0)
+                || (dto.getLongitude()>180.0 || dto.getLongitude()<180.0)){
+            throw new AppException(ErrorCode.VALUE_OUT_OF_RANGE,"입력한 위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.","/map/list");
+        }
+
         List<SharingPost> sharingPostsWithinRadius = sharingPostRepository.findSharingPostsWithinRadius(dto.getLatitude(), dto.getLongitude(), mapRadius);
 
         List<MapResponseComponent> componentList = new ArrayList<>();
@@ -566,19 +590,16 @@ public class SharingPostService {
     @Transactional(value = Transactional.TxType.REQUIRES_NEW)
     private void isSendNotification(SharingPost post){
 
-        System.out.println("x값 , longitude : "+post.getLocationPoint().getX()+"/ y값, latitude :" +post.getLocationPoint().getY());
         Double latitude = post.getLocationPoint().getY();
         Double longitude = post.getLocationPoint().getX();
 
-        List<SharingPost> sharingPostsWithinRadius = sharingPostRepository.findSharingPostsWithinRadius(latitude, longitude, radius);
+        // 점검 : MySQL 8.4 Reference Manual 에 정의된 메뉴얼에 따라, latitude(위도)는 [-90.0, 90.0] / longitude(경도)는 [-180.0, 180.0] 범위로 지정
+        if ((latitude>90.0 || latitude<-90.0)
+                || (longitude>180.0 || longitude<180.0)){
+            throw new AppException(ErrorCode.VALUE_OUT_OF_RANGE,"위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.","/sharing");
+        }
 
-        System.out.println("이건 됨");
-        List<Member> memberList = memberRepository.findMemberWithRadius(latitude,longitude, mapRadius);
-
-
-        System.out.println("사용자: la : "+latitude+"\nlong : "+longitude);
-
-        System.out.println("사용자: la : "+post.getLocationPoint().getY()+"\nlong : "+post.getLocationPoint().getX());
+        List<Member> memberList = memberRepository.findMemberWithRadius(latitude,longitude, radius);
 
         if (memberList.size()==0)
             System.out.println("멤버 리스트 없음");

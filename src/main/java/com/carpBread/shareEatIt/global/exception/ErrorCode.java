@@ -29,6 +29,9 @@ public enum ErrorCode {
     NOT_FOUND_GRATITUDESTICKER(HttpStatus.NOT_FOUND),
     NOT_REVIEWER_OF_SHARINGPOST(HttpStatus.FORBIDDEN),
 
+    // point - longitude, latitude
+    VALUE_OUT_OF_RANGE(HttpStatus.BAD_REQUEST),
+
     // SharingPost
     NOT_FOUND_SHARINGPOST(HttpStatus.NOT_FOUND),
     NOT_COMPLETED_SHARINGPOST(HttpStatus.FORBIDDEN),
