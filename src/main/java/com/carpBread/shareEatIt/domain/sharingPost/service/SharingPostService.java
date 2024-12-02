@@ -565,6 +565,8 @@ public class SharingPostService {
     // keyword notice 보내기
     @Transactional(value = Transactional.TxType.REQUIRES_NEW)
     private void isSendNotification(SharingPost post){
+        System.out.println("x값 , longitude : "+post.getLocationPoint().getX()+"/ y값, latitude :" +post.getLocationPoint().getY());
+
         List<Member> memberList = memberRepository.findMemberWithRadius(post.getLocationPoint().getX(), post.getLocationPoint().getY(), radius);
 
         double latitude = post.getWriter().getLocationPoint().getY();
