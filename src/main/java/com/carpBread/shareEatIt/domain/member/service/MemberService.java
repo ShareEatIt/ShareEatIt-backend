@@ -47,7 +47,6 @@ public class MemberService {
 
     private final GeometryFactory geometryFactory = new GeometryFactory();
 
-
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
