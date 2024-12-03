@@ -38,8 +38,8 @@ public class NoticeService {
                     .message(notice.getMessage())
                     .build();
             componentList.add(component);
-//            notice.changeIsRead(true);
-//            noticeRepository.save(notice);
+            notice.changeIsRead(true);
+            noticeRepository.save(notice);
         }
 
         Boolean isRead=false;
