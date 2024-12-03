@@ -46,7 +46,9 @@ public class JWTFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException, AppException {
 
         System.out.println(request.getRequestURI());
-        System.out.println("================");
+        log.debug(request.getRequestURI());
+
+
         if (isOmissionUrl(request,response,filterChain)){
             filterChain.doFilter(request, response);
             return;
@@ -56,9 +58,6 @@ public class JWTFilter extends OncePerRequestFilter {
         try {
             // 1. 토큰 유무 확인
             if (authorization==null || !authorization.startsWith("Bearer ")){
-
-                System.out.println("JWTFilter.doFilterInternal");
-                System.out.println(authorization);
 
                 errorResponse(request,response,ErrorCode.INVALID_ACCESS_TOKEN,"토큰이 존재하지 않습니다.");
                 log.error("토큰이 존재하지 않습니다");
