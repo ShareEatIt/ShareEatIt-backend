@@ -61,7 +61,7 @@ public class SharingPostService {
     private final double radius = 100000;
 
     // 키워드 알람 설정 1km
-    private final double mapRadius = 1000;
+    private final double mapRadius = 50000;
 
     private final GeometryFactory geometryFactory = new GeometryFactory();
 
@@ -424,6 +424,7 @@ public class SharingPostService {
 
     @Transactional(value = Transactional.TxType.REQUIRES_NEW)
     public boolean updatePostImgList(List<String> currentUrlList, List<PostImgUrl> preUrlList, SharingPost post){
+
         if (currentUrlList.size()==preUrlList.size())
             return false;
         if (currentUrlList.size()==0) {
@@ -435,15 +436,9 @@ public class SharingPostService {
                 .filter(preImgUrl -> !currentUrlList.contains(preImgUrl.getUrl()))
                 .collect(Collectors.toList());
 
-        System.out.println("삭제할 객체의 수 : "+listToDelete.size());
-
-
         for (PostImgUrl deleteUrl: listToDelete){
 
-
-            System.out.println("==========");
             postImgUrlRepository.deleteById(deleteUrl.getId());
-            System.out.println("============");
 
             // objectkey 추출
             String objectKey = URI.create(deleteUrl.getUrl())
