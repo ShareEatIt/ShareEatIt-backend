@@ -81,13 +81,8 @@ public class SharingPostService {
         List<String> imgUrlList = uploadPostImgToS3Bucket(imgList);
 
         // post 저장
-
-        System.out.println(dto.getPostType()); // INDIVIDUAL
-        System.out.println(member.getProvider().name()); // STORE
         // STORE로 설정할 경우 사용자가 STORE PROVIDER인지 점검
         if (dto.getPostType().equals("STORE") && member.getProvider()== Provider.INDIVIDUAL){
-            System.out.println(dto.getPostType().equals("STORE") );
-            System.out.println(member.getProvider()== Provider.INDIVIDUAL);
             throw new AppException(ErrorCode.INVALID_PROVIDER_WITH_POSTTYPE_STORE,"회원의 PROVIDER가 INDIVIDUAL일 경우 SharingPost를 STORE TYPE으로 설정하여 게시할 수 없습니다","/sharing");
         }
 
@@ -100,8 +95,6 @@ public class SharingPostService {
 
         Point point = geometryFactory.createPoint(new Coordinate(dto.getLongitude(), dto.getLatitude()));
         point.setSRID(4326);
-
-        System.out.println(point.getX()+" "+ point.getY());
 
         SharingPost newPost = SharingPost.builder()
                 .title(dto.getTitle())
@@ -234,7 +227,7 @@ public class SharingPostService {
                 .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_POST, "해당 id에 대응하는 SHARING POST가 존재하지 않습니다.", "/sharing/" + id));
 
         String subject = determineSubject(findPost, member);
-        MemberAsWriterSimpleDtoComponent writer = getSimpleWriterComponent(member);
+        MemberAsWriterSimpleDtoComponent writer = getSimpleWriterComponent(findPost.getWriter());
         LocationResponseDtoComponent location = getLocationComponent(findPost);
         GratitudeType gratitudeSticker = getGratitudeSticker(findPost);
 
