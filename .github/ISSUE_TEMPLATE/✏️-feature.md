@@ -2,8 +2,8 @@
 name: "✏️ Feature"
 about: '새로운 기능 추가 issue 템플릿입니다. '
 title: "[FEATURE] [domain]"
-labels: feature
-assignees: ''
+labels: deploy, feature
+assignees: yujinjeo
 
 ---
 
