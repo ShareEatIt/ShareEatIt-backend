@@ -83,11 +83,6 @@ public class Member extends BaseEntity {
         this.provider=Provider.toEnum(dto.getProvider());
     }
 
-    public void updateImgUrl(String url){
-        this.profileImgUrl=url;
-
-    }
-
     public void updateLocationPoint(Point point){
         this.locationPoint=point;
     }

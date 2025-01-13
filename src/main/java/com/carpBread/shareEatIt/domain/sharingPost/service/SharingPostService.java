@@ -8,6 +8,7 @@ import com.carpBread.shareEatIt.domain.member.entity.Keywords;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.entity.Provider;
 import com.carpBread.shareEatIt.domain.member.repository.KeywordsRepository;
+import com.carpBread.shareEatIt.domain.member.repository.MemberQuerydslRepository;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
 import com.carpBread.shareEatIt.domain.notice.dto.NoticeCreateDto;
 import com.carpBread.shareEatIt.domain.notice.dto.NoticeRelatedObjectResponseComponent;
@@ -67,6 +68,7 @@ public class SharingPostService {
 
     private final SharingPostRepository sharingPostRepository;
     private final MemberRepository memberRepository;
+    private final MemberQuerydslRepository memberQuerydslRepository;
     private final ParticipationRepository participationRepository;
     private final NoticeRepository noticeRepository;
     private final SseService sseService;
@@ -587,7 +589,7 @@ public class SharingPostService {
             throw new AppException(ErrorCode.VALUE_OUT_OF_RANGE,"위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.","/sharing");
         }
 
-        List<Member> memberList = memberRepository.findMemberWithRadius(latitude,longitude, radius);
+        List<Member> memberList = memberQuerydslRepository.findMemberWithRadius(latitude,longitude, radius);
 
         if (memberList.size()==0)
             System.out.println("멤버 리스트 없음");
