@@ -30,6 +30,4 @@ public class OAuth2Principal implements OAuth2User {
     }
 
 
-
-
 }

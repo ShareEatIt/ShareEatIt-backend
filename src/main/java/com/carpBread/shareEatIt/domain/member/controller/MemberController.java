@@ -20,7 +20,6 @@ import org.springframework.web.multipart.MultipartFile;
 @RequiredArgsConstructor
 public class MemberController {
     private final MemberService memberService;
-    private final GeometryFactory geometryFactory = new GeometryFactory();
 
     @GetMapping("/test")
     public ResponseEntity<String> test(@AuthUser Member member){
@@ -59,7 +58,7 @@ public class MemberController {
 
     @GetMapping("/stickers")
     public ResponseEntity<ApiResponse> memberStickers(@AuthUser Member member){
-        MemberStickerResponseDto responseDto = memberService.findStickers(member.getId());
+        MemberStickerResponseDto responseDto = memberService.findStickers(member);
 
         ApiResponse response = new ApiResponse<>(HttpStatus.OK.value(),
                 "회원 설정페이지 정보 조회 성공",
@@ -78,12 +77,13 @@ public class MemberController {
     }
 
 
+    /* 회원 정보 수정 - PUT */
     @PutMapping
     public ResponseEntity<ApiResponse> updateMemberProfile(@AuthUser Member member,
                                                            @RequestPart(name = "imgFile",required = false) MultipartFile imgFile,
                                                            @Valid @RequestPart(name = "dto") MemberProfileUpdateRequestDto dto){
 
-        MemberProfileResponseDto responseDto = memberService.updateProfile(member.getId(),imgFile, dto);
+        MemberProfileResponseDto responseDto = memberService.updateProfile(member,imgFile, dto);
 
         ApiResponse response = new ApiResponse<>(HttpStatus.OK.value(),
                 "회원 정보 수정 성공",
@@ -117,7 +117,7 @@ public class MemberController {
 
     @DeleteMapping
     public ResponseEntity<ApiResponse> memberWithdrawal(@AuthUser Member member){
-        MemberWithdrawalResponseDto responseDto = memberService.withdrawal(member.getId());
+        MemberWithdrawalResponseDto responseDto = memberService.withdrawal(member);
 
         ApiResponse response = new ApiResponse<>(HttpStatus.OK.value(),
                 "회원 탈퇴 성공",

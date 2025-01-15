@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.springframework.context.annotation.Profile;
 import org.springframework.data.annotation.Id;
 import org.springframework.data.mongodb.core.mapping.Document;
 
@@ -13,6 +14,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @Document(collection = "chat")
 @AllArgsConstructor
+@Profile("!test") // 유진: test 시 application-test 프로퍼티에 불러오지 않는 빈으로 지정 (mongodb 사용)
 public class ChatMessage {
 
     @Id

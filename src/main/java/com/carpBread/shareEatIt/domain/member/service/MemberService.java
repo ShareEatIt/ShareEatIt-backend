@@ -33,6 +33,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Service
 @Slf4j @Transactional
@@ -44,19 +46,14 @@ public class MemberService {
     private final SharingPostRepository sharingPostRepository;
     private final SseService sseService;
     private final AmazonS3 s3Client;
-
-    private final GeometryFactory geometryFactory = new GeometryFactory();
-
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
-    /* 멤버의 스티커 현황 찾기 */
+    /* 회원 스티커 현황 조회 */
     @Transactional(propagation = Propagation.REQUIRES_NEW)
-    public MemberStickerResponseDto findStickers(Long memberId){
-        Member findMember = memberRepository.findById(memberId)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_MEMBER, "member profile - GET error", "/members/stickers"));
+    public MemberStickerResponseDto findStickers(Member member){
 
-        List<Object[]> stickers = gratitudeStickerRepository.countByGratitudeTypeByGiver(findMember.getId());
+        List<Object[]> stickers = gratitudeStickerRepository.countByGratitudeTypeByGiver(member.getId());
         Map<String , Long > responseList=new HashMap<>();
 
         for (Object[] objects : stickers){
@@ -75,61 +72,46 @@ public class MemberService {
                 .build();
 
         return MemberStickerResponseDto.builder()
-                .id(findMember.getId())
-                .profileImg(findMember.getProfileImgUrl())
-                .nickname(findMember.getNickname())
-                .email(findMember.getEmail())
+                .id(member.getId())
+                .profileImg(member.getProfileImgUrl())
+                .nickname(member.getNickname())
+                .email(member.getEmail())
                 .stickers(stickersDto)
-                .isKeywordAvail(findMember.getIsKeywordAvail())
-                .isNoticeAvail(findMember.getIsNoticeAvail())
-                .provider(findMember.getProvider().name())
+                .isKeywordAvail(member.getIsKeywordAvail())
+                .isNoticeAvail(member.getIsNoticeAvail())
+                .provider(member.getProvider().name())
                 .build();
 
     }
 
-    public MemberProfileResponseDto updateProfile(Long memberId, MultipartFile imgFile, MemberProfileUpdateRequestDto updateRequestDto) {
-        Member findMember = memberRepository.findById(memberId)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_MEMBER,
-                        "member profile update - PUT error", "/members"));
+    /* 사용자 정보 수정 */
+    public MemberProfileResponseDto updateProfile(Member member, MultipartFile imgFile, MemberProfileUpdateRequestDto updateRequestDto) {
 
-        // 점검 : MySQL 8.4 Reference Manual 에 정의된 메뉴얼에 따라, latitude(위도)는 [-90.0, 90.0] / longitude(경도)는 [-180.0, 180.0] 범위로 지정
+        // 1. 점검 : MySQL 8.4 Reference Manual 에 정의된 메뉴얼에 따라, latitude(위도)는 [-90.0, 90.0] / longitude(경도)는 [-180.0, 180.0] 범위로 지정
         if ((updateRequestDto.getLatitude()>90.0 || updateRequestDto.getLatitude()<-90.0)
                 || (updateRequestDto.getLongitude()>180.0 || updateRequestDto.getLongitude()<-180.0)){
             throw new AppException(ErrorCode.VALUE_OUT_OF_RANGE,"입력한 위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.","/members");
         }
 
-        Point point = geometryFactory.createPoint(new Coordinate(updateRequestDto.getLongitude(), updateRequestDto.getLatitude()));
-        point.setSRID(4326);
+        // 2. createNewPoint() : dto의 위도, 경도에 따른 point 객체 새로 생성
+        Point newLocation = createNewPoint(updateRequestDto.getLatitude(), updateRequestDto.getLongitude());
 
-        String imgUrl=findMember.getProfileImgUrl();
+        // 3. 사용자 프로필 url imgUrl 변수 초기화
+        String imgUrl=member.getProfileImgUrl();
 
-
-        if (!imgFile.isEmpty()){
-
-            String key = "images/" + UUID.randomUUID() + "_" + imgFile.getOriginalFilename();
-
-            ObjectMetadata metadata = new ObjectMetadata();
-            metadata.setContentLength(imgFile.getSize());
-            metadata.setContentType(imgFile.getContentType());
-
-            try (InputStream inputStream = imgFile.getInputStream()){
-                s3Client.putObject(bucketName,key,inputStream,metadata);
-            }
-            catch (IOException e){
-                throw new AppException(ErrorCode.AWS_S3_IMG_UPLOAD_CONNECTION_ERROR, "sharing post create - POST error","/sharing");
-            }
-
-            imgUrl = s3Client.getUrl(bucketName, key).toString();
-
-
+        // 사용자가 이미지 사진을 변경할 경우
+        // uploadNewImageToS3() : S3에 업로드 후 imgUrl 변수에 저장
+        if (imgFile!=null){
+            imgUrl = uploadNewImageToS3(imgFile);
         }
 
+        // 4. updateMemberProfile 함수로 member 정보 수정
+        member.updateMemberProfile(updateRequestDto,newLocation,imgUrl);
 
+        // 5. 수정된 내용으로 회원 정보를 db에 다시 저장
+        Member updatedMember = memberRepository.save(member);
 
-        findMember.updateMemberProfile(updateRequestDto,point,imgUrl);
-        Member updatedMember = memberRepository.save(findMember);
-
-
+        // 6. MemberProfileResponseDto return
         return MemberProfileResponseDto.builder()
                 .id(updatedMember.getId())
                 .email(updatedMember.getEmail())
@@ -148,6 +130,7 @@ public class MemberService {
 
     }
 
+    /* 회원의 isAvailKeyword를 변경 */
     public AvailResponseDto updateAvailKeyword(Member member, Boolean keyword) {
         member.updateAvailKeyword(keyword);
         Member updatedMember = memberRepository.save(member);
@@ -159,13 +142,15 @@ public class MemberService {
                 .build();
     }
 
-    // notice avail 설정 변경
+    /* 회원의 isAvailNotice를 변경 */
     public AvailResponseDto updateAvailNotice(Member member, Boolean notice) {
         member.updateAvailNotice(notice);
         Member updatedMember = memberRepository.save(member);
 
+        // notice가 True일 경우 sseService에 client 추가
         if(notice){
             sseService.registerClient(member.getId());
+        // notice가 False일 경우 sseService에 client 제외
         }else{
             sseService.unregisterClient(member.getId());
         }
@@ -178,55 +163,50 @@ public class MemberService {
 
     }
 
+    /* 회원 탈퇴 */
+    public MemberWithdrawalResponseDto withdrawal(Member member) {
 
+        // sseService client에서 삭제
+        sseService.unregisterClient(member.getId());
 
-    public MemberWithdrawalResponseDto withdrawal(Long memberId) {
-        Member findMember = memberRepository.findById(memberId)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_MEMBER,
-                        "member withdrawal - DELETE error", "/members"));
+        // 이미지 url 삭제 로직
+        if(member.getProfileImgUrl()!=null){
+            String profileImgUrl = member.getProfileImgUrl();
+            // S3_URL 패턴에 맞지 않으면 INVALID S3 URL error throw
+            if (!isValidS3Url(profileImgUrl)){
+                throw new AppException(ErrorCode.INVALID_S3_URL,"S3 URL 형식에 맞지 않습니다.","/members");
+            }
 
-        sseService.unregisterClient(memberId);
+            // key 추출
+            String objectKey = URI.create(profileImgUrl)
+                    .getPath().substring(1);
 
-        // 이미지 url 삭제 로직 추가 예정
-        String profileImgUrl = findMember.getProfileImgUrl();
-        String objectKey = URI.create(profileImgUrl)
-                .getPath().substring(1);
-        s3Client.deleteObject(bucketName,objectKey);
-
+            // s3 버킷에서 삭제
+            s3Client.deleteObject(bucketName,objectKey);
+        }
 
         // kakao 연결 끊기
-        disconnectKakaoRegistration(findMember.getAccessId(),findMember.getAccessToken());
+        disconnectKakaoRegistration(member.getAccessId(),member.getAccessToken());
 
         MemberWithdrawalResponseDto responseDto = MemberWithdrawalResponseDto.builder()
-                        .id(findMember.getId())
-                        .nickname(findMember.getNickname())
-                        .email(findMember.getEmail())
+                        .id(member.getId())
+                        .nickname(member.getNickname())
+                        .email(member.getEmail())
                         .build();
 
-        memberRepository.deleteById(memberId);
+        memberRepository.deleteById(member.getId());
 
         return responseDto;
 
     }
 
-    private void disconnectKakaoRegistration(Long accessId, String accessToken){
-        WebClient webClient = WebClient.builder()
-                .baseUrl("https://kapi.kakao.com")
-                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
-                .build();
-
-        webClient
-                .post()
-                .uri(uriBuilder -> uriBuilder.path("/v1/user/unlink").build())
-                .header("Authorization","Bearer "+accessToken)
-                .retrieve();
-    }
-
-
+    /* 회원 나눔 현황 조회 */
     public MemberSharingStatusResponseDto findMemberSharingStatus(Member writer) {
 
+        // writer의 나눔 현황 리스트
         MemberSharingStatusResponseComponent statusDto = getSharingStatusResponseComponent(writer);
 
+        // writer dto
         MemberCompletedProfileResponseComponent writerDto = MemberCompletedProfileResponseComponent.builder()
                 .id(writer.getId())
                 .email(writer.getEmail())
@@ -240,9 +220,51 @@ public class MemberService {
                 .statusByCategory(statusDto)
                 .build();
 
+    }
+
+    /* 회원 탈퇴 시 카카오 연결 끊기 */
+    public void disconnectKakaoRegistration(Long accessId, String accessToken){
+        WebClient webClient = WebClient.builder()
+                .baseUrl("https://kapi.kakao.com")
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_FORM_URLENCODED_VALUE)
+                .build();
+
+        webClient
+                .post()
+                .uri(uriBuilder -> uriBuilder.path("/v1/user/unlink").build())
+                .header("Authorization","Bearer "+accessToken)
+                .retrieve();
+    }
+
+
+    /* MemberService private 함수 : S3에 새 이미지 업로드 후 URL 문자열 반환 */
+    public String uploadNewImageToS3(MultipartFile imgFile){
+        String key = "images/" + UUID.randomUUID() + "_" + imgFile.getOriginalFilename();
+
+        ObjectMetadata metadata = new ObjectMetadata();
+        metadata.setContentLength(imgFile.getSize());
+        metadata.setContentType(imgFile.getContentType());
+
+        try (InputStream inputStream = imgFile.getInputStream()){
+            s3Client.putObject(bucketName,key,inputStream,metadata);
+        }
+        catch (IOException e){
+            throw new AppException(ErrorCode.AWS_S3_IMG_UPLOAD_CONNECTION_ERROR, "sharing post create - POST error","/sharing");
+        }
+
+        return s3Client.getUrl(bucketName, key).toString();
 
     }
 
+    /* MemberService private 함수 : 새로운 위도와 경도로 Point 객체 새로 생성 */
+    private Point createNewPoint(double latitude, double longitude){
+        Point newPoint = new GeometryFactory().createPoint(new Coordinate(longitude, latitude));
+        newPoint.setSRID(4326);
+
+        return newPoint;
+    }
+
+    /* 회원의 나눔글 현황 리스트 반환 함수 */
     private MemberSharingStatusResponseComponent getSharingStatusResponseComponent(Member writer){
         Long BAKERY =0l;
         Long BEVERAGE=0l;
@@ -290,6 +312,17 @@ public class MemberService {
                 .build();
 
     }
+
+    /* s3 URL Pattern 확인 */
+    private Boolean isValidS3Url(String url){
+        // 정규 표현식 패턴
+        final String S3_URL_PATTERN = "^https://(.+)/([^/]+)/(.+)$";
+        Pattern pattern = Pattern.compile(S3_URL_PATTERN);
+        Matcher matcher = pattern.matcher(url);
+
+        return matcher.matches();
+    }
+
 
     /*채팅 - 상대방 프로필 조회 */
     public OpponentInfoResponseDto findOpponentInfo(Long opponentId) {
