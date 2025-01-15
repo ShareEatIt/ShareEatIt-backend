@@ -5,6 +5,7 @@ import com.carpBread.shareEatIt.domain.participation.dto.GratitudeResponseDto;
 import com.carpBread.shareEatIt.domain.participation.entity.GratitudeType;
 import com.carpBread.shareEatIt.domain.participation.service.GratitudeStickerService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
 import org.junit.jupiter.api.Test;
@@ -16,10 +17,13 @@ import org.springframework.data.jpa.mapping.JpaMetamodelMappingContext;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
+import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.context.WebApplicationContext;
 
 import java.time.LocalDateTime;
 
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.csrf;
+import static org.springframework.security.test.web.servlet.setup.SecurityMockMvcConfigurers.springSecurity;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -31,28 +35,44 @@ class GratitudeStickerControllerTest {
     @Autowired
     private MockMvc mockMvc;
 
-    @Autowired
-    ObjectMapper objectMapper;
-
     @MockBean
     private GratitudeStickerService gratitudeStickerService;
+
+    // 테스트를 위한 상수 선언
+    private static final Long MOCK_POST_ID = 111L;
+    private static final Long MOCK_MEMBER_ID = 1L;
+    private static final Long MOCK_GS_ID = 1L;
+    private static final GratitudeType GRATITUDE_TYPE = GratitudeType.SMILE1;
+
+
+    @BeforeEach
+    public void setUp(WebApplicationContext webApplicationContext){
+        this.mockMvc = MockMvcBuilders
+                .webAppContextSetup(webApplicationContext)
+                .apply(springSecurity())
+                .defaultRequest(post("/**").with(csrf()))
+                .defaultRequest(patch("/**").with(csrf()))
+                .build();
+    }
+
+    // 가짜 responseDto 생성 메서드
+    private GratitudeResponseDto createMockResponseDto() {
+        return GratitudeResponseDto.builder()
+                .gratitudeStickersId(1L)
+                .sharingPostId(MOCK_POST_ID)
+                .giverId(MOCK_MEMBER_ID)
+                .gratitudeType(GRATITUDE_TYPE)
+                .createdAt(LocalDateTime.now())
+                .build();
+    }
+
 
     @Test
     @WithMockCustomUser
     void 고마움스티커_생성_성공() throws Exception {
 
         // given
-        Long mockPostId = 111L; // 게시글 ID
-        GratitudeType gratitudeType = GratitudeType.SMILE1; // 고마움 타입
-        Long mockMemberId = 1L; // 애노테이션으로 미리 생성된 가짜 사용자 객체의 memberId
-
-        GratitudeResponseDto mockResponseDto = GratitudeResponseDto.builder()
-                .gratitudeStickersId(1L)
-                .sharingPostId(mockPostId)
-                .giverId(mockMemberId)
-                .gratitudeType(gratitudeType)
-                .createdAt(LocalDateTime.now())
-                .build();
+        GratitudeResponseDto mockResponseDto = createMockResponseDto();
 
         // stub 설정: 서비스 계층의 반환값 미리 지정 , 위에서 만들어 둔 responseDto로 지정해 둠
         Mockito.when(gratitudeStickerService.createGratitudeSticker(Mockito.any(), Mockito.any(), Mockito.any()))
@@ -60,9 +80,8 @@ class GratitudeStickerControllerTest {
 
         // when
         ResultActions resultActions = mockMvc
-                .perform(post("/gratitudeStickers/{postId}", mockPostId)
-                .param("gratitudeType", gratitudeType.name()) // 요청 파라미터
-                .with(csrf()) // CSRF 토큰 포함
+                .perform(post("/gratitudeStickers/{postId}", MOCK_POST_ID)
+                .param("gratitudeType", GRATITUDE_TYPE.name()) // 요청 파라미터
                 .contentType(MediaType.APPLICATION_JSON) // Content-Type
                 .accept(MediaType.APPLICATION_JSON) // Accept 헤더
         );
@@ -73,8 +92,8 @@ class GratitudeStickerControllerTest {
                 .andExpect(jsonPath("$.status").value(201)) // 응답 JSON의 상태값 확인
                 .andExpect(jsonPath("$.message").value("고마움 생성 성공")) // 성공 메시지 확인
                 .andExpect(jsonPath("$.data.gratitudeStickersId").value(mockResponseDto.getGratitudeStickersId())) // 반환 데이터 검증
-                .andExpect(jsonPath("$.data.giverId").value(mockMemberId))
-                .andExpect(jsonPath("$.data.gratitudeType").value(gratitudeType.name()));
+                .andExpect(jsonPath("$.data.giverId").value(MOCK_MEMBER_ID))
+                .andExpect(jsonPath("$.data.gratitudeType").value(GRATITUDE_TYPE.name()));
 
         Mockito.verify(gratitudeStickerService, Mockito.times(1))  // 서비스 함수가 1번만 호출되었는지 검증
                 .createGratitudeSticker(Mockito.any(), Mockito.any(), Mockito.any());
@@ -86,18 +105,7 @@ class GratitudeStickerControllerTest {
     void 고마움스티커_수정_성공() throws Exception {
 
         // given
-        Long MockGsId = 1L;
-        Long MockMemberId = 1L; // 애노테이션으로 미리 생성된 가짜 사용자 객체의 memberId
-        Long mockPostId = 111L; // 게시글 ID
-        GratitudeType gratitudeType = GratitudeType.SMILE1; // 고마움 타입
-
-        GratitudeResponseDto mockResponseDto = GratitudeResponseDto.builder()  // responseDto 가짜 객체 생성
-                .gratitudeStickersId(1L)
-                .sharingPostId(mockPostId)
-                .giverId(MockMemberId)
-                .gratitudeType(gratitudeType)
-                .createdAt(LocalDateTime.now())
-                .build();
+        GratitudeResponseDto mockResponseDto = createMockResponseDto();
 
         // stub 설정
         Mockito.when(gratitudeStickerService.updateGratitudeStickers(Mockito.any(), Mockito.any(), Mockito.any()))
@@ -105,9 +113,8 @@ class GratitudeStickerControllerTest {
 
         // when
         ResultActions resultActions = mockMvc
-                .perform(patch("/gratitudeStickers/{gsId}", MockGsId)
-                .param("gratitudeType", gratitudeType.name()) // 요청 파라미터
-                .with(csrf()) // CSRF 토큰 포함
+                .perform(patch("/gratitudeStickers/{gsId}", MOCK_GS_ID)
+                .param("gratitudeType", GRATITUDE_TYPE.name()) // 요청 파라미터
                 .contentType(MediaType.APPLICATION_JSON) // Content-Type
                 .accept(MediaType.APPLICATION_JSON) // Accept 헤더
         );
@@ -118,10 +125,9 @@ class GratitudeStickerControllerTest {
                 .andExpect(jsonPath("$.status").value(200)) // 응답 JSON의 상태값 확인
                 .andExpect(jsonPath("$.message").value("고마움 스티커 수정 성공")) // 성공 메시지 확인
                 .andExpect(jsonPath("$.data.gratitudeStickersId").value(mockResponseDto.getGratitudeStickersId())) // 반환 데이터 검증
-                .andExpect(jsonPath("$.data.gratitudeType").value(gratitudeType.name())) // 수정된 gratitudeType 검증
-                .andExpect(jsonPath("$.data.giverId").value(MockMemberId)); // giverId 검증
+                .andExpect(jsonPath("$.data.gratitudeType").value(GRATITUDE_TYPE.name())) // 수정된 gratitudeType 검증
+                .andExpect(jsonPath("$.data.giverId").value(MOCK_MEMBER_ID)); // giverId 검증
 
-        // 서비스 메서드 호출 횟수 검증
         Mockito.verify(gratitudeStickerService, Mockito.times(1)) // 서비스 함수가 1번만 호출되었는지 검증
                 .updateGratitudeStickers(Mockito.anyLong(), Mockito.any(), Mockito.any());
 
