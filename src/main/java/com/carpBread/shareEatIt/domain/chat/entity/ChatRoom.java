@@ -15,7 +15,7 @@ import org.springframework.context.annotation.Profile;
 @AllArgsConstructor
 @SuperBuilder
 @Getter
-@Profile("!test") // 유진: test 시 application-test 프로퍼티에 불러오지 않는 빈으로 지정 (mongodb 사용)
+//@Profile("!test") // 유진: test 시 application-test 프로퍼티에 불러오지 않는 빈으로 지정 (mongodb 사용)
 public class ChatRoom extends BaseEntity {
 
     @Id
