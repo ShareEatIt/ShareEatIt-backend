@@ -194,11 +194,33 @@ class GratitudeStickerServiceTest {
     }
 
     @Test
-    void updateGratitudeStickers() {
+    void 고마움스티커_수정_성공() {
         //given
+        GratitudeType NEW_GRATITUDE_TYPE = GratitudeType.SMILE2;  // 수정할 스티커 타입
+        Long GS_ID = 1L;
+        // 가짜 스티커 객체
+        GratitudeSticker mockGratitudeSticker = GratitudeSticker.builder()
+                .id(GS_ID)
+                .post(mockPost)
+                .participation(mockParticipation)
+                .giver(mockMemberGiver)
+                .reviewer(mockMemberReceiver)
+                .gratitudeType(GratitudeType.SMILE1)
+                .build();
+        //stub 설정
+        Mockito.when(gratitudeStickerRepository.findById(mockGratitudeSticker.getId()))
+                .thenReturn(Optional.of(mockGratitudeSticker));
+        Mockito.when(gratitudeStickerRepository.save(any(GratitudeSticker.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
 
         //when
+        GratitudeResponseDto result = gratitudeStickerService.updateGratitudeStickers(GS_ID, mockMemberReceiver, NEW_GRATITUDE_TYPE);
 
         //then
+        assertNotNull(result);
+        assertEquals(NEW_GRATITUDE_TYPE, result.getGratitudeType());  // 요청값의 스티커 타입과 결과값의 스티커 객체의 타입 일치 검증
+        verify(gratitudeStickerRepository).findById(GS_ID);
+        verify(gratitudeStickerRepository).save(any(GratitudeSticker.class));
+
     }
 }
