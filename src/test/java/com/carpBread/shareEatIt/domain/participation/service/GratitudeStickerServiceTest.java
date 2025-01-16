@@ -33,6 +33,7 @@ import java.util.Optional;
 import static com.carpBread.shareEatIt.domain.member.entity.Provider.INDIVIDUAL;
 import static com.carpBread.shareEatIt.domain.sharingPost.entity.PostCategory.BAKERY;
 import static com.carpBread.shareEatIt.global.exception.ErrorCode.ALREADY_EXISTS_GRATITUDESTICKER;
+import static com.carpBread.shareEatIt.global.exception.ErrorCode.CAN_NOT_BE_NULL;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -221,6 +222,23 @@ class GratitudeStickerServiceTest {
         assertEquals(NEW_GRATITUDE_TYPE, result.getGratitudeType());  // 요청값의 스티커 타입과 결과값의 스티커 객체의 타입 일치 검증
         verify(gratitudeStickerRepository).findById(GS_ID);
         verify(gratitudeStickerRepository).save(any(GratitudeSticker.class));
+
+    }
+
+    @Test
+    void 고마움스티커_수정_실패_파라미터값_누락() {
+        //given
+        GratitudeType NEW_GRATITUDE_TYPE = null;  // 수정할 스티커 타입 누락
+        Long GS_ID = 1L;
+
+        //when
+        AppException exception = assertThrows(AppException.class,
+                () -> gratitudeStickerService.updateGratitudeStickers(GS_ID, mockMemberReceiver, NEW_GRATITUDE_TYPE));
+
+        //then
+        assertEquals(CAN_NOT_BE_NULL, exception.getErrorCode());
+        assertEquals("필수 입력 값이 누락되었습니다.", exception.getMessage());
+        assertEquals("/gratitudeSticker", exception.getPath());
 
     }
 }
