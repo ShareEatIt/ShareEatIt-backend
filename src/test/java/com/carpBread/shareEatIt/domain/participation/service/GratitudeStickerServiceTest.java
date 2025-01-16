@@ -13,6 +13,7 @@ import com.carpBread.shareEatIt.domain.sharingPost.entity.PostStatus;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.PostType;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
+import com.carpBread.shareEatIt.global.exception.AppException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -31,8 +32,8 @@ import java.util.Optional;
 
 import static com.carpBread.shareEatIt.domain.member.entity.Provider.INDIVIDUAL;
 import static com.carpBread.shareEatIt.domain.sharingPost.entity.PostCategory.BAKERY;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static com.carpBread.shareEatIt.global.exception.ErrorCode.ALREADY_EXISTS_GRATITUDESTICKER;
+import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 
@@ -150,13 +151,45 @@ class GratitudeStickerServiceTest {
         GratitudeResponseDto result = gratitudeStickerService.createGratitudeSticker(mockPost.getId(), mockMemberReceiver, GRATITUDE_TYPE);
 
         // then
+        // 결과값 검증
         assertNotNull(result);
         assertEquals(GRATITUDE_TYPE, result.getGratitudeType()); // 요청값의 스티커타입과 실행 결과 생성된 스티커 타입의 일치 여부 검증
         assertEquals(mockPost.getId(), result.getSharingPostId()); // Post ID 검증
         assertEquals(mockMemberReceiver.getId(), result.getReviewerId()); // Reviewer ID 검증
+        // 메서드 호출 검증
         verify(sharingPostRepository).findById(mockPost.getId());
         verify(participationRepository).findByPostIdAndStatus(mockPost.getId());
         verify(gratitudeStickerRepository).save(any(GratitudeSticker.class));
+
+    }
+
+    @Test
+    @WithMockCustomUser
+    public void 고마움스티커_생성_실패_이미_존재하는_스티커() {
+        // given
+        GratitudeType GRATITUDE_TYPE = GratitudeType.SMILE1;
+
+        // stub 설정 - 독립적인 테스트 위한 의존성 제거
+        Mockito.when(sharingPostRepository.findById(mockPost.getId()))
+                .thenReturn(Optional.of(mockPost));
+        Mockito.when(participationRepository.findByPostIdAndStatus(mockPost.getId()))
+                .thenReturn(List.of(mockParticipation));
+        Mockito.when(gratitudeStickerRepository.existsByParticipationId(mockParticipation.getId()))
+                .thenReturn(true);  // 이미 고마움 스티커 존재하는 경우
+
+        // when
+        AppException exception = assertThrows(AppException.class,
+                () -> gratitudeStickerService.createGratitudeSticker(mockPost.getId(), mockMemberReceiver, GratitudeType.SMILE1));
+
+        // then
+        // 예외 메시지 & 상태 코드 검증
+        assertEquals(ALREADY_EXISTS_GRATITUDESTICKER, exception.getErrorCode());  // 에러 상태 코드 검증
+        assertEquals("이미 고마움을 남긴 나눔입니다.", exception.getMessage());  // 에러 메시지 검증
+        assertEquals("/gratitudeStickers/" + mockPost.getId(), exception.getPath());  // 에러 경로 표시 검증
+        // 메서드 호출 검증
+        verify(sharingPostRepository).findById(mockPost.getId());
+        verify(participationRepository).findByPostIdAndStatus(mockPost.getId());
+        verify(gratitudeStickerRepository).existsByParticipationId(mockParticipation.getId());
 
     }
 
