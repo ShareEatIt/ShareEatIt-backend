@@ -1,9 +1,9 @@
 ---
-name: "⛑️ Refactoring"
+name: "⛑️Refactoring"
 about: 코드 리팩토링 issue 템플릿입니다.
 title: "[REFACTORING] [domain]"
 labels: refactoring
-assignees: yujinjeo
+assignees: ''
 
 ---
 

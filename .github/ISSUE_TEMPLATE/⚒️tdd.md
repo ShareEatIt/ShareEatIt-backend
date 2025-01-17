@@ -1,18 +1,18 @@
 ---
-name: "⚒️ TDD"
+name: "⚒️TDD"
 about: TDD 개발에 대한 issue 템플릿입니다.
 title: "[TDD] [domain]"
 labels: tdd
-assignees: yujinjeo
+assignees: ''
 
 ---
 
 ## 📌 tdd 내용
-- 나눔 받은 나눔글에 고마움 스티커 남기기 관련 API를 구현합니다.
+- 
 
 
 ## ⛓️ 테스트 파일명
-- MemberService.java
+- 
 
 
 ## ✅ 요구사항
