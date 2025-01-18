@@ -2,8 +2,9 @@ package com.carpBread.shareEatIt.domain.member.service;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.carpBread.shareEatIt.domain.member.dto.*;
+import com.carpBread.shareEatIt.domain.member.controller.SentryTestController;
 import com.carpBread.shareEatIt.domain.member.dto.request.MemberProfileUpdateRequestDto;
+import com.carpBread.shareEatIt.domain.member.dto.response.*;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
 import com.carpBread.shareEatIt.domain.notice.service.SseService;
@@ -48,6 +49,15 @@ public class MemberService {
     private final AmazonS3 s3Client;
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
+
+    public String sentryTest(SentryTestController.SentrySampleDto dto){
+
+        log.debug("MemberService.sentryTest");
+        if (dto.getName().equals("manager")){
+            throw new AppException(ErrorCode.UNAUTHORIZED_USER,"'manager' 이름은 사용할 수 없습니다.","/sentry");
+        }
+        return "success";
+    }
 
     /* 회원 스티커 현황 조회 */
     @Transactional(propagation = Propagation.REQUIRES_NEW)

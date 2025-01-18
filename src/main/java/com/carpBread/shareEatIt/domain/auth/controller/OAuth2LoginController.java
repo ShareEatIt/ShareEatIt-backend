@@ -1,17 +1,12 @@
 package com.carpBread.shareEatIt.domain.auth.controller;
 
 import com.carpBread.shareEatIt.domain.auth.AuthLoginResponseDto;
-import com.carpBread.shareEatIt.domain.auth.OAuth2Principal;
-import com.carpBread.shareEatIt.domain.auth.dto.OAuthLoginDto;
 import com.carpBread.shareEatIt.domain.auth.service.OAuth2Service;
-import com.carpBread.shareEatIt.domain.auth.util.JWTUtils;
 import com.carpBread.shareEatIt.global.exception.AppException;
 import com.carpBread.shareEatIt.global.exception.ErrorCode;
 import com.carpBread.shareEatIt.global.response.ApiResponse;
-import jakarta.servlet.http.HttpServletRequest;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;

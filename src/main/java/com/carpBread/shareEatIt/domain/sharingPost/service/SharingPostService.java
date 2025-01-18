@@ -2,12 +2,11 @@ package com.carpBread.shareEatIt.domain.sharingPost.service;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.carpBread.shareEatIt.domain.member.dto.LocationResponseDtoComponent;
+import com.carpBread.shareEatIt.domain.member.dto.response.LocationResponseDtoComponent;
 import com.carpBread.shareEatIt.domain.member.dto.MemberAsWriterSimpleDtoComponent;
 import com.carpBread.shareEatIt.domain.member.entity.Keywords;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.entity.Provider;
-import com.carpBread.shareEatIt.domain.member.repository.KeywordsRepository;
 import com.carpBread.shareEatIt.domain.member.repository.MemberQuerydslRepository;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
 import com.carpBread.shareEatIt.domain.notice.dto.NoticeCreateDto;
@@ -15,7 +14,6 @@ import com.carpBread.shareEatIt.domain.notice.dto.NoticeRelatedObjectResponseCom
 import com.carpBread.shareEatIt.domain.notice.entity.Notice;
 import com.carpBread.shareEatIt.domain.notice.entity.NoticeType;
 import com.carpBread.shareEatIt.domain.notice.repository.NoticeRepository;
-import com.carpBread.shareEatIt.domain.notice.service.NoticeService;
 import com.carpBread.shareEatIt.domain.notice.service.SseService;
 import com.carpBread.shareEatIt.domain.participation.entity.GratitudeSticker;
 import com.carpBread.shareEatIt.domain.participation.entity.GratitudeType;
@@ -39,7 +37,6 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
@@ -52,11 +49,11 @@ import java.util.List;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
+
+/* 나눔글 관련 service  */
 @Service
 @RequiredArgsConstructor
 public class SharingPostService {
-    @Value("${cloud.aws.s3.bucket}")
-    private String bucketName;
 
     // 위치 기반 주변 post 반경 (10km 설정)
     private final double radius = 100000;
@@ -64,19 +61,26 @@ public class SharingPostService {
     // 키워드 알람 설정 1km
     private final double mapRadius = 50000;
 
-    private final GeometryFactory geometryFactory = new GeometryFactory();
+    // 위치 point
+    private final GeometryFactory geometryFactory;
 
+    // repository
     private final SharingPostRepository sharingPostRepository;
-    private final MemberRepository memberRepository;
     private final MemberQuerydslRepository memberQuerydslRepository;
     private final ParticipationRepository participationRepository;
     private final NoticeRepository noticeRepository;
-    private final SseService sseService;
     private final PostImgUrlRepository postImgUrlRepository;
     private final GratitudeStickerRepository gratitudeStickerRepository;
 
-    private final AmazonS3 s3Client;
+    // 알람
+    private final SseService sseService;
 
+    // aws s3 client
+    private final AmazonS3 s3Client;
+    @Value("${cloud.aws.s3.bucket}")
+    private String bucketName;
+
+    /* 나눔글 생성 */
     @Transactional
     public SharingPostCreateResponseDto createSharingPost(List<MultipartFile> imgList, SharingPostRequestDto dto, Member member){
 

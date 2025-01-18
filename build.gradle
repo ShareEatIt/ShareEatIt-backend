@@ -88,6 +88,9 @@ dependencies {
 	// stomp
 	implementation 'org.webjars:stomp-websocket:2.3.3-1'
 
+	// sentry : 로그 시스템
+	implementation 'io.sentry:sentry-spring-boot-starter-jakarta:7.20.0'
+
 	testImplementation 'org.springframework.security:spring-security-test'
 	testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
 
@@ -131,3 +134,8 @@ configurations {
 	}
 	querydsl.extendsFrom compileClasspath
 }
+//
+//compileQuerydsl.doFirst {
+//	if(file(querydslDir).exists() )
+//		delete(file(querydslDir))
+//}

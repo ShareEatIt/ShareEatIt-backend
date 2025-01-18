@@ -8,6 +8,10 @@ import org.springframework.http.HttpStatus;
 @AllArgsConstructor
 public enum ErrorCode {
 
+    // SignUp
+    ALREADY_EXISTS_USERNAME(HttpStatus.CONFLICT),
+    ALREADY_EXISTS_EMAIL(HttpStatus.CONFLICT),
+
     // Member
     NOT_FOUND_MEMBER(HttpStatus.NOT_FOUND),
     INVALID_ACCESS_TOKEN(HttpStatus.NOT_ACCEPTABLE),
@@ -51,6 +55,8 @@ public enum ErrorCode {
     LOGIN_FAIL(HttpStatus.CONFLICT),
     NOT_FOUND_OAUTH2_REGISTRATION_ID(HttpStatus.NOT_FOUND),
     INVALID_REFRESH_TOKEN(HttpStatus.FORBIDDEN),
+    INVALID_LOGIN_TYPE(HttpStatus.NOT_FOUND),
+    NOT_FOUND_OAUTH2_ACCESS_TOKEN(HttpStatus.NOT_FOUND),
 
     // Keyword
     ALREADY_USING_KEYWORD(HttpStatus.IM_USED),
