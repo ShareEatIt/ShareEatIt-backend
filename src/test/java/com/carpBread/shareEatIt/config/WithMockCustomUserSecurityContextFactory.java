@@ -1,10 +1,8 @@
 package com.carpBread.shareEatIt.config;
 
-import com.carpBread.shareEatIt.domain.auth.OAuth2Principal;
+import com.carpBread.shareEatIt.domain.auth.dto.AuthenticationPrincipal;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.entity.Provider;
-import org.springframework.boot.test.context.TestComponent;
-import org.springframework.context.annotation.ComponentScan;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContext;
@@ -30,9 +28,11 @@ public class WithMockCustomUserSecurityContextFactory implements WithSecurityCon
                 .isKeywordAvail(true)
                 .build();
 
-        OAuth2Principal principal = new OAuth2Principal(member);
-        SimpleGrantedAuthority grantedAuthority = new SimpleGrantedAuthority("ROLE_MEMBER");
-        UsernamePasswordAuthenticationToken authenticationToken= new UsernamePasswordAuthenticationToken(principal,"kakao", Collections.singleton(grantedAuthority));
+        UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                new AuthenticationPrincipal(member),
+                annotation.email(),
+                Collections.singleton(new SimpleGrantedAuthority("ROLE_MEMBER")));
+
         context.setAuthentication(authenticationToken);
 
         return context;

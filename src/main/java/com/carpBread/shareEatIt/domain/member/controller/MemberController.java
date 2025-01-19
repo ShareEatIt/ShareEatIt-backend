@@ -1,14 +1,13 @@
 package com.carpBread.shareEatIt.domain.member.controller;
 
 import com.carpBread.shareEatIt.domain.auth.AuthUser;
-import com.carpBread.shareEatIt.domain.member.dto.*;
 import com.carpBread.shareEatIt.domain.member.dto.request.MemberProfileUpdateRequestDto;
+import com.carpBread.shareEatIt.domain.member.dto.response.*;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.service.MemberService;
 import com.carpBread.shareEatIt.global.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -94,7 +93,7 @@ public class MemberController {
 
     @PatchMapping("/avail/keyword")
     public ResponseEntity<ApiResponse<AvailResponseDto>> updateMemberAvailKeyword(@AuthUser Member member,
-                                                                                          @RequestParam(name = "keyword")Boolean keyword){
+                                                                                  @RequestParam(name = "keyword")Boolean keyword){
 
         AvailResponseDto responseDto = memberService.updateAvailKeyword(member, keyword);
         ApiResponse<AvailResponseDto> response = new ApiResponse<>(HttpStatus.OK.value(),

@@ -44,7 +44,6 @@ public record OAuth2UserInfo(
 
 
         return Member.builder()
-                .accessId(this.id)
                 .email(this.email)
                 .nickname(this.nickname)
                 .accessToken(accessToken)

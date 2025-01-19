@@ -31,10 +31,6 @@ public interface SharingPostRepository extends JpaRepository<SharingPost, Long> 
     Long countByWriter(@Param("writer") Member writer);
 
 
-    List<SharingPost> findByWriter(Member writer);
-
-    List<SharingPost> findAllByNoticedFalseAndStatus(PostStatus status);
-
     @Query(value = "SELECT p.category, count(p) from SharingPost p where p.writer = :writer group by p.category")
     List<Object[]> countByCategoryForWriter (@Param("writer")Member writer);
 

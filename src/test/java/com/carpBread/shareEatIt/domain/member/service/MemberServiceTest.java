@@ -2,13 +2,13 @@ package com.carpBread.shareEatIt.domain.member.service;
 
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.carpBread.shareEatIt.config.QuerydslTestConfig;
+
 import static org.assertj.core.api.Assertions.assertThat;
 import com.carpBread.shareEatIt.config.S3TestConfig;
-import com.carpBread.shareEatIt.domain.member.dto.AvailResponseDto;
-import com.carpBread.shareEatIt.domain.member.dto.MemberProfileResponseDto;
-import com.carpBread.shareEatIt.domain.member.dto.MemberSharingStatusResponseDto;
-import com.carpBread.shareEatIt.domain.member.dto.MemberStickerResponseDto;
+import com.carpBread.shareEatIt.domain.member.dto.response.AvailResponseDto;
+import com.carpBread.shareEatIt.domain.member.dto.response.MemberProfileResponseDto;
+import com.carpBread.shareEatIt.domain.member.dto.response.MemberSharingStatusResponseDto;
+import com.carpBread.shareEatIt.domain.member.dto.response.MemberStickerResponseDto;
 import com.carpBread.shareEatIt.domain.member.dto.request.MemberProfileUpdateRequestDto;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.entity.Provider;
@@ -18,8 +18,6 @@ import com.carpBread.shareEatIt.domain.participation.repository.GratitudeSticker
 import com.carpBread.shareEatIt.domain.sharingPost.entity.PostCategory;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
 import com.carpBread.shareEatIt.global.exception.AppException;
-import org.eclipse.emf.ecore.impl.BasicEObjectImpl;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,11 +31,8 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpStatus;
 import org.springframework.mock.web.MockMultipartFile;
-import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.web.multipart.MultipartFile;
-import reactor.core.publisher.Mono;
 
 import java.io.File;
 import java.io.FileInputStream;
@@ -45,11 +40,8 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static org.hamcrest.MatcherAssert.assertThat;
 import static org.junit.jupiter.api.Assertions.*;

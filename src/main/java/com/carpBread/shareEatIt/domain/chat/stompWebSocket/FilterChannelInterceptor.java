@@ -1,14 +1,15 @@
 package com.carpBread.shareEatIt.domain.chat.stompWebSocket;
 
-import com.carpBread.shareEatIt.domain.auth.OAuth2Principal;
+import com.carpBread.shareEatIt.domain.auth.LoginProvider;
+import com.carpBread.shareEatIt.domain.auth.dto.AuthenticationPrincipal;
 import com.carpBread.shareEatIt.domain.auth.util.JWTUtils;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
 import com.carpBread.shareEatIt.global.exception.AppException;
+import com.carpBread.shareEatIt.global.exception.ErrorCode;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.core.Ordered;
 import org.springframework.core.annotation.Order;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -100,32 +101,50 @@ public class FilterChannelInterceptor implements ChannelInterceptor {
 
             }
 
-            // 3. context authentication에 저장하기
-            String email = jwtUtils.getEmail(token);
-            Member member = memberRepository.findByEmail(email)
-                    .orElse(null);
+            // 3. 로그아웃된 JWT인지 확인 - redis에 포함된 jti인지 확인
 
-            // 3-1 * : 로그아웃된 JWT인지 확인
-            Set<String> keys = redisTemplate.keys("token:" + email + ":*");
+            // redis의 key 리스트
+            String jti = jwtUtils.getJti(token);
+            Set<String> keys = redisTemplate.keys(jti);
 
-            if (keys != null) {
-                for (String key : keys) {
-                    String logoutToken = (String) redisTemplate.opsForValue().get(key);
-                    if (token.equals(logoutToken)) {
-                        log.error("로그아웃된 토큰입니다. 다시 로그인해주세요.");
-                        throw new JwtException("로그아웃된 토큰입니다. 다시 로그인해주세요.");
-                    }
-                }
+            // 해당 jti가 redis에 저장되어 있는 경우 로그아웃된 토큰이라고 파악
+            if (!keys.isEmpty()){
+                log.error("로그아웃된 토큰입니다. 다시 로그인해주세요.");
+
+                throw new JwtException("로그아웃된 토큰입니다. 다시 로그인해주세요.");
             }
 
-            if (member == null || !email.equals(member.getEmail())) {
-                log.error("회원가입되어있지 않습니다.");
-                throw new JwtException("회원가입 되어있지 않습니다.");
+
+            // 4. 토큰에서 member 객체 추출
+            String provider = jwtUtils.getProvider(token);
+            String sub = jwtUtils.getSub(token);
+            Member member=null;
+
+            // local 어플리케이션 자체 로그인으로 로그인한 경우
+            if (provider.equals(LoginProvider.LOCAL.name())) {
+                member=memberRepository.findByUsername(sub)
+                        .orElse(null);
+
+            }
+            // oauth2 social 로그인으로 로그인한 경우
+            else{
+                member = memberRepository.findByEmail(sub)
+                        .orElse(null);
+
+            }
+            // 해당 username 혹은 email에 매칭되는 회원이 존재하지 않는 경우
+            if (member==null){
+                throw new JwtException("회원가입되어있지 않습니다.");
             }
 
-            OAuth2Principal principal = new OAuth2Principal(member);
-            SimpleGrantedAuthority grantedAuthority = new SimpleGrantedAuthority("ROLE_MEMBER");
-            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(principal, "kakao", Collections.singleton(grantedAuthority));
+
+
+            // 5. 인증된 사용자 principal security context에 포함
+            UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(
+                    new AuthenticationPrincipal(member),
+                    sub,
+                    Collections.singleton(new SimpleGrantedAuthority("ROLE_MEMBER")));
+
             SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
         } catch (JwtException e) {

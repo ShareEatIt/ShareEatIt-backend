@@ -36,7 +36,7 @@ public class OAuth2Service {
     private final MemberRepository memberRepository;
     private final SseService sseService;
     private final JWTUtils jwtUtils;
-    private final GeometryFactory geometryFactory=new GeometryFactory();;
+    private final GeometryFactory geometryFactory;
 
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String clientId;
@@ -126,7 +126,6 @@ public class OAuth2Service {
         Optional<Member> member = memberRepository.findByEmail(oauth2UserInfo.email());
         if (member.isPresent()){
             Member joinedMember = member.get();
-            joinedMember.updateAccessToken(oauth2AccessToken);
             if(joinedMember.getLocationPoint()==null){
                 Point point = geometryFactory.createPoint(new Coordinate(127.0016985, 37.5642135));
                 point.setSRID(4326);
