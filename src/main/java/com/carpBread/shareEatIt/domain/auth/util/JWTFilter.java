@@ -39,7 +39,6 @@ public class JWTFilter extends OncePerRequestFilter {
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException, AppException {
 
         log.debug(request.getRequestURI());
-        System.out.println(request.getRequestURL());
 
         if (isOmissionUrl(request,response,filterChain)){
             filterChain.doFilter(request, response);

@@ -38,18 +38,21 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         String refreshToken = "Bearer "+jwtUtils.createRefreshToken(username, LoginProvider.LOCAL);
 
         // http response
-        AuthenticationResponseDto responseDto = AuthenticationResponseDto.builder()
-                .accessToken(accessToken)
-                .refreshToken(refreshToken)
-                .build();
+        AuthenticationResponseDto responseDto = generateResponseDto(accessToken,refreshToken);
 
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
         response.getWriter().write(objectMapper.writeValueAsString(responseDto));
 
-        System.out.println("CustomAuthenticationSuccessHandler.onAuthenticationSuccess");
+        log.debug(accessToken);
+    }
 
-        log.info(accessToken);
+    // http response dto 생성
+    private AuthenticationResponseDto generateResponseDto(String accessToken, String refreshToken){
+        return AuthenticationResponseDto.builder()
+                .accessToken(accessToken)
+                .refreshToken(refreshToken)
+                .build();
     }
 }

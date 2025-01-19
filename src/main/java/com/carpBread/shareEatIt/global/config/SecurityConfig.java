@@ -20,6 +20,8 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
+import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -84,7 +86,8 @@ public class SecurityConfig {
             )
             .oauth2Login(oauth2 ->oauth2
                     .successHandler(oAuth2SuccessHandler)
-                    .userInfoEndpoint(endpoint-> endpoint.userService(oAuth2UserService)))
+                    .userInfoEndpoint(endpoint-> endpoint.userService(oAuth2UserService))
+            )
             .addFilterBefore(new JWTFilter(jwtUtils,memberRepository,objectMapper,redisTemplate), UsernamePasswordAuthenticationFilter.class)
             .logout(logout -> logout
                     .addLogoutHandler(oAuth2LogoutHandler)
@@ -101,7 +104,6 @@ public class SecurityConfig {
         return new BCryptPasswordEncoder();
     }
 
-
     /* cors 허용 범위 설정 */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
@@ -113,6 +115,7 @@ public class SecurityConfig {
         configuration.addAllowedOrigin("http://localhost:5173");
         configuration.addAllowedOrigin("http://localhost:6379");
         configuration.addAllowedOrigin("http://localhost:8080");
+//        configuration.addAllowedOrigin("*");
         configuration.addAllowedOrigin("https://shareeatit.netlify.app");
         configuration.addAllowedOrigin("https://api.shareeat.r-e.kr");
 //        configuration.addAllowedOrigin("http://54.180.228.54:8080");
