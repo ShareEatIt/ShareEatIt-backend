@@ -7,8 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-@AllArgsConstructor
-@Getter @Builder
+@Getter
 public class SharingPostListRequestDto {
     @NotNull
     private String postType;
@@ -16,4 +15,10 @@ public class SharingPostListRequestDto {
     private Double latitude;
     @NotNull
     private Double longitude;
+
+    public SharingPostListRequestDto(String postType, Double latitude, Double longitude) {
+        this.postType = postType;
+        this.latitude = latitude;
+        this.longitude = longitude;
+    }
 }

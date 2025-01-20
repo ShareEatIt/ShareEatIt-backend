@@ -111,15 +111,11 @@ class MemberServiceTest {
                 fileInputStream
         );
 
-        MemberProfileUpdateRequestDto requestDto = MemberProfileUpdateRequestDto.builder()
-                .profileImg("testimgurl")
-                .nickname("test22")
-                .provider("STORE")
-                .latitude(36.798331)
-                .longitude(127.099492)
-                .addressSt("충청남도 수한군 행복동")
-                .addressDetail("사랑길 56번지")
-                .build();
+        MemberProfileUpdateRequestDto requestDto = new MemberProfileUpdateRequestDto(
+                "testimgurl", "test22", "STORE",
+                127.099492,36.798331,
+                "충청남도 수한군 행복동", "사랑길 56번지"
+        );
 
         //// 다른 함수 모듈의 return 값 지정 - stub 들의 return 값 지정
         // 1. service 클래스의 uploadNewImageToS3 함수의 return 값을 지정
@@ -180,15 +176,11 @@ class MemberServiceTest {
                 fileInputStream
         );
 
-        MemberProfileUpdateRequestDto requestDto = MemberProfileUpdateRequestDto.builder()
-                .profileImg("testimgurl")
-                .nickname("test22")
-                .provider("STORE")
-                .latitude(127.099492)
-                .longitude(36.798331)
-                .addressSt("충청남도 수한군 행복동")
-                .addressDetail("사랑길 56번지")
-                .build();
+        MemberProfileUpdateRequestDto requestDto = new MemberProfileUpdateRequestDto(
+                "testimgurl", "test22", "STORE",
+                127.099492,36.798331,
+                "충청남도 수한군 행복동", "사랑길 56번지"
+        );
 
         // when / then
         AppException thrownException = assertThrows(AppException.class, () -> {
