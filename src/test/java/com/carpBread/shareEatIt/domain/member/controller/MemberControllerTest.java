@@ -117,15 +117,11 @@ class MemberControllerTest {
         );
 
         // 3. requestDto
-        MemberProfileUpdateRequestDto requestDto = MemberProfileUpdateRequestDto.builder()
-                .profileImg("testimgurl")
-                .nickname("test22")
-                .provider("STORE")
-                .latitude(127.099492)
-                .longitude(36.798331)
-                .addressSt("충청남도 수한군 행복동")
-                .addressDetail("사랑길 56번지")
-                .build();
+        MemberProfileUpdateRequestDto requestDto = new MemberProfileUpdateRequestDto(
+                "testimgurl", "test22", "STORE",
+                127.099492,36.798331,
+                "충청남도 수한군 행복동", "사랑길 56번지"
+        );
         MockMultipartFile requestDtoPart=new MockMultipartFile(
                 "dto",
                 "request.json",
