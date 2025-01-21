@@ -20,6 +20,7 @@ public class MemberQuerydslRepositoryImpl implements MemberQuerydslRepository{
 
     // querydsl로 쿼리를 작성할 수 있게 해주는 queryfactory, QuerydslConfig에서 설정함
     private final JPAQueryFactory query;
+    private final GeometryFactory geometryFactory;
 
     // 주어진 위도, 경도와 사용자의 location_point와의 거리가 radius 이하인 Member 리스트를 조회한다.
     @Override
@@ -28,7 +29,7 @@ public class MemberQuerydslRepositoryImpl implements MemberQuerydslRepository{
 
 
         // 주어진 위도 경도를 기반으로 point 객체 생성
-        Point currentLocation =new GeometryFactory().createPoint(
+        Point currentLocation =geometryFactory.createPoint(
                 new Coordinate(longitude,latitude)
         );
         currentLocation.setSRID(4326); // GPS의 기준이 되는 좌표계 SRS가 4326이다

@@ -3,6 +3,7 @@ package com.carpBread.shareEatIt.domain.sharingPost.repository;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.PostStatus;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
+import com.querydsl.core.Tuple;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -32,6 +33,6 @@ public interface SharingPostRepository extends JpaRepository<SharingPost, Long> 
 
 
     @Query(value = "SELECT p.category, count(p) from SharingPost p where p.writer = :writer group by p.category")
-    List<Object[]> countByCategoryForWriter (@Param("writer")Member writer);
+    List<Tuple> countByCategoryForWriter (@Param("writer")Member writer);
 
 }

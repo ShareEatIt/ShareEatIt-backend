@@ -13,6 +13,7 @@ import com.carpBread.shareEatIt.domain.sharingPost.entity.PostCategory;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
 import com.carpBread.shareEatIt.global.exception.AppException;
 import com.carpBread.shareEatIt.global.exception.ErrorCode;
+import com.querydsl.core.Tuple;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.locationtech.jts.geom.Coordinate;
@@ -287,10 +288,10 @@ public class MemberService {
         Long GROCERIES=0l;
         Long ETC=0l;
 
-        List<Object[]> objects = sharingPostRepository.countByCategoryForWriter(writer);
-        for (Object[] obj : objects){
-            PostCategory category = (PostCategory) obj[0];
-            Long count = (Long) obj[1];
+        List<Tuple> objects = sharingPostRepository.countByCategoryForWriter(writer);
+        for (Tuple obj : objects){
+            PostCategory category = (PostCategory) obj.get(0,PostCategory.class);
+            Long count = (Long) obj.get(1, Long.class);
 
             switch (category){
                 case BAKERY -> BAKERY=count;
