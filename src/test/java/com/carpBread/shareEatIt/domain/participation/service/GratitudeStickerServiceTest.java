@@ -13,7 +13,7 @@ import com.carpBread.shareEatIt.domain.sharingPost.entity.PostStatus;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.PostType;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
-import com.carpBread.shareEatIt.global.exception.AppException;
+import com.carpBread.shareEatIt.global.exception.CustomException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayNameGeneration;
 import org.junit.jupiter.api.DisplayNameGenerator;
@@ -32,8 +32,8 @@ import java.util.Optional;
 
 import static com.carpBread.shareEatIt.domain.member.entity.Provider.INDIVIDUAL;
 import static com.carpBread.shareEatIt.domain.sharingPost.entity.PostCategory.BAKERY;
-import static com.carpBread.shareEatIt.global.exception.ErrorCode.ALREADY_EXISTS_GRATITUDESTICKER;
-import static com.carpBread.shareEatIt.global.exception.ErrorCode.CAN_NOT_BE_NULL;
+import static com.carpBread.shareEatIt.global.exception.CustomExceptionStatus.ALREADY_EXISTS_GRATITUDESTICKER;
+import static com.carpBread.shareEatIt.global.exception.CustomExceptionStatus.CAN_NOT_BE_NULL;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
@@ -179,12 +179,12 @@ class GratitudeStickerServiceTest {
                 .thenReturn(true);  // 이미 고마움 스티커 존재하는 경우
 
         // when
-        AppException exception = assertThrows(AppException.class,
+        CustomException exception = assertThrows(CustomException.class,
                 () -> gratitudeStickerService.createGratitudeSticker(mockPost.getId(), mockMemberReceiver, GratitudeType.SMILE1));
 
         // then
         // 예외 메시지 & 상태 코드 검증
-        assertEquals(ALREADY_EXISTS_GRATITUDESTICKER, exception.getErrorCode());  // 에러 상태 코드 검증
+        assertEquals(ALREADY_EXISTS_GRATITUDESTICKER, exception.getCustomExceptionStatus());  // 에러 상태 코드 검증
         assertEquals("이미 고마움을 남긴 나눔입니다.", exception.getMessage());  // 에러 메시지 검증
         assertEquals("/gratitudeStickers/" + mockPost.getId(), exception.getPath());  // 에러 경로 표시 검증
         // 메서드 호출 검증
@@ -232,11 +232,11 @@ class GratitudeStickerServiceTest {
         Long GS_ID = 1L;
 
         //when
-        AppException exception = assertThrows(AppException.class,
+        CustomException exception = assertThrows(CustomException.class,
                 () -> gratitudeStickerService.updateGratitudeStickers(GS_ID, mockMemberReceiver, NEW_GRATITUDE_TYPE));
 
         //then
-        assertEquals(CAN_NOT_BE_NULL, exception.getErrorCode());
+        assertEquals(CAN_NOT_BE_NULL, exception.getCustomExceptionStatus());
         assertEquals("필수 입력 값이 누락되었습니다.", exception.getMessage());
         assertEquals("/gratitudeSticker", exception.getPath());
 

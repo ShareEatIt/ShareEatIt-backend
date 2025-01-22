@@ -17,7 +17,7 @@ import com.carpBread.shareEatIt.domain.notice.service.SseService;
 import com.carpBread.shareEatIt.domain.participation.repository.GratitudeStickerRepository;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.PostCategory;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
-import com.carpBread.shareEatIt.global.exception.AppException;
+import com.carpBread.shareEatIt.global.exception.CustomException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -183,11 +183,11 @@ class MemberServiceTest {
         );
 
         // when / then
-        AppException thrownException = assertThrows(AppException.class, () -> {
+        CustomException thrownException = assertThrows(CustomException.class, () -> {
             memberService.updateProfile(testMember, newImage, requestDto);
         });
 
-        assertThat(thrownException.getErrorCode().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(thrownException.getCustomExceptionStatus().getStatus()).isEqualTo(HttpStatus.BAD_REQUEST);
 
     }
 
@@ -310,11 +310,11 @@ class MemberServiceTest {
                 .build();
 
         // when / then
-        AppException thrownException = assertThrows(AppException.class, () -> {
+        CustomException thrownException = assertThrows(CustomException.class, () -> {
             memberService.withdrawal(member);
         });
 
-        assertThat(thrownException.getErrorCode().getStatus()).isEqualTo(HttpStatus.NOT_ACCEPTABLE);
+        assertThat(thrownException.getCustomExceptionStatus().getStatus()).isEqualTo(HttpStatus.NOT_ACCEPTABLE);
 
     }
 

@@ -1,7 +1,7 @@
 package com.carpBread.shareEatIt.domain.auth;
 
-import com.carpBread.shareEatIt.global.exception.AppException;
-import com.carpBread.shareEatIt.global.exception.ErrorCode;
+import com.carpBread.shareEatIt.global.exception.CustomException;
+import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
 import lombok.Getter;
 
 @Getter
@@ -14,6 +14,6 @@ public enum LoginProvider {
                 return type;
             }
         }
-        throw new AppException(ErrorCode.INVALID_LOGIN_TYPE, "찾을 수 없는 login provider입니다","/signup");
+        throw new CustomException(CustomExceptionStatus.INVALID_LOGIN_TYPE, "찾을 수 없는 login provider입니다","/signup");
     }
 }

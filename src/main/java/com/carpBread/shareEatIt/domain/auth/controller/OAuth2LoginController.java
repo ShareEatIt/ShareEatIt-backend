@@ -2,8 +2,8 @@ package com.carpBread.shareEatIt.domain.auth.controller;
 
 import com.carpBread.shareEatIt.domain.auth.AuthLoginResponseDto;
 import com.carpBread.shareEatIt.domain.auth.service.OAuth2Service;
-import com.carpBread.shareEatIt.global.exception.AppException;
-import com.carpBread.shareEatIt.global.exception.ErrorCode;
+import com.carpBread.shareEatIt.global.exception.CustomException;
+import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
 import com.carpBread.shareEatIt.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +29,7 @@ public class OAuth2LoginController {
             responseDto=oAuth2Service.getMemberInfo(oauth2AccessToken);
         }catch (Exception e){
             log.error(e.getMessage());
-            throw new AppException(ErrorCode.LOGOUT_FAIL,e.getMessage(),"/oauth2/authorize");
+            throw new CustomException(CustomExceptionStatus.LOGOUT_FAIL,e.getMessage(),"/oauth2/authorize");
         }
 
         ApiResponse<AuthLoginResponseDto> response = new ApiResponse<>(HttpStatus.OK.value(), "소셜 로그인 성공", responseDto);

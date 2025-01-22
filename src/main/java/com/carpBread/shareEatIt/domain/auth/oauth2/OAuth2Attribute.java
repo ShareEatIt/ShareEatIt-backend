@@ -1,9 +1,8 @@
 package com.carpBread.shareEatIt.domain.auth.oauth2;
 
 import com.carpBread.shareEatIt.domain.auth.LoginProvider;
-import com.carpBread.shareEatIt.global.exception.AppException;
-import com.carpBread.shareEatIt.global.exception.ErrorCode;
-import com.sun.media.jai.opimage.PatternRIF;
+import com.carpBread.shareEatIt.global.exception.CustomException;
+import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -33,7 +32,7 @@ public class OAuth2Attribute {
             case "google":
                 return ofGoogle(nameAttributeKey, attributes);
             default:
-                throw new AppException(ErrorCode.NOT_FOUND_MEMBER, "","");
+                throw new CustomException(CustomExceptionStatus.NOT_FOUND_MEMBER, "","");
         }
     }
 

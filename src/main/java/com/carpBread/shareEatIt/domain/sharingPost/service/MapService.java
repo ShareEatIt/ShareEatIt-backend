@@ -5,9 +5,9 @@ import com.carpBread.shareEatIt.domain.sharingPost.dto.map.MapListResponseDto;
 import com.carpBread.shareEatIt.domain.sharingPost.dto.map.MapRequestDto;
 import com.carpBread.shareEatIt.domain.sharingPost.dto.map.MapResponseComponent;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
-import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
-import com.carpBread.shareEatIt.global.exception.AppException;
-import com.carpBread.shareEatIt.global.exception.ErrorCode;
+import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostQuerydslRepository;
+import com.carpBread.shareEatIt.global.exception.CustomException;
+import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ public class MapService {
     private final double mapRadius = 50000;
 
     // repository
-    private final SharingPostRepository sharingPostRepository;
+    private final SharingPostQuerydslRepository sharingPostQuerydslRepository;
 
     /* 지도 위 나눔글 리스트 조회 */
     @Transactional
@@ -33,11 +33,11 @@ public class MapService {
         // 점검 : MySQL 8.4 Reference Manual 에 정의된 메뉴얼에 따라, latitude(위도)는 [-90.0, 90.0] / longitude(경도)는 [-180.0, 180.0] 범위로 지정
         if ((dto.getLatitude()>90.0 || dto.getLatitude()<-90.0)
                 || (dto.getLongitude()>180.0 || dto.getLongitude()<-180.0)){
-            throw new AppException(ErrorCode.VALUE_OUT_OF_RANGE,"입력한 위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.","/map/list");
+            throw new CustomException(CustomExceptionStatus.VALUE_OUT_OF_RANGE,"입력한 위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.","/map/list");
         }
 
         // 나눔글 리스트 조회
-        List<SharingPost> sharingPostsWithinRadius = sharingPostRepository.findSharingPostsWithinRadius(dto.getLatitude(), dto.getLongitude(), mapRadius);
+        List<SharingPost> sharingPostsWithinRadius = sharingPostQuerydslRepository.findSharingPostsWithinRadius(dto.getLatitude(), dto.getLongitude(), mapRadius);
 
         // map response component list 생성
         List<MapResponseComponent> componentList = generateMapResponseComponentList(sharingPostsWithinRadius);

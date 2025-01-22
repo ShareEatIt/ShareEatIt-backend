@@ -1,8 +1,8 @@
 package com.carpBread.shareEatIt.domain.auth.util;
 
 import com.carpBread.shareEatIt.domain.auth.LoginProvider;
-import com.carpBread.shareEatIt.global.exception.AppException;
-import com.carpBread.shareEatIt.global.exception.ErrorCode;
+import com.carpBread.shareEatIt.global.exception.CustomException;
+import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
@@ -133,7 +133,7 @@ public class JWTUtils {
         }catch (Exception e){
             System.out.println("리프레시 토큰 관련 log");
             System.out.println(e.getMessage());
-            throw new AppException(ErrorCode.UNAUTHORIZED_JWT,"유효하지 않은 JWT입니다","/login/oauth2/code/kakao");
+            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,"유효하지 않은 JWT입니다","/login/oauth2/code/kakao");
         }
     }
 
@@ -151,7 +151,7 @@ public class JWTUtils {
         }catch (Exception e){
             System.out.println("리프레시 토큰 관련 log");
             System.out.println(e.getMessage());
-            throw new AppException(ErrorCode.UNAUTHORIZED_JWT,"유효하지 않은 JWT입니다","/login/oauth2/code/kakao");
+            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,"유효하지 않은 JWT입니다","/login/oauth2/code/kakao");
         }
 
     }

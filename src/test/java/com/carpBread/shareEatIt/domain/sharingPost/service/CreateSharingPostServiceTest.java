@@ -15,7 +15,7 @@ import com.carpBread.shareEatIt.domain.sharingPost.entity.PostType;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.PostImgUrlRepository;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
-import com.carpBread.shareEatIt.global.exception.AppException;
+import com.carpBread.shareEatIt.global.exception.CustomException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -155,9 +155,9 @@ class CreateSharingPostServiceTest {
 
 
         // when & then
-        AppException thrownException = assertThrows(AppException.class, () ->
+        CustomException thrownException = assertThrows(CustomException.class, () ->
                 createSharingPostService.createSharingPost(imgFiles, requestDto, testMember));
-        assertThat(thrownException.getErrorCode().getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(thrownException.getCustomExceptionStatus().getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED);
 
     }
 

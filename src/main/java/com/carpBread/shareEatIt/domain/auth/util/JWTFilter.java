@@ -4,8 +4,8 @@ import com.carpBread.shareEatIt.domain.auth.LoginProvider;
 import com.carpBread.shareEatIt.domain.auth.dto.AuthenticationPrincipal;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
-import com.carpBread.shareEatIt.global.exception.AppException;
-import com.carpBread.shareEatIt.global.exception.ErrorCode;
+import com.carpBread.shareEatIt.global.exception.CustomException;
+import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
 import com.carpBread.shareEatIt.global.exception.ErrorResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.JwtException;
@@ -36,7 +36,7 @@ public class JWTFilter extends OncePerRequestFilter {
     private RedisTemplate<String, Object> redisTemplate;
 
     @Override
-    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException, AppException {
+    protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException, CustomException {
 
         log.debug(request.getRequestURI());
 
@@ -50,7 +50,7 @@ public class JWTFilter extends OncePerRequestFilter {
             // 1. 토큰 유무 확인
             if (authorization==null || !authorization.startsWith("Bearer ")){
 
-                errorResponse(request,response,ErrorCode.INVALID_ACCESS_TOKEN,"토큰이 존재하지 않습니다.");
+                errorResponse(request,response, CustomExceptionStatus.INVALID_ACCESS_TOKEN,"토큰이 존재하지 않습니다.");
                 log.error("토큰이 존재하지 않습니다");
 
                 throw new JwtException("토큰이 존재하지 않습니다.");
@@ -61,7 +61,7 @@ public class JWTFilter extends OncePerRequestFilter {
             
             // 2. 토큰 기한 만료 여부 확인
             if (jwtUtils.isExpired(token)){
-                errorResponse(request,response, ErrorCode.INVALID_ACCESS_TOKEN,"토큰 기한이 만료되었습니다.");
+                errorResponse(request,response, CustomExceptionStatus.INVALID_ACCESS_TOKEN,"토큰 기한이 만료되었습니다.");
                 log.error("토큰 기한이 만료되었습니다");
 
                 throw new JwtException("토큰 기한이 만료되었습니다.");
@@ -79,7 +79,7 @@ public class JWTFilter extends OncePerRequestFilter {
             // 해당 username 혹은 email에 매칭되는 회원이 존재하지 않는 경우
             if (member==null){
 
-                errorResponse(request,response,ErrorCode.INVALID_ACCESS_TOKEN, "회원가입되어있지 않습니다.");
+                errorResponse(request,response, CustomExceptionStatus.INVALID_ACCESS_TOKEN, "회원가입되어있지 않습니다.");
                 throw new JwtException("회원가입되어있지 않습니다.");
             }
 
@@ -88,7 +88,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
 
         }catch (JwtException e){
-            throw new AppException(ErrorCode.UNAUTHORIZED_JWT,e.getMessage(),request.getRequestURI());
+            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,e.getMessage(),request.getRequestURI());
         }catch (Exception e){
             System.out.println(e.getMessage());
         }
@@ -169,19 +169,19 @@ public class JWTFilter extends OncePerRequestFilter {
         return authorization.split(" ")[1];
     }
 
-    private void errorResponse(HttpServletRequest request, HttpServletResponse response, ErrorCode errorCode, String message) throws Exception{
+    private void errorResponse(HttpServletRequest request, HttpServletResponse response, CustomExceptionStatus customExceptionStatus, String message) throws Exception{
 
 
         ErrorResponseDto responseDto = ErrorResponseDto.builder()
                 .timestamp(LocalDateTime.now())
-                .status(errorCode.getStatus().value())
+                .status(customExceptionStatus.getStatus().value())
                 .message(message)
                 .path(request.getRequestURI())
                 .build();
 
         String responseJson = objectMapper.writeValueAsString(responseDto);
 
-        response.setStatus(errorCode.getStatus().value());
+        response.setStatus(customExceptionStatus.getStatus().value());
         response.setCharacterEncoding("UTF-8");
         response.setContentType("application/json");
         response.getWriter().write(responseJson);

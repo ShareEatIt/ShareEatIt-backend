@@ -2,12 +2,11 @@ package com.carpBread.shareEatIt.domain.auth.dto;
 
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.entity.Provider;
-import com.carpBread.shareEatIt.global.exception.AppException;
-import com.carpBread.shareEatIt.global.exception.ErrorCode;
+import com.carpBread.shareEatIt.global.exception.CustomException;
+import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
 import lombok.Builder;
 import org.locationtech.jts.geom.Point;
 
-import java.awt.*;
 import java.util.Map;
 
 @Builder
@@ -22,7 +21,7 @@ public record OAuth2UserInfo(
     public static OAuth2UserInfo of(String registrationId, Map<String, Object> attributes){
         return switch (registrationId){
             case "kakao" -> ofKakao(attributes);
-            default -> throw new AppException(ErrorCode.NOT_FOUND_OAUTH2_REGISTRATION_ID,"제공하지 않는 OAUTH2 서버입니다","/oauth2/authorize");
+            default -> throw new CustomException(CustomExceptionStatus.NOT_FOUND_OAUTH2_REGISTRATION_ID,"제공하지 않는 OAUTH2 서버입니다","/oauth2/authorize");
         };
 
     }

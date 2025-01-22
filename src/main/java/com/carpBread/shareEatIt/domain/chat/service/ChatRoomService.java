@@ -9,7 +9,7 @@ import com.carpBread.shareEatIt.domain.chat.repository.ChatRoomRepository;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.participation.entity.Participation;
 import com.carpBread.shareEatIt.domain.participation.repository.ParticipationRepository;
-import com.carpBread.shareEatIt.global.exception.AppException;
+import com.carpBread.shareEatIt.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -17,7 +17,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.carpBread.shareEatIt.global.exception.ErrorCode.*;
+import static com.carpBread.shareEatIt.global.exception.CustomExceptionStatus.*;
 
 @Service
 @RequiredArgsConstructor
@@ -32,7 +32,7 @@ public class ChatRoomService {
 
         // Participation 객체 찾기
         Participation participation = participationRepository.findById(participationId)
-                .orElseThrow(() -> new AppException(NOT_FOUND_PARTICIPATION, "해당 Id의 participation을 찾을 수 없습니다.", "/chatRoom?" + participationId));
+                .orElseThrow(() -> new CustomException(NOT_FOUND_PARTICIPATION, "해당 Id의 participation을 찾을 수 없습니다.", "/chatRoom?" + participationId));
 
         // 채팅방 객체 생성
         ChatRoom chatRoom = ChatRoom.builder()
@@ -76,7 +76,7 @@ public class ChatRoomService {
         } else if (!chatRoom.getParticipation().getReceiver().getId().equals(memberId)) {
             return chatRoom.getParticipation().getReceiver();
         }
-        throw new AppException(NOT_FOUND_OPPONENT, "채팅방에 상대방이 존재하지 않습니다.", "/chatRoom");
+        throw new CustomException(NOT_FOUND_OPPONENT, "채팅방에 상대방이 존재하지 않습니다.", "/chatRoom");
     }
 
 
@@ -85,7 +85,7 @@ public class ChatRoomService {
 
         // chatRoom 객체 찾아오기
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(()-> new AppException(NOT_FOUND_CHATROOM, "해당 Id의 채팅방을 찾을수 없습니다." , "/chatRoom/" + chatRoomId));
+                .orElseThrow(()-> new CustomException(NOT_FOUND_CHATROOM, "해당 Id의 채팅방을 찾을수 없습니다." , "/chatRoom/" + chatRoomId));
         // 상태 변경
         chatRoom.updateStatus();
         // 변경 내용 저장

@@ -5,8 +5,7 @@ import com.carpBread.shareEatIt.domain.auth.dto.AuthenticationPrincipal;
 import com.carpBread.shareEatIt.domain.auth.util.JWTUtils;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
-import com.carpBread.shareEatIt.global.exception.AppException;
-import com.carpBread.shareEatIt.global.exception.ErrorCode;
+import com.carpBread.shareEatIt.global.exception.CustomException;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -29,7 +28,7 @@ import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
 
-import static com.carpBread.shareEatIt.global.exception.ErrorCode.UNAUTHORIZED_JWT;
+import static com.carpBread.shareEatIt.global.exception.CustomExceptionStatus.UNAUTHORIZED_JWT;
 
 @Slf4j
 @Component
@@ -150,7 +149,7 @@ public class FilterChannelInterceptor implements ChannelInterceptor {
         } catch (JwtException e) {
             throw new JwtException("JwtException - jwt 인증 오류");  // preSend에서 catch문에 걸리기 위함
         } catch (Exception e) {
-            throw new AppException(UNAUTHORIZED_JWT, "Exception - jwt 인증 오류", "/ws" );  // preSend에서 catch문에 걸리기 위함
+            throw new CustomException(UNAUTHORIZED_JWT, "Exception - jwt 인증 오류", "/ws" );  // preSend에서 catch문에 걸리기 위함
 
         }
 

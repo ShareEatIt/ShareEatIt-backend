@@ -6,12 +6,9 @@ import com.carpBread.shareEatIt.config.GeometryFactoryConfig;
 import com.carpBread.shareEatIt.config.S3TestConfig;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.entity.Provider;
-import com.carpBread.shareEatIt.domain.member.repository.MemberQuerydslRepository;
 import com.carpBread.shareEatIt.domain.participation.entity.Participation;
 import com.carpBread.shareEatIt.domain.participation.repository.GratitudeStickerRepository;
 import com.carpBread.shareEatIt.domain.participation.repository.ParticipationRepository;
-import com.carpBread.shareEatIt.domain.sharingPost.dto.SharingPostCreateResponseDto;
-import com.carpBread.shareEatIt.domain.sharingPost.dto.SharingPostRequestDto;
 import com.carpBread.shareEatIt.domain.sharingPost.dto.SharingPostResponseDto;
 import com.carpBread.shareEatIt.domain.sharingPost.dto.SharingPostUpdateRequestDto;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.PostCategory;
@@ -20,7 +17,7 @@ import com.carpBread.shareEatIt.domain.sharingPost.entity.PostType;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.PostImgUrlRepository;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
-import com.carpBread.shareEatIt.global.exception.AppException;
+import com.carpBread.shareEatIt.global.exception.CustomException;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -163,9 +160,9 @@ class SharingPostServiceTest {
                 .findById(Mockito.any());
 
         // when & then
-        AppException thrownException = assertThrows(AppException.class, () ->
+        CustomException thrownException = assertThrows(CustomException.class, () ->
                 sharingPostService.updateSharingPost(testMember,1L, imgFiles, requestDto));
-        assertThat(thrownException.getErrorCode().getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(thrownException.getCustomExceptionStatus().getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED);
 
     }
 
@@ -196,9 +193,9 @@ class SharingPostServiceTest {
                 .findById(Mockito.any());
 
         // when & then
-        AppException thrownException = assertThrows(AppException.class, () ->
+        CustomException thrownException = assertThrows(CustomException.class, () ->
                 sharingPostService.updateSharingPost(testMember,1L, imgFiles, requestDto));
-        assertThat(thrownException.getErrorCode().getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(thrownException.getCustomExceptionStatus().getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
 
     @Test
@@ -227,9 +224,9 @@ class SharingPostServiceTest {
                 .findById(Mockito.any());
 
         // when & then
-        AppException thrownException = assertThrows(AppException.class, () ->
+        CustomException thrownException = assertThrows(CustomException.class, () ->
                 sharingPostService.updateSharingPost(testMember,1L, imgFiles, requestDto));
-        assertThat(thrownException.getErrorCode().getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(thrownException.getCustomExceptionStatus().getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED);
     }
 
     @Test
@@ -250,9 +247,9 @@ class SharingPostServiceTest {
                 .findById(Mockito.any());
 
         // when & then
-        AppException thrownException = assertThrows(AppException.class, () ->
+        CustomException thrownException = assertThrows(CustomException.class, () ->
                 sharingPostService.deleteSharingPost(testMember,2L));
-        assertThat(thrownException.getErrorCode().getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED);
+        assertThat(thrownException.getCustomExceptionStatus().getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED);
 
     }
 

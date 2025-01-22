@@ -5,8 +5,8 @@ import com.carpBread.shareEatIt.domain.member.dto.response.SignUpResponseDto;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.entity.Provider;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
-import com.carpBread.shareEatIt.global.exception.AppException;
-import com.carpBread.shareEatIt.global.exception.ErrorCode;
+import com.carpBread.shareEatIt.global.exception.CustomException;
+import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
@@ -29,14 +29,14 @@ public class SignUpService {
         // username 고유 여부 인증
         boolean isUsernameOccupied = memberRepository.existsByUsername(dto.getUsername());
         if (isUsernameOccupied){
-            throw new AppException(ErrorCode.ALREADY_EXISTS_USERNAME,dto.getUsername()+"은 이미 존재하는 username 입니다.", "/signup");
+            throw new CustomException(CustomExceptionStatus.ALREADY_EXISTS_USERNAME,dto.getUsername()+"은 이미 존재하는 username 입니다.", "/signup");
         }
 
         // email 있다면 고유 여부 인증
         if (dto.getEmail()!=null){
             boolean isEmailOccupied = memberRepository.existsByEmail(dto.getEmail());
             if (isEmailOccupied){
-                throw new AppException(ErrorCode.ALREADY_EXISTS_EMAIL,dto.getEmail()+"은 이미 존재하는 email 입니다.", "/signup");
+                throw new CustomException(CustomExceptionStatus.ALREADY_EXISTS_EMAIL,dto.getEmail()+"은 이미 존재하는 email 입니다.", "/signup");
             }
         }
 

@@ -1,7 +1,6 @@
 package com.carpBread.shareEatIt.global.exception;
 
 import io.sentry.Sentry;
-import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,22 +11,22 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(AppException.class)
-    public ResponseEntity<ErrorResponseDto> handleAppException(AppException e){
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<ErrorResponseDto> handleAppException(CustomException e){
         // sentry 시스템에 전송
         Sentry.configureScope(scope ->{
             scope.setContexts("file location", "MemberService.java");
-            scope.setContexts("error enum", e.getErrorCode());
+            scope.setContexts("error enum", e.getCustomExceptionStatus());
             scope.setContexts("error occur field","name");
             scope.setTag("tier", "service");
         });
 
         ErrorResponseDto responseDto=ErrorResponseDto.builder()
-                .status(e.getErrorCode().getStatus().value())
+                .status(e.getCustomExceptionStatus().getStatus().value())
                 .message(e.getMessage())
                 .path(e.getPath())
                 .timestamp(LocalDateTime.now())
                 .build();
-        return ResponseEntity.status(e.getErrorCode().getStatus()).body(responseDto);
+        return ResponseEntity.status(e.getCustomExceptionStatus().getStatus()).body(responseDto);
     }
 }

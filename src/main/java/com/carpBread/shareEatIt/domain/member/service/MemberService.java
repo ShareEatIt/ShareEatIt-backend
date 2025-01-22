@@ -11,8 +11,8 @@ import com.carpBread.shareEatIt.domain.notice.service.SseService;
 import com.carpBread.shareEatIt.domain.participation.repository.GratitudeStickerRepository;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.PostCategory;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
-import com.carpBread.shareEatIt.global.exception.AppException;
-import com.carpBread.shareEatIt.global.exception.ErrorCode;
+import com.carpBread.shareEatIt.global.exception.CustomException;
+import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
 import com.querydsl.core.Tuple;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -55,7 +55,7 @@ public class MemberService {
 
         log.debug("MemberService.sentryTest");
         if (dto.getName().equals("manager")){
-            throw new AppException(ErrorCode.UNAUTHORIZED_USER,"'manager' 이름은 사용할 수 없습니다.","/sentry");
+            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_USER,"'manager' 이름은 사용할 수 없습니다.","/sentry");
         }
         return "success";
     }
@@ -101,7 +101,7 @@ public class MemberService {
         // 1. 점검 : MySQL 8.4 Reference Manual 에 정의된 메뉴얼에 따라, latitude(위도)는 [-90.0, 90.0] / longitude(경도)는 [-180.0, 180.0] 범위로 지정
         if ((updateRequestDto.getLatitude()>90.0 || updateRequestDto.getLatitude()<-90.0)
                 || (updateRequestDto.getLongitude()>180.0 || updateRequestDto.getLongitude()<-180.0)){
-            throw new AppException(ErrorCode.VALUE_OUT_OF_RANGE,"입력한 위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.","/members");
+            throw new CustomException(CustomExceptionStatus.VALUE_OUT_OF_RANGE,"입력한 위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.","/members");
         }
 
         // 2. createNewPoint() : dto의 위도, 경도에 따른 point 객체 새로 생성
@@ -185,7 +185,7 @@ public class MemberService {
             String profileImgUrl = member.getProfileImgUrl();
             // S3_URL 패턴에 맞지 않으면 INVALID S3 URL error throw
             if (!isValidS3Url(profileImgUrl)){
-                throw new AppException(ErrorCode.INVALID_S3_URL,"S3 URL 형식에 맞지 않습니다.","/members");
+                throw new CustomException(CustomExceptionStatus.INVALID_S3_URL,"S3 URL 형식에 맞지 않습니다.","/members");
             }
 
             // key 추출
@@ -260,7 +260,7 @@ public class MemberService {
             s3Client.putObject(bucketName,key,inputStream,metadata);
         }
         catch (IOException e){
-            throw new AppException(ErrorCode.AWS_S3_IMG_UPLOAD_CONNECTION_ERROR, "sharing post create - POST error","/sharing");
+            throw new CustomException(CustomExceptionStatus.AWS_S3_IMG_UPLOAD_CONNECTION_ERROR, "sharing post create - POST error","/sharing");
         }
 
         return s3Client.getUrl(bucketName, key).toString();
@@ -338,7 +338,7 @@ public class MemberService {
     /*채팅 - 상대방 프로필 조회 */
     public OpponentInfoResponseDto findOpponentInfo(Long opponentId) {
         Member opponent = memberRepository.findById(opponentId)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_MEMBER, "opponent profile - GET error", "/members/"+opponentId));
+                .orElseThrow(() -> new CustomException(CustomExceptionStatus.NOT_FOUND_MEMBER, "opponent profile - GET error", "/members/"+opponentId));
 
         return OpponentInfoResponseDto.builder()
                 .id(opponent.getId())
