@@ -65,7 +65,7 @@ public class SseService {
             }catch (IOException e){
                 clients.remove(memberId);
                 redisTemplate.opsForHash().delete("sse:clients", memberId.toString());
-                throw new CustomException(CustomExceptionStatus.NOTICE_SEND_FAIL,"알림을 전송하는 과정에서 오류가 발생했습니다","[INNER LOGIC FAIL _ NO URL]");
+//                throw new CustomException(CustomExceptionStatus.NOTICE_SEND_FAIL,"알림을 전송하는 과정에서 오류가 발생했습니다","[INNER LOGIC FAIL _ NO URL]");
             }
         }
     }

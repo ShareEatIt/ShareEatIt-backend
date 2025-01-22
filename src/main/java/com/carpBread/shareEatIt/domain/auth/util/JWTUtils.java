@@ -131,10 +131,9 @@ public class JWTUtils {
 
             return type;
         }catch (Exception e){
-            System.out.println("리프레시 토큰 관련 log");
-            System.out.println(e.getMessage());
-            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,"유효하지 않은 JWT입니다","/login/oauth2/code/kakao");
+//            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,"유효하지 않은 JWT입니다","/login/oauth2/code/kakao");
         }
+        return null;
     }
 
     /* 사용자 고유 SUB 추출 */
@@ -149,11 +148,9 @@ public class JWTUtils {
 
             return sub;
         }catch (Exception e){
-            System.out.println("리프레시 토큰 관련 log");
-            System.out.println(e.getMessage());
-            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,"유효하지 않은 JWT입니다","/login/oauth2/code/kakao");
+//            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,"유효하지 않은 JWT입니다","/login/oauth2/code/kakao");
         }
-
+        return null;
     }
 
     /* JWT의 JTI 추출 */

@@ -51,12 +51,12 @@ public class NoticeService {
     }
     public NoticeResponseDto findNoticeById(Member member, Long id) {
         Notice notice = noticeRepository.findById(id)
-                .orElseThrow(() -> new CustomException(CustomExceptionStatus.NOT_FOUND_NOTICE, "ID=" + id + "에 해당하는 알림을 찾을 수 없습니다","/notice/"+id));
+                .orElseThrow(() -> null /*new CustomException(CustomExceptionStatus.NOT_FOUND_NOTICE, "ID=" + id + "에 해당하는 알림을 찾을 수 없습니다","/notice/"+id)*/);
 
         if (notice.getMember().getId() != member.getId())
-            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_USER,"해당 알람을 확인할 수 없는 사용자입니다","/notice/"+id);
+//            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_USER,"해당 알람을 확인할 수 없는 사용자입니다","/notice/"+id);
         if (notice.getIsRead())
-            throw new CustomException(CustomExceptionStatus.ALREADY_READ,"이미 읽은 알림입니다","/notice/"+id);
+//            throw new CustomException(CustomExceptionStatus.ALREADY_READ,"이미 읽은 알림입니다","/notice/"+id);
 
         notice.changeIsRead(true);
         noticeRepository.save(notice);

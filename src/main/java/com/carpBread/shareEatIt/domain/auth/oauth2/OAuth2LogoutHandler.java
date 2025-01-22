@@ -162,7 +162,7 @@ public class OAuth2LogoutHandler implements LogoutHandler {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);  // Extracts token after "Bearer "
         }else{
-            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,"유효하지 않은 인증 토큰입니다","/logout");
+//            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,"유효하지 않은 인증 토큰입니다","/logout");
         }
         return token;
     }
@@ -186,12 +186,12 @@ public class OAuth2LogoutHandler implements LogoutHandler {
         // LOCAL 로그인일 경우 - SUB 가 USERNAME
         if(provider.equals(LoginProvider.LOCAL.name())){
             member = memberRepository.findByUsername(sub)
-                    .orElseThrow(() -> new CustomException(CustomExceptionStatus.NOT_FOUND_MEMBER, "해당 이메일에 맞는 회원 정보를 찾을 수 없습니다", "/logout"));
+                    .orElseThrow(() -> null /* new CustomException(CustomExceptionStatus.NOT_FOUND_MEMBER, "해당 이메일에 맞는 회원 정보를 찾을 수 없습니다", "/logout")*/);
         }
         // 소셜 로그인일 경우 - SUB 가 EMAIL
         else {
             member = memberRepository.findByEmail(sub)
-                    .orElseThrow(() -> new CustomException(CustomExceptionStatus.NOT_FOUND_MEMBER, "해당 이메일에 맞는 회원 정보를 찾을 수 없습니다", "/logout"));
+                    .orElseThrow(() ->null/* new CustomException(CustomExceptionStatus.NOT_FOUND_MEMBER, "해당 이메일에 맞는 회원 정보를 찾을 수 없습니다", "/logout")*/);
         }
         return member;
 
@@ -207,6 +207,6 @@ public class OAuth2LogoutHandler implements LogoutHandler {
     private OAuth2Token getOAuth2Token(Member member, LoginProvider provider){
 
         return oAuth2TokenRepository.findByMemberAndProvider(member, provider)
-                .orElseThrow(()->new CustomException(CustomExceptionStatus.NOT_FOUND_OAUTH2_ACCESS_TOKEN, "OAUTH2 LOGIN ACCESS TOKEN 정보가 저장되어 있지 않습니다", "/logout"));
+                .orElseThrow(()-> null /*new CustomException(CustomExceptionStatus.NOT_FOUND_OAUTH2_ACCESS_TOKEN, "OAUTH2 LOGIN ACCESS TOKEN 정보가 저장되어 있지 않습니다", "/logout")*/);
     }
 }

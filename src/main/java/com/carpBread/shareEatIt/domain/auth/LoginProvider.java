@@ -14,6 +14,7 @@ public enum LoginProvider {
                 return type;
             }
         }
-        throw new CustomException(CustomExceptionStatus.INVALID_LOGIN_TYPE, "찾을 수 없는 login provider입니다","/signup");
+//        throw new CustomException(CustomExceptionStatus.INVALID_LOGIN_TYPE, "찾을 수 없는 login provider입니다","/signup");
+        return null;
     }
 }

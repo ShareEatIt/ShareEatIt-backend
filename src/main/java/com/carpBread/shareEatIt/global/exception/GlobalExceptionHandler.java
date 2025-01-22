@@ -1,6 +1,7 @@
 package com.carpBread.shareEatIt.global.exception;
 
 import io.sentry.Sentry;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -12,21 +13,20 @@ import java.time.LocalDateTime;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomException.class)
-    public ResponseEntity<ErrorResponseDto> handleAppException(CustomException e){
-        // sentry 시스템에 전송
+    public ResponseEntity<ExceptionResponseDto> handleAppException(HttpServletRequest request, CustomException e){
+        // response dto 생성
+        ExceptionResponseDto responseDto= new ExceptionResponseDto(e);
+
+        // Sentry 시스템에 전송
         Sentry.configureScope(scope ->{
-            scope.setContexts("file location", "MemberService.java");
-            scope.setContexts("error enum", e.getCustomExceptionStatus());
-            scope.setContexts("error occur field","name");
-            scope.setTag("tier", "service");
+            scope.setContexts("file_path", responseDto.getFilePath());
+            scope.setContexts("exception_status", responseDto.getExceptionStatus());
+            scope.setContexts("message",responseDto.getMessage());
+            scope.setContexts("timestamp", responseDto.getTimestamp());
+            scope.setContexts("request", responseDto.getRequest());
+            scope.setTag("tag", responseDto.getTag());
         });
 
-        ErrorResponseDto responseDto=ErrorResponseDto.builder()
-                .status(e.getCustomExceptionStatus().getStatus().value())
-                .message(e.getMessage())
-                .path(e.getPath())
-                .timestamp(LocalDateTime.now())
-                .build();
-        return ResponseEntity.status(e.getCustomExceptionStatus().getStatus()).body(responseDto);
+        return ResponseEntity.status(e.getExceptionStatus().getStatus()).body(responseDto);
     }
 }

@@ -29,7 +29,7 @@ public class OAuth2LoginController {
             responseDto=oAuth2Service.getMemberInfo(oauth2AccessToken);
         }catch (Exception e){
             log.error(e.getMessage());
-            throw new CustomException(CustomExceptionStatus.LOGOUT_FAIL,e.getMessage(),"/oauth2/authorize");
+//            throw new CustomException(CustomExceptionStatus.LOGOUT_FAIL,e.getMessage(),"/oauth2/authorize");
         }
 
         ApiResponse<AuthLoginResponseDto> response = new ApiResponse<>(HttpStatus.OK.value(), "소셜 로그인 성공", responseDto);
