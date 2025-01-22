@@ -4,17 +4,8 @@ import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.carpBread.shareEatIt.domain.member.dto.response.LocationResponseDtoComponent;
 import com.carpBread.shareEatIt.domain.member.dto.MemberAsWriterSimpleDtoComponent;
-import com.carpBread.shareEatIt.domain.member.entity.Keywords;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.entity.Provider;
-import com.carpBread.shareEatIt.domain.member.repository.MemberQuerydslRepository;
-import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
-import com.carpBread.shareEatIt.domain.notice.dto.NoticeCreateDto;
-import com.carpBread.shareEatIt.domain.notice.dto.NoticeRelatedObjectResponseComponent;
-import com.carpBread.shareEatIt.domain.notice.entity.Notice;
-import com.carpBread.shareEatIt.domain.notice.entity.NoticeType;
-import com.carpBread.shareEatIt.domain.notice.repository.NoticeRepository;
-import com.carpBread.shareEatIt.domain.notice.service.SseService;
 import com.carpBread.shareEatIt.domain.participation.entity.GratitudeSticker;
 import com.carpBread.shareEatIt.domain.participation.entity.GratitudeType;
 import com.carpBread.shareEatIt.domain.participation.entity.Participation;
@@ -22,29 +13,23 @@ import com.carpBread.shareEatIt.domain.participation.entity.ParticipationStatus;
 import com.carpBread.shareEatIt.domain.participation.repository.GratitudeStickerRepository;
 import com.carpBread.shareEatIt.domain.participation.repository.ParticipationRepository;
 import com.carpBread.shareEatIt.domain.sharingPost.dto.*;
-import com.carpBread.shareEatIt.domain.sharingPost.dto.map.MapListResponseDto;
-import com.carpBread.shareEatIt.domain.sharingPost.dto.map.MapRequestDto;
-import com.carpBread.shareEatIt.domain.sharingPost.dto.map.MapResponseComponent;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.*;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.PostImgUrlRepository;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
-import com.carpBread.shareEatIt.global.exception.AppException;
-import com.carpBread.shareEatIt.global.exception.ErrorCode;
+import com.carpBread.shareEatIt.global.exception.CustomException;
+import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URI;
-import java.time.LocalDateTime;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -74,21 +59,21 @@ public class SharingPostService {
     @Transactional
     public SharingPostResponseDto updateSharingPost(Member member, Long id, List<MultipartFile> imgList, SharingPostUpdateRequestDto dto) {
         SharingPost targetPost = sharingPostRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_POST, "해당 id에 대응하는 SHARING POST가 존재하지 않습니다.", "/sharing/" + id));
+                .orElseThrow(() -> new CustomException(CustomExceptionStatus.NOT_FOUND_POST, "해당 id에 대응하는 SHARING POST가 존재하지 않습니다.", "/sharing/" + id));
 
         // 점검 1 : 작성자 본인인지 확인 -> 작성자가 아닐 경우 삭제 불가
         if (targetPost.getWriter().getId() != member.getId())
-            throw new AppException(ErrorCode.UNAUTHORIZED_MEMBER_TO_UPDATE_POST, "작성자가 아니므로 해당 POST에 대한 내용 수정이 불가합니다.", "/sharing/" + id);
+            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_MEMBER_TO_UPDATE_POST, "작성자가 아니므로 해당 POST에 대한 내용 수정이 불가합니다.", "/sharing/" + id);
 
         // 점검 2 : 참여가 진행중이거나 완료된 sharing post 일 경우 내용 수정 불가
         List<Participation> participationList = participationRepository.findByPostIdAndStatus(targetPost.getId());
         if (participationList.size()!=0 || targetPost.getStatus()==PostStatus.COMPLETED) {
-            throw new AppException(ErrorCode.UNAUTHORIZED_UPDATE_POST, "참여가 완료된 나눔이므로 POST에 대한 내용 수정이 불가합니다", "/sharing" + id);
+            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_UPDATE_POST, "참여가 완료된 나눔이므로 POST에 대한 내용 수정이 불가합니다", "/sharing" + id);
         }
 
         // 점검 3 : 변경하고자 하는 posttype이 store인 경우 member의 Provider가 Store인지 점검
         if (dto.getPostType().equals(PostType.STORE.name()) && member.getProvider().name().equals(Provider.INDIVIDUAL.name())){
-            throw new AppException(ErrorCode.INVALID_PROVIDER_WITH_POSTTYPE_STORE,
+            throw new CustomException(CustomExceptionStatus.INVALID_PROVIDER_WITH_POSTTYPE_STORE,
                     "회원의 PROVIDER 가 `개인`으로 설정되어있어 나눔글을 STORE로 변경할 수 없습니다",
                     "/sharing");
         }
@@ -96,7 +81,7 @@ public class SharingPostService {
         // 점검 4 : MySQL 8.4 Reference Manual 에 정의된 메뉴얼에 따라, latitude(위도)는 [-90.0, 90.0] / longitude(경도)는 [-180.0, 180.0] 범위로 지정
         if ((dto.getLatitude()>90.0 || dto.getLatitude()<-90.0)
                 || (dto.getLongitude()>180.0 || dto.getLongitude()<-180.0)){
-            throw new AppException(ErrorCode.VALUE_OUT_OF_RANGE,"입력한 위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.","/members");
+            throw new CustomException(CustomExceptionStatus.VALUE_OUT_OF_RANGE,"입력한 위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.","/members");
         }
 
         // point 객체 생성
@@ -153,11 +138,11 @@ public class SharingPostService {
     public void deleteSharingPost(Member member, Long id) {
         // 나눔글 조회
         SharingPost targetPost = sharingPostRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_POST, "해당 id에 대응하는 SHARING POST가 존재하지 않습니다.", "/sharing/" + id));
+                .orElseThrow(() -> new CustomException(CustomExceptionStatus.NOT_FOUND_POST, "해당 id에 대응하는 SHARING POST가 존재하지 않습니다.", "/sharing/" + id));
 
         // 나눔글 작제 권한 여부 조회
         if (targetPost.getWriter().getId() != member.getId())
-            throw new AppException(ErrorCode.UNAUTHORIZED_MEMBER_TO_DELETE_POST, "작성자가 아니므로 해당 POST에 대한 삭제가 불가합니다.", "/sharing/" + id);
+            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_MEMBER_TO_DELETE_POST, "작성자가 아니므로 해당 POST에 대한 삭제가 불가합니다.", "/sharing/" + id);
 
         // 나눔글 삭제
         sharingPostRepository.delete(targetPost);
@@ -219,7 +204,7 @@ public class SharingPostService {
         Boolean exists = gratitudeStickerRepository.existsByPost(post);
         if (exists){
             GratitudeSticker gratitudeSticker = gratitudeStickerRepository.findByPost(post)
-                    .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_POST, "GRATITUDE STICKER 객체를 통한 POST 객체를 조회할 수 없는 서버 내부 문제가 발생하였습니다.", "/sharing" + post.getId()));
+                    .orElseThrow(() -> new CustomException(CustomExceptionStatus.NOT_FOUND_POST, "GRATITUDE STICKER 객체를 통한 POST 객체를 조회할 수 없는 서버 내부 문제가 발생하였습니다.", "/sharing" + post.getId()));
             return gratitudeSticker.getGratitudeType();
         }
         else
@@ -284,7 +269,7 @@ public class SharingPostService {
                 try (InputStream inputStream = img.getInputStream()) {
                     s3Client.putObject(bucketName, key, inputStream, metadata);
                 } catch (IOException e) {
-                    throw new AppException(ErrorCode.AWS_S3_IMG_UPLOAD_CONNECTION_ERROR, "sharing post create - POST error", "/sharing");
+                    throw new CustomException(CustomExceptionStatus.AWS_S3_IMG_UPLOAD_CONNECTION_ERROR, "sharing post create - POST error", "/sharing");
                 }
 
                 String newUrl = s3Client.getUrl(bucketName, key).toString();

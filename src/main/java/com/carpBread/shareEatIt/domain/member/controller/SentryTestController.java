@@ -1,8 +1,6 @@
 package com.carpBread.shareEatIt.domain.member.controller;
 
 import com.carpBread.shareEatIt.domain.member.service.MemberService;
-import com.carpBread.shareEatIt.global.exception.AppException;
-import com.carpBread.shareEatIt.global.exception.ErrorCode;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.*;
 import lombok.extern.slf4j.Slf4j;

@@ -10,7 +10,9 @@ import com.carpBread.shareEatIt.domain.sharingPost.entity.PostType;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
 import com.querydsl.core.Tuple;
 import jakarta.transaction.Transactional;
+import org.aspectj.lang.annotation.Before;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.locationtech.jts.geom.Coordinate;
@@ -48,15 +50,17 @@ class SharingPostQuerydslRepositoryImplTest {
     @Autowired
     private SharingPostQuerydslRepository sharingPostQuerydslRepository;
 
-    @Test
-    void findSharingPostsWithinRadiusSuccessTest() {
-        // given
+    private Member member;
+    private SharingPost post;
+
+    @BeforeEach
+    void setUp(){
         Point memberLocation =geometryFactory.createPoint(
                 new Coordinate(127.099491,36.798330)
         );
         memberLocation.setSRID(4326);
 
-        Member member = Member.builder()
+        Member newmember = Member.builder()
                 .nickname("test1")
                 .email("test@gmail.com")
                 .isKeywordAvail(true)
@@ -66,14 +70,14 @@ class SharingPostQuerydslRepositoryImplTest {
                 .addressDetail("공원로 176 303동")
                 .provider(Provider.STORE)
                 .build();
-        Member savedMember = memberRepository.save(member);
+        member = memberRepository.save(newmember);
 
 
         Point postLocation =geometryFactory.createPoint(
                 new Coordinate(127.099738,36.794754)
         );
         postLocation.setSRID(4326);
-        SharingPost newPost = SharingPost.builder()
+        post = SharingPost.builder()
                 .title("제목")
                 .category(PostCategory.BAKERY)
                 .isFinished(true)
@@ -88,12 +92,16 @@ class SharingPostQuerydslRepositoryImplTest {
                 .description("설명")
                 .postType(PostType.INDIVIDUAL)
                 .status(PostStatus.AVAILABLE)
-                .writer(savedMember)
+                .writer(member)
                 .noticed(false)
                 .build();
 
-        sharingPostRepository.save(newPost);
+        sharingPostRepository.save(post);
+    }
 
+    @Test
+    void findSharingPostsWithinRadiusSuccessTest() {
+        // given
         // 1. parameter
         double latitude = 36.794754;
         double longitude = 127.099738;
@@ -103,55 +111,13 @@ class SharingPostQuerydslRepositoryImplTest {
         List<SharingPost> postList = sharingPostQuerydslRepository.findSharingPostsWithinRadius(latitude, longitude, radius);
 
         // then
-        assertThat(postList.get(0).getId()).isEqualTo(newPost.getId());
+        assertThat(postList.get(0).getId()).isEqualTo(post.getId());
 
     }
 
     @Test
     void findSharingPostsByPostTypeWithinRadiusSuccessTest() {
         // given
-        Point memberLocation =geometryFactory.createPoint(
-                new Coordinate(127.099491,36.798330)
-        );
-        memberLocation.setSRID(4326);
-
-        Member member = Member.builder()
-                .nickname("test1")
-                .email("test@gmail.com")
-                .isKeywordAvail(true)
-                .isNoticeAvail(true)
-                .locationPoint(memberLocation)
-                .addressSt("충청남도 천안시 서북구 불당동")
-                .addressDetail("공원로 176 303동")
-                .provider(Provider.STORE)
-                .build();
-        Member savedMember = memberRepository.save(member);
-
-
-        Point postLocation =geometryFactory.createPoint(
-                new Coordinate(127.099738,36.794754)
-        );
-        postLocation.setSRID(4326);
-        SharingPost newPost = SharingPost.builder()
-                .title("제목")
-                .category(PostCategory.BAKERY)
-                .isFinished(true)
-                .foodName("음식 이름")
-                .expDate(LocalDate.now())
-                .endAt(LocalDateTime.now())
-                .locationPoint(postLocation)
-                .purchaseDate(LocalDate.now())
-                .addressSt("장소 1")
-                .addressDetail("세부 주소 1")
-                .kakaoLocationCode("1111")
-                .description("설명")
-                .postType(PostType.INDIVIDUAL)
-                .status(PostStatus.AVAILABLE)
-                .writer(savedMember)
-                .noticed(false)
-                .build();
-        sharingPostRepository.save(newPost);
-
         // 1. parameter
         double latitude = 36.794754;
         double longitude = 127.099738;
@@ -162,66 +128,16 @@ class SharingPostQuerydslRepositoryImplTest {
         List<SharingPost> postList = sharingPostQuerydslRepository.findSharingPostsByPostTypeWithinRadius(latitude, longitude, radius, postType);
 
         // then
-        assertThat(postList.get(0).getId()).isEqualTo(newPost.getId());
+        assertThat(postList.get(0).getId()).isEqualTo(post.getId());
 
     }
 
     @Test
     void countByWriterSuccessTest() {
         // given
-        Point memberLocation =geometryFactory.createPoint(
-                new Coordinate(127.099491,36.798330)
-        );
-        memberLocation.setSRID(4326);
-
-        Member member = Member.builder()
-                .nickname("test1")
-                .email("test@gmail.com")
-                .isKeywordAvail(true)
-                .isNoticeAvail(true)
-                .locationPoint(memberLocation)
-                .addressSt("충청남도 천안시 서북구 불당동")
-                .addressDetail("공원로 176 303동")
-                .provider(Provider.STORE)
-                .build();
-        Member savedMember = memberRepository.save(member);
-
-
-        Point postLocation =geometryFactory.createPoint(
-                new Coordinate(127.099738,36.794754)
-        );
-        postLocation.setSRID(4326);
-        SharingPost newPost = SharingPost.builder()
-                .title("제목")
-                .category(PostCategory.BAKERY)
-                .isFinished(true)
-                .foodName("음식 이름")
-                .expDate(LocalDate.now())
-                .endAt(LocalDateTime.now())
-                .locationPoint(postLocation)
-                .purchaseDate(LocalDate.now())
-                .addressSt("장소 1")
-                .addressDetail("세부 주소 1")
-                .kakaoLocationCode("1111")
-                .description("설명")
-                .postType(PostType.INDIVIDUAL)
-                .status(PostStatus.AVAILABLE)
-                .writer(savedMember)
-                .noticed(false)
-                .build();
-        sharingPostRepository.save(newPost);
-
-        Member testMember = Member.builder()
-                .id(member.getId())
-                .nickname("test1")
-                .email("test@gmail.com")
-                .isKeywordAvail(true)
-                .isNoticeAvail(true)
-                .provider(Provider.STORE)
-                .build();
 
         // when
-        Long count = sharingPostQuerydslRepository.countByWriter(testMember);
+        Long count = sharingPostQuerydslRepository.countByWriter(member);
 
         // then
         assertThat(count).isNotEqualTo(0L);
@@ -232,59 +148,9 @@ class SharingPostQuerydslRepositoryImplTest {
     void countByCategoryForWriterSuccessTest() {
 
         // given
-        Point memberLocation =geometryFactory.createPoint(
-                new Coordinate(127.099491,36.798330)
-        );
-        memberLocation.setSRID(4326);
-
-        Member member = Member.builder()
-                .nickname("test1")
-                .email("test@gmail.com")
-                .isKeywordAvail(true)
-                .isNoticeAvail(true)
-                .locationPoint(memberLocation)
-                .addressSt("충청남도 천안시 서북구 불당동")
-                .addressDetail("공원로 176 303동")
-                .provider(Provider.STORE)
-                .build();
-        Member savedMember = memberRepository.save(member);
-
-
-        Point postLocation =geometryFactory.createPoint(
-                new Coordinate(127.099738,36.794754)
-        );
-        postLocation.setSRID(4326);
-        SharingPost newPost = SharingPost.builder()
-                .title("제목")
-                .category(PostCategory.BAKERY)
-                .isFinished(true)
-                .foodName("음식 이름")
-                .expDate(LocalDate.now())
-                .endAt(LocalDateTime.now())
-                .locationPoint(postLocation)
-                .purchaseDate(LocalDate.now())
-                .addressSt("장소 1")
-                .addressDetail("세부 주소 1")
-                .kakaoLocationCode("1111")
-                .description("설명")
-                .postType(PostType.INDIVIDUAL)
-                .status(PostStatus.AVAILABLE)
-                .writer(savedMember)
-                .noticed(false)
-                .build();
-        sharingPostRepository.save(newPost);
-
-        Member testMember = Member.builder()
-                .id(member.getId())
-                .nickname("test1")
-                .email("test@gmail.com")
-                .isKeywordAvail(true)
-                .isNoticeAvail(true)
-                .provider(Provider.STORE)
-                .build();
 
         // when
-        List<Tuple> cntList = sharingPostQuerydslRepository.countByCategoryForWriter(testMember);
+        List<Tuple> cntList = sharingPostQuerydslRepository.countByCategoryForWriter(member);
 
         // then
         Tuple obj= cntList.get(0);

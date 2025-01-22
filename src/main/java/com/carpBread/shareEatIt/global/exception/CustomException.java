@@ -5,9 +5,9 @@ import lombok.Getter;
 
 @Getter
 @AllArgsConstructor
-public class AppException extends RuntimeException{
+public class CustomException extends RuntimeException{
 
-    private ErrorCode errorCode;
+    private CustomExceptionStatus customExceptionStatus;
     private String message;
     private String path;
 }

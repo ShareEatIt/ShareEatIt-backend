@@ -1,21 +1,17 @@
 package com.carpBread.shareEatIt.domain.notice.service;
 
 import com.carpBread.shareEatIt.domain.member.entity.Member;
-import com.carpBread.shareEatIt.domain.notice.controller.NoticeController;
-import com.carpBread.shareEatIt.domain.notice.dto.NoticeCreateDto;
 import com.carpBread.shareEatIt.domain.notice.dto.NoticeListResponseDto;
 import com.carpBread.shareEatIt.domain.notice.dto.NoticeResponseComponent;
 import com.carpBread.shareEatIt.domain.notice.dto.NoticeResponseDto;
 import com.carpBread.shareEatIt.domain.notice.entity.Notice;
 import com.carpBread.shareEatIt.domain.notice.repository.NoticeRepository;
-import com.carpBread.shareEatIt.global.exception.AppException;
-import com.carpBread.shareEatIt.global.exception.ErrorCode;
+import com.carpBread.shareEatIt.global.exception.CustomException;
+import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -55,12 +51,12 @@ public class NoticeService {
     }
     public NoticeResponseDto findNoticeById(Member member, Long id) {
         Notice notice = noticeRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_NOTICE, "ID=" + id + "에 해당하는 알림을 찾을 수 없습니다","/notice/"+id));
+                .orElseThrow(() -> new CustomException(CustomExceptionStatus.NOT_FOUND_NOTICE, "ID=" + id + "에 해당하는 알림을 찾을 수 없습니다","/notice/"+id));
 
         if (notice.getMember().getId() != member.getId())
-            throw new AppException(ErrorCode.UNAUTHORIZED_USER,"해당 알람을 확인할 수 없는 사용자입니다","/notice/"+id);
+            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_USER,"해당 알람을 확인할 수 없는 사용자입니다","/notice/"+id);
         if (notice.getIsRead())
-            throw new AppException(ErrorCode.ALREADY_READ,"이미 읽은 알림입니다","/notice/"+id);
+            throw new CustomException(CustomExceptionStatus.ALREADY_READ,"이미 읽은 알림입니다","/notice/"+id);
 
         notice.changeIsRead(true);
         noticeRepository.save(notice);

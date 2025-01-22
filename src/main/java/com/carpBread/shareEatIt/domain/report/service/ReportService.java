@@ -10,13 +10,11 @@ import com.carpBread.shareEatIt.domain.report.dto.ReportPostResponseComponent;
 import com.carpBread.shareEatIt.domain.report.entity.Report;
 import com.carpBread.shareEatIt.domain.report.entity.ReportStatus;
 import com.carpBread.shareEatIt.domain.report.repository.ReportRepository;
-import com.carpBread.shareEatIt.domain.sharingPost.entity.PostImgUrl;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
-import com.carpBread.shareEatIt.global.exception.AppException;
-import com.carpBread.shareEatIt.global.exception.ErrorCode;
+import com.carpBread.shareEatIt.global.exception.CustomException;
+import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -41,16 +39,16 @@ public class ReportService {
 
     public ReportCreateResponseDto createNewReport(Member member, MultipartFile imgFile, ReportCreateRequestDto dto) {
         SharingPost findPost = sharingPostRepository.findById(dto.getPostId())
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_POST, "해당 id에 대응하는 SHARING POST가 존재하지 않습니다.", "/report"));
+                .orElseThrow(() -> new CustomException(CustomExceptionStatus.NOT_FOUND_POST, "해당 id에 대응하는 SHARING POST가 존재하지 않습니다.", "/report"));
 
         if (findPost.getWriter().getId()==member.getId()){
-            throw new AppException(ErrorCode.CANNOT_REPORT_SELF,"본인의 게시글을 신고할 수 없습니다","/report");
+            throw new CustomException(CustomExceptionStatus.CANNOT_REPORT_SELF,"본인의 게시글을 신고할 수 없습니다","/report");
         }
 
         String imgUrl="";
 
         if (imgFile==null){
-            throw new AppException(ErrorCode.CANNOT_BE_NULL_IMG_FILE_FOR_REPORT,"신고 시 사진 파일은 필수입니다","/report");
+            throw new CustomException(CustomExceptionStatus.CANNOT_BE_NULL_IMG_FILE_FOR_REPORT,"신고 시 사진 파일은 필수입니다","/report");
         }else{
             String key="images/"+ UUID.randomUUID()+"_"+imgFile.getOriginalFilename();
             ObjectMetadata metadata = new ObjectMetadata();
@@ -60,7 +58,7 @@ public class ReportService {
             try (InputStream inputStream = imgFile.getInputStream()) {
                 s3Client.putObject(bucketName, key, inputStream, metadata);
             } catch (IOException e) {
-                throw new AppException(ErrorCode.AWS_S3_IMG_UPLOAD_CONNECTION_ERROR, "sharing post create - POST error", "/sharing");
+                throw new CustomException(CustomExceptionStatus.AWS_S3_IMG_UPLOAD_CONNECTION_ERROR, "sharing post create - POST error", "/sharing");
             }
 
             imgUrl = s3Client.getUrl(bucketName, key).toString();

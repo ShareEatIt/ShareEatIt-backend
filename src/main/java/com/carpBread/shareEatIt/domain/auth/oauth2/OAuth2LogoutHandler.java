@@ -6,8 +6,8 @@ import com.carpBread.shareEatIt.domain.auth.oauth2.repository.OAuth2TokenReposit
 import com.carpBread.shareEatIt.domain.auth.util.JWTUtils;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
-import com.carpBread.shareEatIt.global.exception.AppException;
-import com.carpBread.shareEatIt.global.exception.ErrorCode;
+import com.carpBread.shareEatIt.global.exception.CustomException;
+import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -15,13 +15,9 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
-
-import java.net.URLEncoder;
-import java.util.List;
 
 /* 사용자 로그아웃 핸들러 */
 // @Value를 받기 때문에 이 클래스를 사용하는 다른 클래스에서 반드시 autowired로 입력받아야 하고, new 로 새로운 객체를 생성하면 안된다.
@@ -166,7 +162,7 @@ public class OAuth2LogoutHandler implements LogoutHandler {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);  // Extracts token after "Bearer "
         }else{
-            throw new AppException(ErrorCode.UNAUTHORIZED_JWT,"유효하지 않은 인증 토큰입니다","/logout");
+            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,"유효하지 않은 인증 토큰입니다","/logout");
         }
         return token;
     }
@@ -190,12 +186,12 @@ public class OAuth2LogoutHandler implements LogoutHandler {
         // LOCAL 로그인일 경우 - SUB 가 USERNAME
         if(provider.equals(LoginProvider.LOCAL.name())){
             member = memberRepository.findByUsername(sub)
-                    .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_MEMBER, "해당 이메일에 맞는 회원 정보를 찾을 수 없습니다", "/logout"));
+                    .orElseThrow(() -> new CustomException(CustomExceptionStatus.NOT_FOUND_MEMBER, "해당 이메일에 맞는 회원 정보를 찾을 수 없습니다", "/logout"));
         }
         // 소셜 로그인일 경우 - SUB 가 EMAIL
         else {
             member = memberRepository.findByEmail(sub)
-                    .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_MEMBER, "해당 이메일에 맞는 회원 정보를 찾을 수 없습니다", "/logout"));
+                    .orElseThrow(() -> new CustomException(CustomExceptionStatus.NOT_FOUND_MEMBER, "해당 이메일에 맞는 회원 정보를 찾을 수 없습니다", "/logout"));
         }
         return member;
 
@@ -211,6 +207,6 @@ public class OAuth2LogoutHandler implements LogoutHandler {
     private OAuth2Token getOAuth2Token(Member member, LoginProvider provider){
 
         return oAuth2TokenRepository.findByMemberAndProvider(member, provider)
-                .orElseThrow(()->new AppException(ErrorCode.NOT_FOUND_OAUTH2_ACCESS_TOKEN, "OAUTH2 LOGIN ACCESS TOKEN 정보가 저장되어 있지 않습니다", "/logout"));
+                .orElseThrow(()->new CustomException(CustomExceptionStatus.NOT_FOUND_OAUTH2_ACCESS_TOKEN, "OAUTH2 LOGIN ACCESS TOKEN 정보가 저장되어 있지 않습니다", "/logout"));
     }
 }

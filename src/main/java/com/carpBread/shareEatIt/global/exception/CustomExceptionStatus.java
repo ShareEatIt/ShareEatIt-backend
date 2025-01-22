@@ -6,7 +6,7 @@ import org.springframework.http.HttpStatus;
 
 @Getter
 @AllArgsConstructor
-public enum ErrorCode {
+public enum CustomExceptionStatus {
 
     // SignUp
     ALREADY_EXISTS_USERNAME(HttpStatus.CONFLICT),

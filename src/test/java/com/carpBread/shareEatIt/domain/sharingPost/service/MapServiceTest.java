@@ -1,5 +1,6 @@
 package com.carpBread.shareEatIt.domain.sharingPost.service;
 
+import com.carpBread.shareEatIt.config.QuerydslTestConfig;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.entity.Provider;
 import com.carpBread.shareEatIt.domain.sharingPost.dto.map.MapListResponseDto;
@@ -8,9 +9,10 @@ import com.carpBread.shareEatIt.domain.sharingPost.entity.PostCategory;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.PostStatus;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.PostType;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
+import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostQuerydslRepository;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
-import com.carpBread.shareEatIt.global.exception.AppException;
-import com.carpBread.shareEatIt.global.exception.ErrorCode;
+import com.carpBread.shareEatIt.global.exception.CustomException;
+import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -21,6 +23,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.context.annotation.Import;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -31,6 +34,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /* MapService 단위 테스트*/
 @ExtendWith(MockitoExtension.class)
+@Import(QuerydslTestConfig.class)
 class MapServiceTest {
 
     @InjectMocks
@@ -38,6 +42,9 @@ class MapServiceTest {
 
     @Mock
     private SharingPostRepository sharingPostRepository;
+
+    @Mock
+    private SharingPostQuerydslRepository sharingPostQuerydslRepository;
 
     @Test
     @DisplayName("성공 : 지도 위 나눔글 리스트 조회 성공 단위 테스트")
@@ -52,7 +59,7 @@ class MapServiceTest {
         SharingPost post = generateSharingPost(PostType.INDIVIDUAL, point, testMember);
         ArrayList<SharingPost> postList = new ArrayList<>();
         postList.add(post);
-        Mockito.doReturn(postList).when(sharingPostRepository)
+        Mockito.doReturn(postList).when(sharingPostQuerydslRepository)
                 .findSharingPostsWithinRadius(Mockito.anyDouble(), Mockito.anyDouble(),
                         Mockito.anyDouble());
 
@@ -73,10 +80,10 @@ class MapServiceTest {
         MapRequestDto mapRequestDto = generateMapRequestDto(1000.00, 190.00);
 
         // when
-        AppException thrownException = assertThrows(AppException.class, () -> mapService.getMapList(mapRequestDto));
+        CustomException thrownException = assertThrows(CustomException.class, () -> mapService.getMapList(mapRequestDto));
 
         // then
-        assertThat(thrownException.getErrorCode()).isEqualTo(ErrorCode.VALUE_OUT_OF_RANGE);
+        assertThat(thrownException.getCustomExceptionStatus()).isEqualTo(CustomExceptionStatus.VALUE_OUT_OF_RANGE);
 
 
     }

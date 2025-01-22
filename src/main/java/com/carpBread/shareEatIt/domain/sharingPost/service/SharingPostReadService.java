@@ -17,9 +17,10 @@ import com.carpBread.shareEatIt.domain.sharingPost.entity.PostImgUrl;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.PostType;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.PostImgUrlRepository;
+import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostQuerydslRepository;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
-import com.carpBread.shareEatIt.global.exception.AppException;
-import com.carpBread.shareEatIt.global.exception.ErrorCode;
+import com.carpBread.shareEatIt.global.exception.CustomException;
+import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -36,6 +37,7 @@ public class SharingPostReadService {
 
     // repository
     private final SharingPostRepository sharingPostRepository;
+    private final SharingPostQuerydslRepository sharingPostQuerydslRepository;
     private final PostImgUrlRepository postImgUrlRepository;
     private final GratitudeStickerRepository gratitudeStickerRepository;
 
@@ -49,7 +51,7 @@ public class SharingPostReadService {
         // 점검 : MySQL 8.4 Reference Manual 에 정의된 메뉴얼에 따라, latitude(위도)는 [-90.0, 90.0] / longitude(경도)는 [-180.0, 180.0] 범위로 지정
         if ((dto.getLatitude()>90.0 || dto.getLatitude()<-90.0)
                 || (dto.getLongitude()>180.0 || dto.getLongitude()<-180.0)){
-            throw new AppException(ErrorCode.VALUE_OUT_OF_RANGE,"입력한 위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.","/sharing/list");
+            throw new CustomException(CustomExceptionStatus.VALUE_OUT_OF_RANGE,"입력한 위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.","/sharing/list");
         }
 
         // 나눔글 리스트 반환
@@ -70,7 +72,7 @@ public class SharingPostReadService {
     public SharingPostResponseDto findSharingPostByID(Member member, Long id) {
         // 나눔글 조회
         SharingPost findPost = sharingPostRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_POST,
+                .orElseThrow(() -> new CustomException(CustomExceptionStatus.NOT_FOUND_POST,
                         "해당 id에 대응하는 SHARING POST가 존재하지 않습니다.",
                         "/sharing/" + id));
 
@@ -128,7 +130,7 @@ public class SharingPostReadService {
         Boolean exists = gratitudeStickerRepository.existsByPost(post);
         if (exists){
             GratitudeSticker gratitudeSticker = gratitudeStickerRepository.findByPost(post)
-                    .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_POST, "GRATITUDE STICKER 객체를 통한 POST 객체를 조회할 수 없는 서버 내부 문제가 발생하였습니다.", "/sharing" + post.getId()));
+                    .orElseThrow(() -> new CustomException(CustomExceptionStatus.NOT_FOUND_POST, "GRATITUDE STICKER 객체를 통한 POST 객체를 조회할 수 없는 서버 내부 문제가 발생하였습니다.", "/sharing" + post.getId()));
             return gratitudeSticker.getGratitudeType();
         }
         else
@@ -141,19 +143,19 @@ public class SharingPostReadService {
         List<SharingPost> postList = new ArrayList<>();
         // post type이 전체일 경우
         if (dto.getPostType().equals("ALL")){
-            postList = sharingPostRepository.findSharingPostsWithinRadius(
+            postList = sharingPostQuerydslRepository.findSharingPostsWithinRadius(
                     dto.getLatitude(), dto.getLongitude(), radius
             );
         }
         // store 혹은 individual일 경우
         else if(dto.getPostType().equals(PostType.STORE.name()) ||
                 dto.getPostType().equals(PostType.INDIVIDUAL.name())){
-            postList = sharingPostRepository.findSharingPostsByPostTypeWithinRadius(
+            postList = sharingPostQuerydslRepository.findSharingPostsByPostTypeWithinRadius(
                     dto.getLatitude(), dto.getLongitude(),
-                    radius, dto.getPostType()
+                    radius, PostType.toEnumType(dto.getPostType())
             );
         }else{
-            throw new AppException(ErrorCode.INVALID_ENUM_VALUE, "잘못된 SHARING POST TYPE ENUM 값 입니다","/sharing/list");
+            throw new CustomException(CustomExceptionStatus.INVALID_ENUM_VALUE, "잘못된 SHARING POST TYPE ENUM 값 입니다","/sharing/list");
         }
 
         return postList;
@@ -245,7 +247,7 @@ public class SharingPostReadService {
                 return imgUrl.getUrl();
             }
         }
-        throw new AppException(ErrorCode.NOT_FOUND_POST_IMAGE, "현재 POST에 해당하는 IMAGE를 찾을 수 없습니다", "/sharing");
+        throw new CustomException(CustomExceptionStatus.NOT_FOUND_POST_IMAGE, "현재 POST에 해당하는 IMAGE를 찾을 수 없습니다", "/sharing");
 
     }
 

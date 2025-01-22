@@ -6,8 +6,8 @@ import com.carpBread.shareEatIt.domain.member.dto.keyword.KeywordResponseDto;
 import com.carpBread.shareEatIt.domain.member.entity.Keywords;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.repository.KeywordsRepository;
-import com.carpBread.shareEatIt.global.exception.AppException;
-import com.carpBread.shareEatIt.global.exception.ErrorCode;
+import com.carpBread.shareEatIt.global.exception.CustomException;
+import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,7 +32,7 @@ public class KeywordService {
                     .orElseThrow(() -> new RuntimeException("domain.member.service.KeywordService inner server RUNTIME ERROR"));
 
             if (findKeyword.getAvail()){
-                throw new AppException(ErrorCode.ALREADY_USING_KEYWORD,"이미 사용중인 Keyword 입니다","/keyword");
+                throw new CustomException(CustomExceptionStatus.ALREADY_USING_KEYWORD,"이미 사용중인 Keyword 입니다","/keyword");
             }
             else{
                 findKeyword.changeAvail(true);
@@ -99,7 +99,7 @@ public class KeywordService {
     public KeywordResponseDto changeKeywordUsageToUnAvailable(Member member, Long id) {
 
         Keywords targetKeyword = keywordsRepository.findByMemberAndId(member, id)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_KEYWORD_UNAVAILABLE_ID, "update keyword unavailable - PATCH error", "/keyword/" + id));
+                .orElseThrow(() -> new CustomException(CustomExceptionStatus.NOT_FOUND_KEYWORD_UNAVAILABLE_ID, "update keyword unavailable - PATCH error", "/keyword/" + id));
 
         targetKeyword.changeAvail(false);
         Keywords changedKeyword = keywordsRepository.save(targetKeyword);
@@ -115,7 +115,7 @@ public class KeywordService {
     public KeywordResponseDto deleteKeyword(Member member, Long id) {
 
         Keywords deleteKeyword = keywordsRepository.findByMemberAndId(member, id)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_AVAILABLE_MEMBER_TO_DELETE_KEYWORD, "delete keyword - DELETE error", "/keyword/" + id));
+                .orElseThrow(() -> new CustomException(CustomExceptionStatus.NOT_AVAILABLE_MEMBER_TO_DELETE_KEYWORD, "delete keyword - DELETE error", "/keyword/" + id));
 
         keywordsRepository.delete(deleteKeyword);
         return KeywordResponseDto.builder()

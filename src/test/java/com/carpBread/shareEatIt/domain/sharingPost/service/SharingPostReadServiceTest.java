@@ -1,20 +1,19 @@
 package com.carpBread.shareEatIt.domain.sharingPost.service;
 
 import com.carpBread.shareEatIt.config.GeometryFactoryConfig;
-import com.carpBread.shareEatIt.config.S3TestConfig;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.entity.Provider;
-import com.carpBread.shareEatIt.domain.participation.entity.Participation;
 import com.carpBread.shareEatIt.domain.participation.repository.GratitudeStickerRepository;
 import com.carpBread.shareEatIt.domain.sharingPost.dto.SharingPostListRequestDto;
 import com.carpBread.shareEatIt.domain.sharingPost.dto.SharingPostListResponseDto;
-import com.carpBread.shareEatIt.domain.sharingPost.dto.SharingPostRequestDto;
 import com.carpBread.shareEatIt.domain.sharingPost.dto.SharingPostResponseDto;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.*;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.PostImgUrlRepository;
+import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostQuerydslRepository;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
-import com.carpBread.shareEatIt.global.exception.AppException;
-import com.carpBread.shareEatIt.global.exception.ErrorCode;
+import com.carpBread.shareEatIt.global.config.QuerydslConfig;
+import com.carpBread.shareEatIt.global.exception.CustomException;
+import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,7 +37,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 /* SharingPostReadService 단위 테스트 */
 @ExtendWith(MockitoExtension.class)
-@Import({GeometryFactoryConfig.class})
+@Import({GeometryFactoryConfig.class, QuerydslConfig.class})
 class SharingPostReadServiceTest {
 
     @InjectMocks
@@ -49,6 +48,9 @@ class SharingPostReadServiceTest {
 
     @Mock
     private PostImgUrlRepository postImgUrlRepository;
+
+    @Mock
+    private SharingPostQuerydslRepository sharingPostQuerydslRepository;
 
     @Mock
     private GratitudeStickerRepository gratitudeStickerRepository;
@@ -69,7 +71,7 @@ class SharingPostReadServiceTest {
         SharingPost post = generateSharingPost(PostType.INDIVIDUAL, point, testMember);
         ArrayList<SharingPost> postList = new ArrayList<>();
         postList.add(post);
-        Mockito.doReturn(postList).when(sharingPostRepository)
+        Mockito.doReturn(postList).when(sharingPostQuerydslRepository)
                 .findSharingPostsByPostTypeWithinRadius(Mockito.anyDouble(),Mockito.anyDouble(),
                         Mockito.anyDouble(), Mockito.any());
 
@@ -107,9 +109,9 @@ class SharingPostReadServiceTest {
 //                        Mockito.anyDouble(), Mockito.anyString());
 
         // when & then
-        AppException thrownException = assertThrows(AppException.class, () ->
+        CustomException thrownException = assertThrows(CustomException.class, () ->
                 sharingPostReadService.findPostListByProviderType(requestDto));
-        assertThat(thrownException.getErrorCode()).isEqualTo(ErrorCode.INVALID_ENUM_VALUE);
+        assertThat(thrownException.getCustomExceptionStatus()).isEqualTo(CustomExceptionStatus.INVALID_ENUM_VALUE);
 
     }
 
