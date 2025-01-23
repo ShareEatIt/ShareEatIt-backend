@@ -7,6 +7,10 @@ import lombok.NoArgsConstructor;
 @Getter
 @NoArgsConstructor
 public class RefreshRequestDto {
+
+    @NotBlank
+    private String email;
+
     @NotBlank
     private String refreshToken;
 }

@@ -7,6 +7,7 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.Date;
+import java.util.List;
 
 @Getter
 @NoArgsConstructor
@@ -16,47 +17,32 @@ public class ParticipationHistoryResponseDto {
     private PostType provider;
     private String writerName;
     private PostCategory category;
-//    private PostImgUrl imgURL;
+    private String firstImgUrl;
     private PostStatus status;
     private LocalDateTime endDate;
     private LocalDateTime createdAt;  // LocalDateTime
 
-//    //이미지와 생성시각을 제외한 dto
-//    @Builder
-//    public ParticipationHistoryResponseDto(Long sharingPostId, String title, PostType provider, String writerName, PostCategory category,  PostStatus status, Date endDate) {
-//        this.sharingPostId = sharingPostId;
-//        this.title = title;
-//        this.provider = provider;
-//        this.writerName = writerName;
-//        this.category = category;
-////        this.imgURL = imgURL;
-//        this.status = status;
-//        this.endDate = endDate;
-////        this.createdAt = createdAt;
-//    }
-
-    //이미지를 제외한 dto
-    @Builder
-    public ParticipationHistoryResponseDto(Long sharingPostId, String title, PostType provider, String writerName, PostCategory category,  PostStatus status, LocalDateTime endDate, LocalDateTime createdAt) {
+    public ParticipationHistoryResponseDto(Long sharingPostId, String title, PostType provider, String writerName, PostCategory category, String firstImgUrl, PostStatus status, LocalDateTime endDate, LocalDateTime createdAt) {
         this.sharingPostId = sharingPostId;
         this.title = title;
         this.provider = provider;
         this.writerName = writerName;
         this.category = category;
-//        this.imgURL = imgURL;
+        this.firstImgUrl = firstImgUrl;
         this.status = status;
         this.endDate = endDate;
         this.createdAt = createdAt;
     }
 
-    public static ParticipationHistoryResponseDto from(SharingPost post){
+    @Builder
+    public static ParticipationHistoryResponseDto from(SharingPost post, String firstImgUrl){
         return new ParticipationHistoryResponseDto(
                 post.getId(),
                 post.getTitle(),
                 post.getPostType(),
                 post.getWriter().getNickname(),
                 post.getCategory(),
-//                post.getPostType(), // image
+                firstImgUrl, // image
                 post.getStatus(),
                 post.getEndAt(),
                 post.getCreatedAt()

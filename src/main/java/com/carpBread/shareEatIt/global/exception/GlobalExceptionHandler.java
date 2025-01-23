@@ -1,23 +1,32 @@
 package com.carpBread.shareEatIt.global.exception;
 
+import io.sentry.Sentry;
+import jakarta.servlet.http.HttpServletRequest;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
-
-import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
+@Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    @ExceptionHandler(AppException.class)
-    public ResponseEntity<ErrorResponseDto> handleAppException(AppException e){
-        ErrorResponseDto responseDto=ErrorResponseDto.builder()
-                .status(e.getErrorCode().getStatus().value())
-                .message(e.getMessage())
-                .path(e.getPath())
-                .timestamp(LocalDateTime.now())
-                .build();
-        return ResponseEntity.status(e.getErrorCode().getStatus()).body(responseDto);
+    @ExceptionHandler(CustomException.class)
+    public ResponseEntity<ExceptionResponseDto> handleAppException(HttpServletRequest request, CustomException e){
+        // response dto 생성
+        ExceptionResponseDto responseDto= new ExceptionResponseDto(e);
+
+        // Sentry 시스템에 전송
+        Sentry.configureScope(scope ->{
+            scope.setContexts("file_path", responseDto.getFilePath());
+            scope.setContexts("exception_status", responseDto.getExceptionStatus());
+            scope.setContexts("message",responseDto.getMessage());
+            scope.setContexts("timestamp", responseDto.getTimestamp());
+            scope.setContexts("request", responseDto.getRequest());
+            scope.setTag("tag", responseDto.getTag());
+        });
+
+        return ResponseEntity.status(e.getExceptionStatus().getStatus()).body(responseDto);
     }
 }

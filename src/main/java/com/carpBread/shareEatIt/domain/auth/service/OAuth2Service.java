@@ -8,10 +8,14 @@ import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.entity.Provider;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
 import com.carpBread.shareEatIt.domain.notice.controller.NoticeController;
+import com.carpBread.shareEatIt.domain.notice.service.SseService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.apache.hc.core5.net.URIBuilder;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -30,7 +34,9 @@ import java.util.Optional;
 public class OAuth2Service {
 
     private final MemberRepository memberRepository;
+    private final SseService sseService;
     private final JWTUtils jwtUtils;
+    private final GeometryFactory geometryFactory;
 
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
     private String clientId;
@@ -60,6 +66,7 @@ public class OAuth2Service {
 
 
         URL url = uriBuilder.build().toURL();
+
 
         // connection open
         HttpURLConnection conn = (HttpURLConnection) url.openConnection();
@@ -119,10 +126,17 @@ public class OAuth2Service {
         Optional<Member> member = memberRepository.findByEmail(oauth2UserInfo.email());
         if (member.isPresent()){
             Member joinedMember = member.get();
-            joinedMember.changeAccessToken(oauth2AccessToken);
+            if(joinedMember.getLocationPoint()==null){
+                Point point = geometryFactory.createPoint(new Coordinate(127.0016985, 37.5642135));
+                point.setSRID(4326);
+                joinedMember.updateLocationPoint(point);
+            }
             Member updatedMember = memberRepository.save(joinedMember);
 
             String accessToken = "Bearer "+jwtUtils.createToken(updatedMember.getEmail(), updatedMember.getNickname());
+
+            if (updatedMember.getIsNoticeAvail() && !sseService.isRegistered(updatedMember.getId()))
+                sseService.registerClient(updatedMember.getId());
 
             return AuthLoginResponseDto.builder()
                     .isNewMember(false)
@@ -131,12 +145,16 @@ public class OAuth2Service {
                     .build();
         }else{
             String refreshToken = jwtUtils.createToken(oauth2UserInfo.email(), oauth2UserInfo.nickname());
-            Member newMember = oauth2UserInfo.toEntity(oauth2AccessToken,refreshToken);
+
+            Point point = geometryFactory.createPoint(new Coordinate(127.0016985, 37.5642135));
+            point.setSRID(4326);
+
+            Member newMember = oauth2UserInfo.toEntity(oauth2AccessToken,refreshToken, point);
             newMember = memberRepository.save(newMember);
 
             String accessToken = "Bearer "+ jwtUtils.createToken(newMember.getEmail(), newMember.getNickname());
 
-            NoticeController.putMemberToClients(newMember.getId());
+            sseService.registerClient(newMember.getId());
 
             return AuthLoginResponseDto.builder()
                     .isNewMember(true)

@@ -5,30 +5,34 @@ import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.sharingPost.dto.SharingPostResponseDto;
 import com.carpBread.shareEatIt.domain.sharingPost.dto.map.MapListResponseDto;
 import com.carpBread.shareEatIt.domain.sharingPost.dto.map.MapRequestDto;
+import com.carpBread.shareEatIt.domain.sharingPost.service.MapService;
 import com.carpBread.shareEatIt.domain.sharingPost.service.SharingPostService;
 import com.carpBread.shareEatIt.global.response.ApiResponse;
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/map")
 public class MapController {
 
-    private final SharingPostService sharingPostService;
+    private final MapService mapService;
 
     @GetMapping("/list")
     public ResponseEntity<ApiResponse<MapListResponseDto>> getMapList(@AuthUser Member member,
-                                                                      @Valid @RequestBody MapRequestDto dto){
-        MapListResponseDto responseDto = sharingPostService.getMapList(member,dto);
+                                                                      @NotNull @RequestParam(name = "longitude")Double longitude,
+                                                                      @NotNull @RequestParam(name = "latitude")Double latitude){
+        MapRequestDto dto = new MapRequestDto(longitude, latitude);
+
+
+        MapListResponseDto responseDto = mapService.getMapList(dto);
 
         ApiResponse<MapListResponseDto> response = new ApiResponse<>(HttpStatus.OK.value(),"지도 나눔글 목록 조회 성공", responseDto);
 

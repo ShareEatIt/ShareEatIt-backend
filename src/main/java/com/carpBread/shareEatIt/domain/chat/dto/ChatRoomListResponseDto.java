@@ -7,9 +7,9 @@ import java.util.List;
 @Getter
 public class ChatRoomListResponseDto {
 
-    private final List<ChatRoomResponseDto> chatRoomList;
+    private final List<ChatRoomListDetailResponseDto> chatRoomList;
 
-    public ChatRoomListResponseDto(List<ChatRoomResponseDto> chatRooms){
+    public ChatRoomListResponseDto(List<ChatRoomListDetailResponseDto> chatRooms){
         this.chatRoomList = chatRooms;
     }
 }

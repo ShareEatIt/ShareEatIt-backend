@@ -2,6 +2,8 @@ package com.carpBread.shareEatIt.domain.sharingPost.dto;
 
 import jakarta.annotation.Nullable;
 import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -59,4 +61,25 @@ public class SharingPostRequestDto {
     @NotNull
     private LocalDateTime endAt;
 
+    public SharingPostRequestDto(String title, String category, Boolean isFinished, String foodName,
+                                 LocalDate expDate, @Nullable LocalDate purchaseDate,
+                                 String addressSt, @Nullable String addressDetail,
+                                 @Nullable String kakaoLocationCode,
+                                 Double latitude, Double longitude,
+                                 @Nullable String description, String postType, LocalDateTime endAt) {
+        this.title = title;
+        this.category = category;
+        this.isFinished = isFinished;
+        this.foodName = foodName;
+        this.expDate = expDate;
+        this.purchaseDate = purchaseDate;
+        this.addressSt = addressSt;
+        this.addressDetail = addressDetail;
+        this.kakaoLocationCode = kakaoLocationCode;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.description = description;
+        this.postType = postType;
+        this.endAt = endAt;
+    }
 }
