@@ -96,18 +96,18 @@ public class JWTUtils {
         // payload 만들기
         Claims claims = Jwts.claims();
 
-        // 토큰 발급자 issuer
-        claims.put("iss", issuer);
-        // 토큰 대상자 audience
-        claims.put("aud", audience);
+//        // 토큰 발급자 issuer
+//        claims.put("iss", issuer);
+//        // 토큰 대상자 audience
+//        claims.put("aud", audience);
         // 토큰 대상자 식별자 subject
         claims.put("sub",sub);
         // 식별자 종류
         claims.put("provider",provider.name());
-        // 토큰 만료 시간 expired datetime
-        claims.put("exp", new Date(currentTime+refreshTokenExpiredTime));
-        // 토큰 발급 시간 issued at
-        claims.put("iat", new Date(currentTime));
+//        // 토큰 만료 시간 expired datetime
+//        claims.put("exp", new Date(currentTime+refreshTokenExpiredTime));
+//        // 토큰 발급 시간 issued at
+//        claims.put("iat", new Date(currentTime));
         // jwt 고유 식별자(redis에서 사용) jwt identifier
         claims.put("jti", generateJti());
 

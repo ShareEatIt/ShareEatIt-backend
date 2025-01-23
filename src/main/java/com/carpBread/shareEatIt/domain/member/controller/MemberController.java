@@ -105,7 +105,7 @@ public class MemberController {
 
     @PatchMapping("/avail/notice")
     public ResponseEntity<ApiResponse<AvailResponseDto>> updateMemberAvail(@AuthUser Member member,
-                                                         @RequestParam(name = "notice") Boolean notice){
+                                                                            @RequestParam(name = "notice") Boolean notice){
         AvailResponseDto responseDto = memberService.updateAvailNotice(member, notice);
         ApiResponse<AvailResponseDto> response = new ApiResponse<>(HttpStatus.OK.value(),
                 "회원 notice avail 수정",

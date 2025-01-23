@@ -1,74 +1,85 @@
-//package com.carpBread.shareEatIt.domain.auth.controller;
-//
-//import com.carpBread.shareEatIt.domain.auth.dto.RefreshRequestDto;
-//import com.carpBread.shareEatIt.domain.auth.dto.RefreshTokenResponseDto;
-//import com.carpBread.shareEatIt.domain.auth.util.JWTUtils;
-//import com.carpBread.shareEatIt.domain.member.entity.Member;
-//import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
-//import com.carpBread.shareEatIt.global.exception.AppException;
-//import com.carpBread.shareEatIt.global.exception.ErrorCode;
-//import com.carpBread.shareEatIt.global.response.ApiResponse;
-//import com.fasterxml.jackson.databind.ObjectMapper;
-//import jakarta.servlet.http.HttpServletRequest;
-//import jakarta.validation.Valid;
-//import lombok.RequiredArgsConstructor;
-//import org.springframework.beans.factory.annotation.Value;
-//import org.springframework.data.redis.core.RedisTemplate;
-//import org.springframework.data.redis.core.ValueOperations;
-//import org.springframework.http.HttpStatus;
-//import org.springframework.http.ResponseEntity;
-//import org.springframework.web.bind.annotation.*;
-//import org.springframework.web.reactive.function.client.WebClient;
-//
-//import java.util.UUID;
-//
-//@RequiredArgsConstructor
-//@RequestMapping("/auth")
-//@RestController
-//public class LogoutController {
-//
-//    private final WebClient webClient;
-//    private final ObjectMapper objectMapper;
-//    private final MemberRepository memberRepository;
-//    private final JWTUtils jwtUtils;
-//    private final RedisTemplate<String,Object> redisTemplate;
-//    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
-//    String clientId;
-//
-//    @Value("${kakao.api.logout-url}")
-//    String kakaoLogoutUrl;
-//
-//    @Value("${spring.oauth2.logout.direct-url}")
-//    String logoutRedirectUri;
-//
-//    @PostMapping("/refresh")
-//    public ResponseEntity<ApiResponse<RefreshTokenResponseDto>> refreshAccessToken(@RequestBody @Valid RefreshRequestDto dto)throws Exception{
-//
-//        Member member = memberRepository.findByEmail(dto.getEmail())
-//                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_MEMBER, "해당 이메일에 맞는 회원 정보를 찾을 수 없습니다", "/logout"));
-//
-//        if(!dto.getRefreshToken().equals(member.getRefreshToken()))
-//            throw new AppException(ErrorCode.INVALID_REFRESH_TOKEN,"유효하지 않은 리프레시 토큰입니다. 재로그인해주십시오","/auth/refresh");
-//
-//        String newAccessToken = "Bearer "+jwtUtils.createToken(member.getEmail(), member.getNickname());
-//        String newRefreshToken = jwtUtils.createToken(member.getEmail(), member.getNickname());
-//        member.updateRefreshToken(newRefreshToken);
-//        memberRepository.save(member);
-//
-//        System.out.println(newAccessToken);
-//        System.out.println(newRefreshToken);
-//        System.out.println("LogoutController.refreshAccessToken");
-//
-//        RefreshTokenResponseDto refreshTokenResponseDto = RefreshTokenResponseDto.builder()
-//                .accessToken(newAccessToken)
-//                .refreshToken(newRefreshToken)
-//                .build();
-//
-//        ApiResponse<RefreshTokenResponseDto> responseDto = new ApiResponse<>(HttpStatus.OK.value(), "리프레시 토큰 발급 성공", refreshTokenResponseDto);
-//
-//        return ResponseEntity.ok().body(responseDto);
-//
-//    }
+package com.carpBread.shareEatIt.domain.auth.controller;
+
+import com.carpBread.shareEatIt.domain.auth.LoginProvider;
+import com.carpBread.shareEatIt.domain.auth.dto.RefreshRequestDto;
+import com.carpBread.shareEatIt.domain.auth.dto.RefreshTokenResponseDto;
+import com.carpBread.shareEatIt.domain.auth.util.JWTUtils;
+import com.carpBread.shareEatIt.domain.member.entity.Member;
+import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
+import com.carpBread.shareEatIt.global.response.ApiResponse;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.reactive.function.client.WebClient;
+
+import java.util.UUID;
+
+@RequiredArgsConstructor
+@RequestMapping("/auth")
+@RestController
+public class LogoutController {
+
+    private final WebClient webClient;
+    private final ObjectMapper objectMapper;
+    private final MemberRepository memberRepository;
+    private final JWTUtils jwtUtils;
+    private final RedisTemplate<String,Object> redisTemplate;
+    @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
+    String clientId;
+
+    @Value("${kakao.api.logout-url}")
+    String kakaoLogoutUrl;
+
+    @Value("${spring.oauth2.logout.direct-url}")
+    String logoutRedirectUri;
+
+    /* 리프레시 토큰 발급, 수정 예정!!! */
+    @PostMapping("/refresh")
+    public ResponseEntity<ApiResponse<RefreshTokenResponseDto>> refreshAccessToken(@RequestBody @Valid RefreshRequestDto dto)throws Exception{
+
+        Member member = memberRepository.findByEmail(dto.getEmail())
+                .orElseThrow(() -> null /* new AppException(ErrorCode.NOT_FOUND_MEMBER, "해당 이메일에 맞는 회원 정보를 찾을 수 없습니다", "/logout")*/);
+
+//        if(jwtUtils.getProvider(dto.getRefreshToken()).equals(LoginProvider.LOCAL.name())){
+//            if(! jwtUtils.getSub(dto.getRefreshToken()).equals(member.getUsername())){
+//                throw null /* new AppException(ErrorCode.INVALID_REFRESH_TOKEN,"유효하지 않은 리프레시 토큰입니다. 재로그인해주십시오","/auth/refresh")*/;
+//            }
+//        }
+//        else{
+//            if (! jwtUtils.getSub(dto.getRefreshToken()).equals(member.getEmail())){
+//                throw null /* new AppException(ErrorCode.INVALID_REFRESH_TOKEN,"유효하지 않은 리프레시 토큰입니다. 재로그인해주십시오","/auth/refresh")*/;
+//            }
+//        }
+        if (!member.getRefreshToken().equals(dto.getRefreshToken())){
+//            throw null;
+        }
+
+        String newAccessToken = "Bearer "+jwtUtils.createAccessToken(member.getEmail(), LoginProvider.KAKAO);
+        String newRefreshToken = jwtUtils.createRefreshToken(member.getEmail(), LoginProvider.KAKAO);
+        member.updateRefreshToken(newRefreshToken);
+        memberRepository.save(member);
+
+        System.out.println(newAccessToken);
+        System.out.println(newRefreshToken);
+        System.out.println("LogoutController.refreshAccessToken");
+
+        RefreshTokenResponseDto refreshTokenResponseDto = RefreshTokenResponseDto.builder()
+                .accessToken(newAccessToken)
+                .refreshToken(newRefreshToken)
+                .build();
+
+        ApiResponse<RefreshTokenResponseDto> responseDto = new ApiResponse<>(HttpStatus.OK.value(), "리프레시 토큰 발급 성공", refreshTokenResponseDto);
+
+        return ResponseEntity.ok().body(responseDto);
+
+    }
 //
 //    @GetMapping("/logout")
 //    public ResponseEntity<String> logout(HttpServletRequest request){
@@ -112,4 +123,4 @@
 //        return ResponseEntity.ok().body("로그아웃이 성공적으로 완료되었습니다");
 //    }
 //
-//}
+}

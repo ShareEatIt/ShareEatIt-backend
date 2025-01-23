@@ -2,6 +2,8 @@ package com.carpBread.shareEatIt.domain.auth.oauth2.handler;
 
 import com.carpBread.shareEatIt.domain.auth.LoginProvider;
 import com.carpBread.shareEatIt.domain.auth.util.JWTUtils;
+import com.carpBread.shareEatIt.domain.member.entity.Member;
+import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -25,6 +27,8 @@ import java.util.Optional;
 @Component
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private final JWTUtils jwtUtils;
+    private final MemberRepository memberRepository;
+
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -36,7 +40,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String email = (String) principal.getAttributes().get("email");
         LoginProvider provider = (LoginProvider) principal.getAttributes().get("provider");
         String accessToken = "Bearer "+jwtUtils.createAccessToken(email,provider);
-        String refreshToken = "Bearer "+jwtUtils.createRefreshToken(email,provider);
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> null);
+        String refreshToken = member.getRefreshToken();
 
         System.out.println(accessToken);
 
