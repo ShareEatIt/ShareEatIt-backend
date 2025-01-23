@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 public class GlobalExceptionHandler {
 
     @ExceptionHandler(CustomException.class)
-    public ResponseEntity<ExceptionResponseDto> handleAppException(HttpServletRequest request, CustomException e){
+    public ResponseEntity<ExceptionResponseDto> handleAppException(CustomException e){
         // response dto 생성
         ExceptionResponseDto responseDto= new ExceptionResponseDto(e);
 
