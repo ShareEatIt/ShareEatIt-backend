@@ -24,7 +24,7 @@ public class KeywordService {
 
     public KeywordResponseDto createNewKeyword(Member member, KeywordCreateRequestDto dto) {
 
-        Keywords targetKeyword;
+        Keywords targetKeyword=null;
 
         // 해당 사용자가 사용하고 있는 경우
         if (keywordsRepository.existsByKeywordAndMember(dto.getKeyword(), member)){
@@ -32,7 +32,7 @@ public class KeywordService {
                     .orElseThrow(() -> new RuntimeException("domain.member.service.KeywordService inner server RUNTIME ERROR"));
 
             if (findKeyword.getAvail()){
-                throw new CustomException(CustomExceptionStatus.ALREADY_USING_KEYWORD,"이미 사용중인 Keyword 입니다","/keyword");
+//                throw new CustomException(CustomExceptionStatus.ALREADY_USING_KEYWORD,"이미 사용중인 Keyword 입니다","/keyword");
             }
             else{
                 findKeyword.changeAvail(true);
@@ -99,7 +99,7 @@ public class KeywordService {
     public KeywordResponseDto changeKeywordUsageToUnAvailable(Member member, Long id) {
 
         Keywords targetKeyword = keywordsRepository.findByMemberAndId(member, id)
-                .orElseThrow(() -> new CustomException(CustomExceptionStatus.NOT_FOUND_KEYWORD_UNAVAILABLE_ID, "update keyword unavailable - PATCH error", "/keyword/" + id));
+                .orElseThrow(() -> null /* new CustomException(CustomExceptionStatus.NOT_FOUND_KEYWORD_UNAVAILABLE_ID, "update keyword unavailable - PATCH error", "/keyword/" + id)*/);
 
         targetKeyword.changeAvail(false);
         Keywords changedKeyword = keywordsRepository.save(targetKeyword);
@@ -115,7 +115,7 @@ public class KeywordService {
     public KeywordResponseDto deleteKeyword(Member member, Long id) {
 
         Keywords deleteKeyword = keywordsRepository.findByMemberAndId(member, id)
-                .orElseThrow(() -> new CustomException(CustomExceptionStatus.NOT_AVAILABLE_MEMBER_TO_DELETE_KEYWORD, "delete keyword - DELETE error", "/keyword/" + id));
+                .orElseThrow(() -> null /*new CustomException(CustomExceptionStatus.NOT_AVAILABLE_MEMBER_TO_DELETE_KEYWORD, "delete keyword - DELETE error", "/keyword/" + id)*/);
 
         keywordsRepository.delete(deleteKeyword);
         return KeywordResponseDto.builder()

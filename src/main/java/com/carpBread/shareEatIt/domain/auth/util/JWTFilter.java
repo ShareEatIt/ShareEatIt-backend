@@ -6,7 +6,8 @@ import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
 import com.carpBread.shareEatIt.global.exception.CustomException;
 import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
-import com.carpBread.shareEatIt.global.exception.ErrorResponseDto;
+import com.carpBread.shareEatIt.global.exception.Domain;
+import com.carpBread.shareEatIt.global.exception.ExceptionResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -86,9 +87,12 @@ public class JWTFilter extends OncePerRequestFilter {
             // 5. 인증된 사용자 principal security context에 포함
             includeSecurityContext(member,jwtUtils.getSub(token));
 
-
         }catch (JwtException e){
-            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,e.getMessage(),request.getRequestURI());
+            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,
+                    e.getMessage(),
+                    JWTFilter.class.getName(),
+                    authorization,
+                    Domain.AUTH);
         }catch (Exception e){
             System.out.println(e.getMessage());
         }
@@ -172,12 +176,7 @@ public class JWTFilter extends OncePerRequestFilter {
     private void errorResponse(HttpServletRequest request, HttpServletResponse response, CustomExceptionStatus customExceptionStatus, String message) throws Exception{
 
 
-        ErrorResponseDto responseDto = ErrorResponseDto.builder()
-                .timestamp(LocalDateTime.now())
-                .status(customExceptionStatus.getStatus().value())
-                .message(message)
-                .path(request.getRequestURI())
-                .build();
+        ExceptionResponseDto responseDto = null;
 
         String responseJson = objectMapper.writeValueAsString(responseDto);
 

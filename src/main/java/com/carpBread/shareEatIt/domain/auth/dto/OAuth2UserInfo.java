@@ -21,7 +21,7 @@ public record OAuth2UserInfo(
     public static OAuth2UserInfo of(String registrationId, Map<String, Object> attributes){
         return switch (registrationId){
             case "kakao" -> ofKakao(attributes);
-            default -> throw new CustomException(CustomExceptionStatus.NOT_FOUND_OAUTH2_REGISTRATION_ID,"제공하지 않는 OAUTH2 서버입니다","/oauth2/authorize");
+            default -> null /*throw new CustomException(CustomExceptionStatus.NOT_FOUND_OAUTH2_REGISTRATION_ID,"제공하지 않는 OAUTH2 서버입니다","/oauth2/authorize")*/;
         };
 
     }

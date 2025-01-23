@@ -70,14 +70,14 @@ public class CreateSharingPostService {
         // post 저장
         // STORE로 설정할 경우 사용자가 STORE PROVIDER인지 점검
         if (dto.getPostType().equals("STORE") && member.getProvider()== Provider.INDIVIDUAL){
-            throw new CustomException(CustomExceptionStatus.INVALID_PROVIDER_WITH_POSTTYPE_STORE,"회원의 PROVIDER가 INDIVIDUAL일 경우 SharingPost를 STORE TYPE으로 설정하여 게시할 수 없습니다","/sharing");
+            /* throw new CustomException(CustomExceptionStatus.INVALID_PROVIDER_WITH_POSTTYPE_STORE,"회원의 PROVIDER가 INDIVIDUAL일 경우 SharingPost를 STORE TYPE으로 설정하여 게시할 수 없습니다","/sharing")*/;
         }
 
 
         // 점검 : MySQL 8.4 Reference Manual 에 정의된 메뉴얼에 따라, latitude(위도)는 [-90.0, 90.0] / longitude(경도)는 [-180.0, 180.0] 범위로 지정
         if ((dto.getLatitude()>90.0 || dto.getLatitude()<-90.0)
                 || (dto.getLongitude()>180.0 || dto.getLongitude()<-180.0)){
-            throw new CustomException(CustomExceptionStatus.VALUE_OUT_OF_RANGE,"입력한 위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.","/members");
+            /* throw new CustomException(CustomExceptionStatus.VALUE_OUT_OF_RANGE,"입력한 위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.","/members")*/;
         }
 
         // point 객체 생성
@@ -136,15 +136,10 @@ public class CreateSharingPostService {
         // 점검 : MySQL 8.4 Reference Manual 에 정의된 메뉴얼에 따라, latitude(위도)는 [-90.0, 90.0] / longitude(경도)는 [-180.0, 180.0] 범위로 지정
         if ((latitude>90.0 || latitude<-90.0)
                 || (longitude>180.0 || longitude<-180.0)){
-            throw new CustomException(CustomExceptionStatus.VALUE_OUT_OF_RANGE,"위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.","/sharing");
+            /* throw new CustomException(CustomExceptionStatus.VALUE_OUT_OF_RANGE,"위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.","/sharing")*/;
         }
 
         List<Member> memberList = memberQuerydslRepository.findMemberWithRadius(latitude,longitude, radius);
-
-        if (memberList.size()==0)
-            System.out.println("멤버 리스트 없음");
-        else
-            System.out.println(memberList.get(0));
 
         for (Member member : memberList){
 
@@ -153,11 +148,6 @@ public class CreateSharingPostService {
                 continue;
 
             List<Keywords> keywordsList = member.getKeywordsList();
-
-            if (keywordsList.size()==0)
-                System.out.println("키워드 리스트 없음");
-            else
-                System.out.println(keywordsList.get(0));
 
 
             for(Keywords keywords : keywordsList){
@@ -263,7 +253,7 @@ public class CreateSharingPostService {
                 s3Client.putObject(bucketName,key,inputStream,metadata);
             }
             catch (IOException e){
-                throw new CustomException(CustomExceptionStatus.AWS_S3_IMG_UPLOAD_CONNECTION_ERROR, "sharing post create - POST error","/sharing");
+                /* throw new CustomException(CustomExceptionStatus.AWS_S3_IMG_UPLOAD_CONNECTION_ERROR, "sharing post create - POST error","/sharing")*/;
             }
 
             imgUrlList.add(s3Client.getUrl(bucketName,key).toString());

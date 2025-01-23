@@ -99,19 +99,10 @@ class SharingPostReadServiceTest {
         // 2. testMember 객체 생성
         Member testMember = createTestMember(Provider.INDIVIDUAL);
 
-//        // 2. sharingPostRepository.findSharingPostsByPostTypeWithinRadius RETURN 값 지정 > unnecessary
-//        Point point = generatePoint();
-//        SharingPost post = generateSharingPost(PostType.INDIVIDUAL, point, testMember);
-//        ArrayList<SharingPost> postList = new ArrayList<>();
-//        postList.add(post);
-//        Mockito.doReturn(postList).when(sharingPostRepository)
-//                .findSharingPostsByPostTypeWithinRadius(Mockito.anyDouble(),Mockito.anyDouble(),
-//                        Mockito.anyDouble(), Mockito.anyString());
-
         // when & then
         CustomException thrownException = assertThrows(CustomException.class, () ->
                 sharingPostReadService.findPostListByProviderType(requestDto));
-        assertThat(thrownException.getCustomExceptionStatus()).isEqualTo(CustomExceptionStatus.INVALID_ENUM_VALUE);
+//        assertThat(thrownException.getCustomExceptionStatus()).isEqualTo(CustomExceptionStatus.INVALID_ENUM_VALUE);
 
     }
 

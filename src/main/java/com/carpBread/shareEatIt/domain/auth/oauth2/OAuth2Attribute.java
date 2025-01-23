@@ -32,7 +32,8 @@ public class OAuth2Attribute {
             case "google":
                 return ofGoogle(nameAttributeKey, attributes);
             default:
-                throw new CustomException(CustomExceptionStatus.NOT_FOUND_MEMBER, "","");
+                return null;
+//                throw new CustomException(CustomExceptionStatus.NOT_FOUND_MEMBER, "","");
         }
     }
 

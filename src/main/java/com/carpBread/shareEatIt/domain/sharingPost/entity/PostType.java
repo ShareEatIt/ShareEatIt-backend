@@ -16,6 +16,7 @@ public enum PostType {
                 return enumType;
             }
         }
-        throw new CustomException(CustomExceptionStatus.INVALID_ENUM_VALUE, "잘못된 SHARING POST TYPE ENUM 값 입니다","/sharing");
+        /* throw new CustomException(CustomExceptionStatus.INVALID_ENUM_VALUE, "잘못된 SHARING POST TYPE ENUM 값 입니다","/sharing")*/;
+        return null;
     }
 }
