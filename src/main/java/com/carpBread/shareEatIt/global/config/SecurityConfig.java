@@ -72,6 +72,7 @@ public class SecurityConfig {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
+            .addFilterBefore(new JWTFilter(jwtUtils,memberRepository,objectMapper,redisTemplate), UsernamePasswordAuthenticationFilter.class)
             // form login 활성화
             .formLogin(login -> login
                     .usernameParameter("username")
@@ -88,7 +89,6 @@ public class SecurityConfig {
                     .successHandler(oAuth2SuccessHandler)
                     .userInfoEndpoint(endpoint-> endpoint.userService(oAuth2UserService))
             )
-            .addFilterBefore(new JWTFilter(jwtUtils,memberRepository,objectMapper,redisTemplate), UsernamePasswordAuthenticationFilter.class)
             .logout(logout -> logout
                     .addLogoutHandler(oAuth2LogoutHandler)
                     .logoutUrl("/logout")

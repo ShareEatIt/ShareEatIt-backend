@@ -4,9 +4,11 @@ import com.carpBread.shareEatIt.domain.auth.LoginProvider;
 import com.carpBread.shareEatIt.domain.auth.oauth2.OAuth2Attribute;
 import com.carpBread.shareEatIt.domain.auth.oauth2.entity.OAuth2Token;
 import com.carpBread.shareEatIt.domain.auth.oauth2.repository.OAuth2TokenRepository;
+import com.carpBread.shareEatIt.domain.auth.util.JWTUtils;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.entity.Provider;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
+import com.querydsl.core.Tuple;
 import com.sun.media.jai.opimage.PatternRIF;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -32,6 +34,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
     private final MemberRepository memberRepository;
     private final OAuth2TokenRepository oAuth2TokenRepository;
+    private final JWTUtils jwtUtils;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -53,7 +56,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         Map<String, Object> attributesMap = oAuth2Attribute.convertToMap();
 
         // 4. 회원가입되지 않았을 경우 회원가입
-        Boolean isJoined = signUpIfNotExists(oAuth2Attribute,accessToken);
+        Boolean isJoined = signUpIfNotExists(oAuth2Attribute,accessToken, LoginProvider.toEnum(registrationId));
         attributesMap.put("is_new_member",isJoined);
 
         // 5. OAuth2User 구현 객체 리턴
@@ -66,16 +69,18 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     }
 
     /* 회원가입 되어있지 않는 첫 로그인 사용자일 때 회원가입 - 회원가입 여부 반환 */
-    private Boolean signUpIfNotExists(OAuth2Attribute attribute, String accessToken){
+    private Boolean signUpIfNotExists(OAuth2Attribute attribute, String accessToken, LoginProvider provider){
         // db에서 optional 객체 추출
         Optional<Member> byEmail = memberRepository.findByEmail(attribute.getEmail());
 
-        // LoginProvider 추출
-        LoginProvider provider = attribute.getProvider();
+        // refreshToken 생성
+        String refreshToken = jwtUtils.createRefreshToken(attribute.getEmail(), provider);
 
         // 회원가입 되어 있다면 false 리턴
         if (byEmail.isPresent()){
             saveAccessToken(accessToken,byEmail.get(),provider);
+            byEmail.get().updateRefreshToken(refreshToken);
+            memberRepository.save(byEmail.get());
             return false;
         }
 
@@ -85,6 +90,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
                 .nickname(attribute.getNickname())
                 .profileImgUrl(attribute.getProfileImage())
                 .provider(Provider.INDIVIDUAL)
+                .refreshToken(refreshToken)
                 .isKeywordAvail(true)
                 .isNoticeAvail(true)
                 .build();
