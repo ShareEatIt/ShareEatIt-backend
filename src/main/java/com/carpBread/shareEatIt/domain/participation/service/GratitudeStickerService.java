@@ -11,7 +11,6 @@ import com.carpBread.shareEatIt.domain.sharingPost.entity.PostStatus;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
 import com.carpBread.shareEatIt.global.exception.CustomException;
-import com.carpBread.shareEatIt.global.exception.Domain;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

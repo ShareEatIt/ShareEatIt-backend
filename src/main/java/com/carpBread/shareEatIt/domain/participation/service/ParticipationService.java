@@ -22,7 +22,6 @@ import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostReposit
 import com.carpBread.shareEatIt.domain.sharingPost.service.SharingPostService;
 import com.carpBread.shareEatIt.global.exception.CustomException;
 import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
-import com.carpBread.shareEatIt.global.exception.Domain;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
