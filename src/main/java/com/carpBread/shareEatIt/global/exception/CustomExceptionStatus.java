@@ -52,6 +52,7 @@ public enum CustomExceptionStatus {
     // auth
     LOGOUT_FAIL(HttpStatus.CONFLICT),
     UNAUTHORIZED_JWT(HttpStatus.UNAUTHORIZED),
+    INVALID_JWT(HttpStatus.BAD_REQUEST),
     LOGIN_FAIL(HttpStatus.CONFLICT),
     NOT_FOUND_OAUTH2_REGISTRATION_ID(HttpStatus.NOT_FOUND),
     INVALID_REFRESH_TOKEN(HttpStatus.FORBIDDEN),
