@@ -1,17 +1,12 @@
 package com.carpBread.shareEatIt.global.exception;
 
-import jakarta.persistence.EntityListeners;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
-import javax.swing.*;
 import java.time.LocalDateTime;
 
-
+// ExceptionHandler 내부에서만 사용하는 responseDto
 @Getter
-public class ExceptionResponseDto {
+public class CustomExceptionResponseDto {
 
     // 오류 CustomExceptionStatus 값
     private String exceptionStatus;
@@ -31,7 +26,7 @@ public class ExceptionResponseDto {
     // tag
     private String tag;
 
-    public ExceptionResponseDto(CustomException e) {
+    public CustomExceptionResponseDto(CustomException e) {
 
         this.exceptionStatus = e.getExceptionStatus().name();
         this.message = e.getMessage();

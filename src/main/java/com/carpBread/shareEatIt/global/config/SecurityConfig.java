@@ -8,6 +8,7 @@ import com.carpBread.shareEatIt.domain.auth.oauth2.service.CustomOAuth2UserServi
 import com.carpBread.shareEatIt.domain.auth.util.JWTFilter;
 import com.carpBread.shareEatIt.domain.auth.util.JWTUtils;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
+import com.carpBread.shareEatIt.global.exception.JWTCustomExceptionHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +24,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
 import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -72,7 +74,8 @@ public class SecurityConfig {
         http
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .addFilterBefore(new JWTFilter(jwtUtils,memberRepository,objectMapper,redisTemplate), UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(new JWTFilter(jwtUtils, memberRepository, redisTemplate), UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(new JWTCustomExceptionHandler(objectMapper), JWTFilter.class)
             // form login 활성화
             .formLogin(login -> login
                     .usernameParameter("username")
@@ -115,7 +118,6 @@ public class SecurityConfig {
         configuration.addAllowedOrigin("http://localhost:5173");
         configuration.addAllowedOrigin("http://localhost:6379");
         configuration.addAllowedOrigin("http://localhost:8080");
-//        configuration.addAllowedOrigin("*");
         configuration.addAllowedOrigin("https://shareeatit.netlify.app");
         configuration.addAllowedOrigin("https://api.shareeat.r-e.kr");
 //        configuration.addAllowedOrigin("http://54.180.228.54:8080");
