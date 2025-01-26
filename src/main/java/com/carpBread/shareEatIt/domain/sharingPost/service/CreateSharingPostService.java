@@ -225,13 +225,13 @@ public class CreateSharingPostService {
     }
 
     /* 나눔글 위치 response component 생성 */
-    private LocationResponseDtoComponent generateLocationResponseDto(SharingPost savedPost){
-        return LocationResponseDtoComponent.builder()
-                .addressSt(savedPost.getAddressSt())
-                .addressDetail(savedPost.getAddressDetail())
-                .latitude(savedPost.getLocationPoint().getY())
-                .longitude(savedPost.getLocationPoint().getX())
-                .build();
+    private LocationResponseDtoComponent generateLocationResponseDto(SharingPost post){
+        return new LocationResponseDtoComponent(
+                post.getAddressSt(),
+                post.getAddressDetail(),
+                post.getLocationPoint().getY(),
+                post.getLocationPoint().getX()
+        );
     }
 
     /* 나눔글 이미지 s3 버킷에 업로드 */

@@ -53,13 +53,12 @@ public class MapService {
         // response dto list component 생성
         List<MapResponseComponent> componentList = new ArrayList<>();
         for (SharingPost post : sharingPostsWithinRadius){
-            LocationResponseDtoComponent location = LocationResponseDtoComponent.builder()
-                    .latitude(post.getLocationPoint().getY())
-                    .longitude(post.getLocationPoint().getX())
-                    .addressDetail(post.getAddressDetail())
-                    .addressSt(post.getAddressSt())
-                    .build();
-
+            LocationResponseDtoComponent location = new LocationResponseDtoComponent(
+                    post.getAddressSt(),
+                    post.getAddressDetail(),
+                    post.getLocationPoint().getY(),
+                    post.getLocationPoint().getX()
+            );
 
             MapResponseComponent component = MapResponseComponent.builder()
                     .kakaoLocationCode(post.getKakaoLocationCode())

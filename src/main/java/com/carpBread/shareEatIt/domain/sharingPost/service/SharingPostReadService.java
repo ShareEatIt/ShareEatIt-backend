@@ -251,12 +251,12 @@ public class SharingPostReadService {
 
     /* 나눔글 만남 위치 locationComponent 생성 */
     private LocationResponseDtoComponent getLocationComponent(SharingPost post){
-        return LocationResponseDtoComponent.builder()
-                .addressSt(post.getAddressSt())
-                .addressDetail(post.getAddressDetail())
-                .latitude(post.getLocationPoint().getY())
-                .longitude(post.getLocationPoint().getX())
-                .build();
+        return new LocationResponseDtoComponent(
+                post.getAddressSt(),
+                post.getAddressDetail(),
+                post.getLocationPoint().getY(),
+                post.getLocationPoint().getX()
+        );
     }
 
     /* 나눔글 이미지 리스트 조회 */
