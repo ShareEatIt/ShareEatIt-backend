@@ -3,6 +3,7 @@ package com.carpBread.shareEatIt.domain.auth.util;
 import com.carpBread.shareEatIt.domain.auth.LoginProvider;
 import com.carpBread.shareEatIt.global.exception.CustomException;
 import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
+import com.carpBread.shareEatIt.global.exception.Domain;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtParser;
 import io.jsonwebtoken.Jwts;
@@ -95,19 +96,10 @@ public class JWTUtils {
 
         // payload 만들기
         Claims claims = Jwts.claims();
-
-//        // 토큰 발급자 issuer
-//        claims.put("iss", issuer);
-//        // 토큰 대상자 audience
-//        claims.put("aud", audience);
         // 토큰 대상자 식별자 subject
         claims.put("sub",sub);
         // 식별자 종류
         claims.put("provider",provider.name());
-//        // 토큰 만료 시간 expired datetime
-//        claims.put("exp", new Date(currentTime+refreshTokenExpiredTime));
-//        // 토큰 발급 시간 issued at
-//        claims.put("iat", new Date(currentTime));
         // jwt 고유 식별자(redis에서 사용) jwt identifier
         claims.put("jti", generateJti());
 
@@ -168,13 +160,16 @@ public class JWTUtils {
     }
 
     /* JWT의 유효기간 만료 여부  */
-    public boolean isExpired(String token) {
-        return Jwts.parserBuilder().setSigningKey(key)
-                .build()
-                .parseClaimsJws(token)
-                .getBody()
-                .getExpiration()
-                .before(new Date());
+    public boolean isExpired(String token) throws Exception{
+        boolean isExpiredToken;
+            isExpiredToken = Jwts.parserBuilder().setSigningKey(key)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .getExpiration()
+                    .before(new Date());
+
+        return isExpiredToken;
 
     }
 

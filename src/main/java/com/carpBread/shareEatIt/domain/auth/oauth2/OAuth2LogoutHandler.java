@@ -93,8 +93,6 @@ public class OAuth2LogoutHandler implements LogoutHandler {
                 break;
         }
 
-
-
     }
 
     /* KAKAO 로그아웃 */

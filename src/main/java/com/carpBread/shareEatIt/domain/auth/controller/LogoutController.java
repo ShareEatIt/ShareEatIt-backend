@@ -68,7 +68,6 @@ public class LogoutController {
 
         System.out.println(newAccessToken);
         System.out.println(newRefreshToken);
-        System.out.println("LogoutController.refreshAccessToken");
 
         RefreshTokenResponseDto refreshTokenResponseDto = RefreshTokenResponseDto.builder()
                 .accessToken(newAccessToken)
