@@ -3,7 +3,7 @@ package com.carpBread.shareEatIt.domain.sharingPost.service;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.carpBread.shareEatIt.domain.member.dto.response.LocationResponseDtoComponent;
-import com.carpBread.shareEatIt.domain.member.dto.MemberAsWriterSimpleDtoComponent;
+import com.carpBread.shareEatIt.domain.member.dto.response.MemberAsWriterSimpleDtoComponent;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.entity.Provider;
 import com.carpBread.shareEatIt.domain.participation.entity.GratitudeSticker;
@@ -16,8 +16,6 @@ import com.carpBread.shareEatIt.domain.sharingPost.dto.*;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.*;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.PostImgUrlRepository;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
-import com.carpBread.shareEatIt.global.exception.CustomException;
-import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Coordinate;
@@ -190,12 +188,12 @@ public class SharingPostService {
     /* 나눔글 작성자 simple writer component 생성 */
     @Transactional(value = Transactional.TxType.REQUIRES_NEW)
     private MemberAsWriterSimpleDtoComponent getSimpleWriterComponent(Member writer){
-        return MemberAsWriterSimpleDtoComponent.builder()
-                .id(writer.getId())
-                .img(writer.getProfileImgUrl())
-                .nickname(writer.getNickname())
-                .sharingTotal(sharingPostRepository.countByWriter(writer))
-                .build();
+        return new MemberAsWriterSimpleDtoComponent(
+                writer.getId(),
+                writer.getProfileImgUrl(),
+                writer.getNickname(),
+                sharingPostRepository.countByWriter(writer)
+        );
     }
 
     /* 나눔글의 평가 스티커 조회 */
@@ -213,12 +211,12 @@ public class SharingPostService {
 
     /* 나눔글 만남 위치 locationComponent 생성 */
     private LocationResponseDtoComponent getLocationComponent(SharingPost post){
-        return LocationResponseDtoComponent.builder()
-                .addressSt(post.getAddressSt())
-                .addressDetail(post.getAddressDetail())
-                .latitude(post.getLocationPoint().getY())
-                .longitude(post.getLocationPoint().getX())
-                .build();
+        return new LocationResponseDtoComponent(
+                post.getAddressSt(),
+                post.getAddressDetail(),
+                post.getLocationPoint().getY(),
+                post.getLocationPoint().getX()
+        );
     }
 
     /* 나눔글 조회 사용자 구분 - 작성자/참여자/제 3자 */

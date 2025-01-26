@@ -6,8 +6,7 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-@Getter @Builder
-@AllArgsConstructor
+@Getter
 public class MemberProfileResponseDto {
     private Long id;
     private String profileImg;
@@ -18,4 +17,18 @@ public class MemberProfileResponseDto {
     private LocalDateTime joinedAt;
     private LocalDateTime recentModifiedAt;
 
+    public MemberProfileResponseDto(Long id, String profileImg,
+                                    String nickname, String email,
+                                    LocationResponseDtoComponent location,
+                                    String provider, LocalDateTime joinedAt,
+                                    LocalDateTime recentModifiedAt) {
+        this.id = id;
+        this.profileImg = profileImg;
+        this.nickname = nickname;
+        this.email = email;
+        this.location = location;
+        this.provider = provider;
+        this.joinedAt = joinedAt;
+        this.recentModifiedAt = recentModifiedAt;
+    }
 }
