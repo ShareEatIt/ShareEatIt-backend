@@ -1,7 +1,7 @@
 package com.carpBread.shareEatIt.domain.sharingPost.service;
 
 
-import com.carpBread.shareEatIt.domain.member.dto.MemberAsWriterSimpleDtoComponent;
+import com.carpBread.shareEatIt.domain.member.dto.response.MemberAsWriterSimpleDtoComponent;
 import com.carpBread.shareEatIt.domain.member.dto.response.LocationResponseDtoComponent;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.participation.entity.GratitudeSticker;
@@ -19,8 +19,6 @@ import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.PostImgUrlRepository;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostQuerydslRepository;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
-import com.carpBread.shareEatIt.global.exception.CustomException;
-import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -116,12 +114,12 @@ public class SharingPostReadService {
     /* 나눔글 작성자 simple writer component 생성 */
     @Transactional(value = Transactional.TxType.REQUIRES_NEW)
     private MemberAsWriterSimpleDtoComponent getSimpleWriterComponent(Member writer){
-        return MemberAsWriterSimpleDtoComponent.builder()
-                .id(writer.getId())
-                .img(writer.getProfileImgUrl())
-                .nickname(writer.getNickname())
-                .sharingTotal(sharingPostRepository.countByWriter(writer))
-                .build();
+        return new MemberAsWriterSimpleDtoComponent(
+                writer.getId(),
+                writer.getProfileImgUrl(),
+                writer.getNickname(),
+                sharingPostRepository.countByWriter(writer)
+        );
     }
 
     /* 나눔글의 평가 스티커 조회 */

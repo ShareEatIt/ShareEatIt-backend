@@ -17,7 +17,6 @@ import java.util.List;
 
 @Entity
 @Table(name = "MEMBER")
-@AllArgsConstructor
 @NoArgsConstructor
 @SuperBuilder
 @Getter

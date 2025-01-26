@@ -5,10 +5,15 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 
-@AllArgsConstructor
-@Builder @Getter
+@Getter
 public class MemberSharingStatusResponseDto {
 
     private MemberCompletedProfileResponseComponent writer;
     private MemberSharingStatusResponseComponent statusByCategory;
+
+    public MemberSharingStatusResponseDto(MemberCompletedProfileResponseComponent writer,
+                                          MemberSharingStatusResponseComponent statusByCategory) {
+        this.writer = writer;
+        this.statusByCategory = statusByCategory;
+    }
 }

@@ -1,7 +1,7 @@
 package com.carpBread.shareEatIt.domain.sharingPost.dto;
 
 import com.carpBread.shareEatIt.domain.member.dto.response.LocationResponseDtoComponent;
-import com.carpBread.shareEatIt.domain.member.dto.MemberAsWriterSimpleDtoComponent;
+import com.carpBread.shareEatIt.domain.member.dto.response.MemberAsWriterSimpleDtoComponent;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
