@@ -1,37 +1,30 @@
-package com.carpBread.shareEatIt.domain.auth.util;
+package com.carpBread.shareEatIt.global.jwt;
 
 import com.carpBread.shareEatIt.domain.auth.LoginProvider;
-import com.carpBread.shareEatIt.domain.auth.dto.AuthenticationPrincipal;
+import com.carpBread.shareEatIt.domain.auth.annotation.AuthenticationPrincipal;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
 import com.carpBread.shareEatIt.global.exception.CustomException;
 import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
 import com.carpBread.shareEatIt.global.exception.Domain;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import lombok.AllArgsConstructor;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.web.access.AccessDeniedHandler;
-import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.Collections;
 import java.util.Set;
 
 @Slf4j
 @RequiredArgsConstructor
-//@Component
 public class JWTFilter extends OncePerRequestFilter {
 
     private final JWTUtils jwtUtils;
@@ -56,7 +49,7 @@ public class JWTFilter extends OncePerRequestFilter {
             throw new CustomException(CustomExceptionStatus.INVALID_JWT,
                     "HTTP header의 Authorization 필드에 토큰이 존재하지 않습니다.",
                     JWTFilter.class.getName(),
-                    authorization,
+                    null,
                     Domain.AUTH);
         }
 
@@ -69,7 +62,7 @@ public class JWTFilter extends OncePerRequestFilter {
             throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,
                     "Access Token의 유효 기간이 만료되었습니다. 다시 로그인해주십시오.",
                     JWTFilter.class.getName(),
-                    token,
+                    null,
                     Domain.AUTH);
         }
 
@@ -78,7 +71,7 @@ public class JWTFilter extends OncePerRequestFilter {
             throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,
                     "로그아웃된 Access Token입니다. 다시 로그인해주십시오.",
                     JWTFilter.class.getName(),
-                    authorization,
+                    null,
                     Domain.AUTH);
 
         }
@@ -92,7 +85,7 @@ public class JWTFilter extends OncePerRequestFilter {
             throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,
                     "Access Token의 sub에 매칭되는 회원 정보가 존재하지 않습니다. 다시 로그인해주십시오.",
                     JWTFilter.class.getName(),
-                    authorization,
+                    null,
                     Domain.AUTH);
 
         }

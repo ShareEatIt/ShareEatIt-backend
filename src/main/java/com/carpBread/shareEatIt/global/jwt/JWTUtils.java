@@ -1,4 +1,4 @@
-package com.carpBread.shareEatIt.domain.auth.util;
+package com.carpBread.shareEatIt.global.jwt;
 
 import com.carpBread.shareEatIt.domain.auth.LoginProvider;
 import com.carpBread.shareEatIt.global.exception.CustomException;
@@ -123,9 +123,12 @@ public class JWTUtils {
 
             return type;
         }catch (Exception e){
-//            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,"유효하지 않은 JWT입니다","/login/oauth2/code/kakao");
+            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,
+                    "유효하지 않은 JWT입니다",
+                    JWTUtils.class.getName(),
+                    null,
+                    Domain.AUTH);
         }
-        return null;
     }
 
     /* 사용자 고유 SUB 추출 */
@@ -140,9 +143,12 @@ public class JWTUtils {
 
             return sub;
         }catch (Exception e){
-//            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,"유효하지 않은 JWT입니다","/login/oauth2/code/kakao");
+            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,
+                    "유효하지 않은 JWT입니다",
+                    JWTUtils.class.getName(),
+                    null,
+                    Domain.AUTH);
         }
-        return null;
     }
 
     /* JWT의 JTI 추출 */

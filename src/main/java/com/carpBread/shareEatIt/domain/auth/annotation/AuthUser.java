@@ -1,4 +1,4 @@
-package com.carpBread.shareEatIt.domain.auth;
+package com.carpBread.shareEatIt.domain.auth.annotation;
 
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 

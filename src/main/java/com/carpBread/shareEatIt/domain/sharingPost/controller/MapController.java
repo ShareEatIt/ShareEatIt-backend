@@ -1,18 +1,12 @@
 package com.carpBread.shareEatIt.domain.sharingPost.controller;
 
-import com.carpBread.shareEatIt.domain.auth.AuthUser;
+import com.carpBread.shareEatIt.domain.auth.annotation.AuthUser;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
-import com.carpBread.shareEatIt.domain.sharingPost.dto.SharingPostResponseDto;
 import com.carpBread.shareEatIt.domain.sharingPost.dto.map.MapListResponseDto;
 import com.carpBread.shareEatIt.domain.sharingPost.dto.map.MapRequestDto;
 import com.carpBread.shareEatIt.domain.sharingPost.service.MapService;
-import com.carpBread.shareEatIt.domain.sharingPost.service.SharingPostService;
 import com.carpBread.shareEatIt.global.response.ApiResponse;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
