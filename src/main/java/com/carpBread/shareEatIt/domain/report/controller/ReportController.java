@@ -11,7 +11,6 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -23,12 +22,12 @@ public class ReportController {
     private final ReportService reportService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<ReportCreateResponseDto>> createNewReport(@AuthUser Member member,
+    public ApiResponse<ReportCreateResponseDto> createNewReport(@AuthUser Member member,
                                                                                 @RequestPart(name = "imgFile") @NotNull MultipartFile imgFile,
                                                                                 @RequestPart(name = "dto") @Valid ReportCreateRequestDto dto){
         ReportCreateResponseDto responseDto = reportService.createNewReport(member, imgFile,dto);
         ApiResponse<ReportCreateResponseDto> response = new ApiResponse<>(HttpStatus.CREATED.value(),"나눔글 신고 생성 성공", responseDto);
 
-        return ResponseEntity.ok().body(response);
+        return response;
     }
 }

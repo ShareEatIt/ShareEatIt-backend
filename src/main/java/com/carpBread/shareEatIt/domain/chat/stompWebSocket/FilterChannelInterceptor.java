@@ -61,7 +61,7 @@ public class FilterChannelInterceptor implements ChannelInterceptor {
                 checkToken(authorization);
 
             } catch (Exception e) {
-                log.error("토큰 인증 실패 (Authentication failed): {}", e.getMessage());
+                log.info("토큰 인증 실패 (Authentication failed): {}", e.getMessage());
                 // 에러 응답을 보내고 연결을 종료
                 headerAccessor.setLeaveMutable(true);  // 헤더를 수정 가능하게 설정
                 headerAccessor.setMessage("토큰 인증 실패" + e.getMessage());
@@ -88,7 +88,7 @@ public class FilterChannelInterceptor implements ChannelInterceptor {
         try {
             // 1. 토큰 유무 확인
             if (authorization == null || !authorization.startsWith("Bearer ")) {
-                log.error("토큰이 존재하지 않습니다");
+                log.info("토큰이 존재하지 않습니다");
                 throw new JwtException("토큰이 존재하지 않습니다.");
             }
 
@@ -96,7 +96,7 @@ public class FilterChannelInterceptor implements ChannelInterceptor {
 
             // 2. 토큰 기한 만료 여부 확인
             if (jwtUtils.isExpired(token)) {
-                log.error("토큰 기한이 만료되었습니다.");
+                log.info("토큰 기한이 만료되었습니다.");
                 throw new JwtException("토큰 기한이 만료되었습니다.");
 
             }
@@ -109,7 +109,7 @@ public class FilterChannelInterceptor implements ChannelInterceptor {
 
             // 해당 jti가 redis에 저장되어 있는 경우 로그아웃된 토큰이라고 파악
             if (!keys.isEmpty()){
-                log.error("로그아웃된 토큰입니다. 다시 로그인해주세요.");
+                log.info("로그아웃된 토큰입니다. 다시 로그인해주세요.");
 
                 throw new JwtException("로그아웃된 토큰입니다. 다시 로그인해주세요.");
             }

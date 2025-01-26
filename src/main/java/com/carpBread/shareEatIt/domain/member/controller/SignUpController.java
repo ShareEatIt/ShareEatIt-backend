@@ -7,7 +7,6 @@ import com.carpBread.shareEatIt.global.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -22,7 +21,7 @@ public class SignUpController {
     private final SignUpService signUpService;
 
     @PostMapping
-    public ResponseEntity<ApiResponse<SignUpResponseDto>> signUp(@Valid @RequestBody SignUpRequestDto dto){
+    public ApiResponse<SignUpResponseDto> signUp(@Valid @RequestBody SignUpRequestDto dto){
         SignUpResponseDto responseDto = signUpService.registerNewMember(dto);
 
         ApiResponse<SignUpResponseDto> response = new ApiResponse<>(
@@ -30,7 +29,7 @@ public class SignUpController {
                 "회원가입이 성공적으로 완료되었습니다.",
                 responseDto
         );
-        return ResponseEntity.ok().body(response);
+        return response;
 
     }
 }

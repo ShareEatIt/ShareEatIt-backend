@@ -32,7 +32,7 @@ public class MemberController {
     }
 
     @GetMapping
-    public ResponseEntity<ApiResponse<MemberProfileResponseDto>> memberProfile(@AuthUser Member member){
+    public ApiResponse<MemberProfileResponseDto> memberProfile(@AuthUser Member member){
         Point point=member.getLocationPoint();
 
         MemberProfileResponseDto responseDto = MemberProfileResponseDto.builder()
@@ -54,34 +54,34 @@ public class MemberController {
         ApiResponse response = new ApiResponse<>(HttpStatus.OK.value(),
                 "회원 수정페이지 정보 조회 성공",
                 responseDto);
-        return ResponseEntity.ok().body(response);
+        return response;
 
     }
 
     @GetMapping("/stickers")
-    public ResponseEntity<ApiResponse> memberStickers(@AuthUser Member member){
+    public ApiResponse memberStickers(@AuthUser Member member){
         MemberStickerResponseDto responseDto = memberService.findStickers(member);
 
         ApiResponse response = new ApiResponse<>(HttpStatus.OK.value(),
                 "회원 설정페이지 정보 조회 성공",
                 responseDto);
 
-        return ResponseEntity.ok().body(response);
+        return response;
     }
 
     @GetMapping("/sharing/category")
-    public ResponseEntity<ApiResponse<MemberSharingStatusResponseDto>> getMemberSharingStatus(@AuthUser Member member){
+    public ApiResponse<MemberSharingStatusResponseDto> getMemberSharingStatus(@AuthUser Member member){
         MemberSharingStatusResponseDto responseDto = memberService.findMemberSharingStatus(member);
 
         ApiResponse response = new ApiResponse(HttpStatus.OK.value(),"회원 나눔 현황 조회 성공", responseDto);
 
-        return ResponseEntity.ok().body(response);
+        return response;
     }
 
 
     /* 회원 정보 수정 - PUT */
     @PutMapping
-    public ResponseEntity<ApiResponse> updateMemberProfile(@AuthUser Member member,
+    public ApiResponse updateMemberProfile(@AuthUser Member member,
                                                            @RequestPart(name = "imgFile",required = false) MultipartFile imgFile,
                                                            @Valid @RequestPart(name = "dto") MemberProfileUpdateRequestDto dto){
 
@@ -91,11 +91,11 @@ public class MemberController {
                 "회원 정보 수정 성공",
                 responseDto);
 
-        return ResponseEntity.ok().body(response);
+        return response;
     }
 
     @PatchMapping("/avail/keyword")
-    public ResponseEntity<ApiResponse<AvailResponseDto>> updateMemberAvailKeyword(@AuthUser Member member,
+    public ApiResponse<AvailResponseDto> updateMemberAvailKeyword(@AuthUser Member member,
                                                                                   @RequestParam(name = "keyword")Boolean keyword){
 
         AvailResponseDto responseDto = memberService.updateAvailKeyword(member, keyword);
@@ -103,41 +103,41 @@ public class MemberController {
                 "회원 keyword avail 수정",
                 responseDto);
 
-        return ResponseEntity.ok().body(response);
+        return response;
     }
 
     @PatchMapping("/avail/notice")
-    public ResponseEntity<ApiResponse<AvailResponseDto>> updateMemberAvail(@AuthUser Member member,
+    public ApiResponse<AvailResponseDto> updateMemberAvail(@AuthUser Member member,
                                                                             @RequestParam(name = "notice") Boolean notice){
         AvailResponseDto responseDto = memberService.updateAvailNotice(member, notice);
         ApiResponse<AvailResponseDto> response = new ApiResponse<>(HttpStatus.OK.value(),
                 "회원 notice avail 수정",
                 responseDto);
 
-        return ResponseEntity.ok().body(response);
+        return response;
     }
 
     @DeleteMapping
-    public ResponseEntity<ApiResponse> memberWithdrawal(@AuthUser Member member){
+    public ApiResponse memberWithdrawal(@AuthUser Member member){
         MemberWithdrawalResponseDto responseDto = memberService.withdrawal(member);
 
         ApiResponse response = new ApiResponse<>(HttpStatus.OK.value(),
                 "회원 탈퇴 성공",
                 responseDto);
 
-        return ResponseEntity.ok().body(response);
+        return response;
     }
 
 
     /* 채팅 - 상대 프로필 조회 */
     @GetMapping("/{opponentId}")
-    public ResponseEntity<ApiResponse<OpponentInfoResponseDto>> getOpponentInfo(@AuthUser Member member,
+    public ApiResponse<OpponentInfoResponseDto> getOpponentInfo(@AuthUser Member member,
                                                                                 @PathVariable(name = "opponentId") Long opponentId){
         OpponentInfoResponseDto responseDto = memberService.findOpponentInfo(opponentId);
         ApiResponse response = new ApiResponse<>(HttpStatus.OK.value(),
                 "채팅 - 상대 프로필 조회 성공",
                 responseDto);
 
-        return ResponseEntity.ok().body(response);
+        return response;
     }
 }
