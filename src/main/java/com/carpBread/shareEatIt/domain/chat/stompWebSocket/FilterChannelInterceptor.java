@@ -1,11 +1,10 @@
 package com.carpBread.shareEatIt.domain.chat.stompWebSocket;
 
 import com.carpBread.shareEatIt.domain.auth.LoginProvider;
-import com.carpBread.shareEatIt.domain.auth.dto.AuthenticationPrincipal;
-import com.carpBread.shareEatIt.domain.auth.util.JWTUtils;
+import com.carpBread.shareEatIt.domain.auth.annotation.AuthenticationPrincipal;
+import com.carpBread.shareEatIt.global.jwt.JWTUtils;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
-import com.carpBread.shareEatIt.global.exception.CustomException;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,8 +26,6 @@ import org.springframework.stereotype.Component;
 import java.util.Collections;
 import java.util.Objects;
 import java.util.Set;
-
-import static com.carpBread.shareEatIt.global.exception.CustomExceptionStatus.UNAUTHORIZED_JWT;
 
 @Slf4j
 @Component

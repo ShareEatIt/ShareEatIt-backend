@@ -1,8 +1,9 @@
-package com.carpBread.shareEatIt.domain.auth.oauth2;
+package com.carpBread.shareEatIt.domain.auth.oauth2.dto;
 
 import com.carpBread.shareEatIt.domain.auth.LoginProvider;
 import com.carpBread.shareEatIt.global.exception.CustomException;
 import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
+import com.carpBread.shareEatIt.global.exception.Domain;
 import lombok.AccessLevel;
 import lombok.Builder;
 import lombok.Getter;
@@ -32,8 +33,12 @@ public class OAuth2Attribute {
             case "google":
                 return ofGoogle(nameAttributeKey, attributes);
             default:
-                return null;
-//                throw new CustomException(CustomExceptionStatus.NOT_FOUND_MEMBER, "","");
+                throw new CustomException(
+                        CustomExceptionStatus.NOT_FOUND_OAUTH2_REGISTRATION_ID,
+                        "제공하지 않는 소셜 로그인입니다.",
+                        OAuth2Attribute.class.getName(),
+                        provider,
+                        Domain.AUTH);
         }
     }
 

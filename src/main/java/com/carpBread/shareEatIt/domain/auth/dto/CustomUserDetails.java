@@ -10,10 +10,13 @@ import org.springframework.stereotype.Component;
 import java.util.Collection;
 
 @Getter
-@AllArgsConstructor
 public class CustomUserDetails implements UserDetails {
 
     private Member member;
+
+    public CustomUserDetails(Member member) {
+        this.member = member;
+    }
 
     // 특정기간 이상 활동하지 않은 회원의 계정이 만료되지 않았는지 여부
     @Override
@@ -58,5 +61,4 @@ public class CustomUserDetails implements UserDetails {
         return member.getUsername();
     }
 
-    // social provider
 }

@@ -1,11 +1,10 @@
 package com.carpBread.shareEatIt.domain.report.controller;
 
-import com.carpBread.shareEatIt.domain.auth.AuthUser;
+import com.carpBread.shareEatIt.domain.auth.annotation.AuthUser;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.report.dto.ReportCreateRequestDto;
 import com.carpBread.shareEatIt.domain.report.dto.ReportCreateResponseDto;
 import com.carpBread.shareEatIt.domain.report.service.ReportService;
-import com.carpBread.shareEatIt.domain.sharingPost.dto.SharingPostCreateResponseDto;
 import com.carpBread.shareEatIt.global.response.ApiResponse;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;

@@ -1,6 +1,6 @@
 package com.carpBread.shareEatIt.domain.member.controller;
 
-import com.carpBread.shareEatIt.domain.auth.AuthUser;
+import com.carpBread.shareEatIt.domain.auth.annotation.AuthUser;
 import com.carpBread.shareEatIt.domain.member.dto.keyword.KeywordAvailableListResponseDto;
 import com.carpBread.shareEatIt.domain.member.dto.keyword.KeywordCreateRequestDto;
 import com.carpBread.shareEatIt.domain.member.dto.keyword.KeywordResponseDto;
@@ -8,13 +8,10 @@ import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.service.KeywordService;
 import com.carpBread.shareEatIt.global.response.ApiResponse;
 import jakarta.validation.Valid;
-import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-
-import javax.print.attribute.standard.MediaSize;
 
 @RestController
 @RequestMapping("/keyword")

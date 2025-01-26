@@ -1,6 +1,6 @@
 package com.carpBread.shareEatIt.config;
 
-import com.carpBread.shareEatIt.domain.auth.dto.AuthenticationPrincipal;
+import com.carpBread.shareEatIt.domain.auth.annotation.AuthenticationPrincipal;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.entity.Provider;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;

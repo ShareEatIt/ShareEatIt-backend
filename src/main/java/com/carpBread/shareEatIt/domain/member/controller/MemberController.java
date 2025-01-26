@@ -1,13 +1,10 @@
 package com.carpBread.shareEatIt.domain.member.controller;
 
-import com.carpBread.shareEatIt.domain.auth.AuthUser;
+import com.carpBread.shareEatIt.domain.auth.annotation.AuthUser;
 import com.carpBread.shareEatIt.domain.member.dto.request.MemberProfileUpdateRequestDto;
 import com.carpBread.shareEatIt.domain.member.dto.response.*;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.service.MemberService;
-import com.carpBread.shareEatIt.global.exception.CustomException;
-import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
-import com.carpBread.shareEatIt.global.exception.Domain;
 import com.carpBread.shareEatIt.global.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
