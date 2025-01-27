@@ -8,6 +8,7 @@ import com.carpBread.shareEatIt.domain.notice.entity.Notice;
 import com.carpBread.shareEatIt.domain.notice.repository.NoticeRepository;
 import com.carpBread.shareEatIt.global.exception.CustomException;
 import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
+import com.carpBread.shareEatIt.global.exception.Domain;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -49,14 +50,30 @@ public class NoticeService {
                 .build();
 
     }
+
+    /* 알림을 id로 조회 */
     public NoticeResponseDto findNoticeById(Member member, Long id) {
         Notice notice = noticeRepository.findById(id)
-                .orElseThrow(() -> null /*new CustomException(CustomExceptionStatus.NOT_FOUND_NOTICE, "ID=" + id + "에 해당하는 알림을 찾을 수 없습니다","/notice/"+id)*/);
-
+                .orElseThrow(() -> new CustomException(
+                        CustomExceptionStatus.NOT_FOUND_NOTICE,
+                        "ID에 해당하는 알림을 찾을 수 없습니다",
+                        this.getClass().getSimpleName(),
+                        id,
+                        Domain.NOTICE
+                )
+        );
         if (notice.getMember().getId() != member.getId())
-//            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_USER,"해당 알람을 확인할 수 없는 사용자입니다","/notice/"+id);
+            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_USER,
+                    "조회하려는 회원의 ID와 알람 대상의 ID가 일치하지 않아 알람을 확인할 수 없습니다",
+                    this.getClass().getSimpleName(),
+                    notice.getMember().getId(),
+                    Domain.NOTICE);
         if (notice.getIsRead())
-//            throw new CustomException(CustomExceptionStatus.ALREADY_READ,"이미 읽은 알림입니다","/notice/"+id);
+            throw new CustomException(CustomExceptionStatus.ALREADY_READ,
+                    "이미 읽은 알림입니다",
+                    this.getClass().getSimpleName(),
+                    notice.getIsRead(),
+                    Domain.NOTICE);
 
         notice.changeIsRead(true);
         noticeRepository.save(notice);
