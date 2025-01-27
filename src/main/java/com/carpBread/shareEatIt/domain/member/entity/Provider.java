@@ -17,7 +17,7 @@ public enum Provider {
                 return provider;
         }
         throw new CustomException(
-                CustomExceptionStatus.INVALID_ENUM_VALUE_PROVIDER,
+                CustomExceptionStatus.INVALID_ENUM_VALUE,
                 "존재하지 않는 Provider 값입니다",
                 Provider.class.getName(),
                 value,
