@@ -18,7 +18,7 @@ public class CustomExceptionResponseDto {
     private String filePath;
 
     // 문제가 되는 오류 REQUEST
-    private String request;
+    private String causation;
 
     // 오류 발생 시점
     private LocalDateTime timestamp;
@@ -32,7 +32,7 @@ public class CustomExceptionResponseDto {
         this.message = e.getMessage();
         this.filePath = e.getFilePath();
         this.timestamp=e.getTimestamp();
-        this.request = String.valueOf(e.getRequest());
+        this.causation = String.valueOf(e.getCausation());
         this.tag = e.getTag().name();
     }
 }

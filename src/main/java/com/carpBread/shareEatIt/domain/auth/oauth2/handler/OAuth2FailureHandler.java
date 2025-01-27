@@ -43,7 +43,7 @@ public class OAuth2FailureHandler extends SimpleUrlAuthenticationFailureHandler 
             scope.setContexts("exception_status", responseDto.getExceptionStatus());
             scope.setContexts("message",responseDto.getMessage());
             scope.setContexts("timestamp", responseDto.getTimestamp());
-            scope.setContexts("request", responseDto.getRequest());
+            scope.setContexts("causation", responseDto.getCausation());
             scope.setTag("tag", responseDto.getTag());
         });
 
