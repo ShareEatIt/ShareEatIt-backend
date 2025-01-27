@@ -6,8 +6,7 @@ import lombok.*;
 import java.time.LocalDateTime;
 
 
-@Builder @Getter
-@AllArgsConstructor(access = AccessLevel.PRIVATE)
+@Getter
 public class SharingPostSimpleResponseComponent {
 
     private Long id;
@@ -20,19 +19,18 @@ public class SharingPostSimpleResponseComponent {
     private String ago;
     private String img;
 
-    public static SharingPostSimpleResponseComponent of(SharingPost post, int dDay, String ago, String firstImgUrl){
-        return SharingPostSimpleResponseComponent.builder()
-                .id(post.getId())
-                .createdAt(post.getCreatedAt())
-                .title(post.getTitle())
-                .endAt(post.getEndAt())
-                .nickname(post.getWriter().getNickname())
-                .category(post.getCategory().name())
-                .dDay(dDay)
-                .ago(ago)
-                .img(firstImgUrl)
-                .build();
-
+    public SharingPostSimpleResponseComponent(Long id, LocalDateTime createdAt,
+                                              String title, LocalDateTime endAt,
+                                              String nickname, String category,
+                                              Integer dDay, String ago, String img) {
+        this.id = id;
+        this.createdAt = createdAt;
+        this.title = title;
+        this.endAt = endAt;
+        this.nickname = nickname;
+        this.category = category;
+        this.dDay = dDay;
+        this.ago = ago;
+        this.img = img;
     }
-
 }

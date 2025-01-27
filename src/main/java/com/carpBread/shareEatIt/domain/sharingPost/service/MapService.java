@@ -8,6 +8,7 @@ import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostQuerydslRepository;
 import com.carpBread.shareEatIt.global.exception.CustomException;
 import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
+import com.carpBread.shareEatIt.global.exception.Domain;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -33,7 +34,13 @@ public class MapService {
         // 점검 : MySQL 8.4 Reference Manual 에 정의된 메뉴얼에 따라, latitude(위도)는 [-90.0, 90.0] / longitude(경도)는 [-180.0, 180.0] 범위로 지정
         if ((dto.getLatitude()>90.0 || dto.getLatitude()<-90.0)
                 || (dto.getLongitude()>180.0 || dto.getLongitude()<-180.0)){
-            /* throw new CustomException(CustomExceptionStatus.VALUE_OUT_OF_RANGE,"입력한 위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.","/map/list")*/;
+            new CustomException(
+                    CustomExceptionStatus.VALUE_OUT_OF_RANGE,
+                    "입력한 위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.",
+                    this.getClass().getSimpleName(),
+                    "latitude : "+dto.getLatitude()+" longitude : "+dto.getLongitude(),
+                    Domain.SHARING_POST
+            );
         }
 
         // 나눔글 리스트 조회
