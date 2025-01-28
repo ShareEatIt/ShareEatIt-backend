@@ -2,8 +2,10 @@ package com.carpBread.shareEatIt.domain.auth;
 
 import com.carpBread.shareEatIt.global.exception.CustomException;
 import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
+import com.carpBread.shareEatIt.global.exception.Domain;
 import lombok.Getter;
 
+/* 로그인 유형 - 자체 로그인, 소셜 oauth2 로그인 (카카오, 네이버, 구글) */
 @Getter
 public enum LoginProvider {
     LOCAL("local"), KAKAO("kakao"), NAVER("naver"), GOOGLE("google");
@@ -19,8 +21,12 @@ public enum LoginProvider {
                 return type;
             }
         }
-//        throw new CustomException(CustomExceptionStatus.INVALID_LOGIN_TYPE, "찾을 수 없는 login provider입니다","/signup");
-        return null;
+        throw new CustomException(
+                CustomExceptionStatus.INVALID_LOGIN_TYPE,
+                "서버에서 제공하지 않는 로그인 경로(Login provider)입니다.",
+                LoginProvider.class.getName(),
+                name,
+                Domain.AUTH);
     }
 
 }

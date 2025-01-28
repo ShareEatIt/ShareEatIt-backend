@@ -131,14 +131,17 @@ class MemberControllerTest {
 
 
         // responseDto 설정
-        MemberProfileResponseDto responseDto = MemberProfileResponseDto.builder()
-                        .id(1L).profileImg("testimgurl")
-                        .nickname("test22").email("test@gmail.com")
-                        .location(
-                                LocationResponseDtoComponent.builder().build()
-                        ).provider("STORE")
-                        .joinedAt(LocalDateTime.now()).recentModifiedAt(LocalDateTime.now())
-                        .build();
+        MemberProfileResponseDto responseDto =
+                new MemberProfileResponseDto(
+                        1L,
+                        "testimgurl",
+                        "test22",
+                        "test@gmail.com",
+                        new LocationResponseDtoComponent("addressSt", "addressDetail", 10.00, 10.00),
+                        "STORE",
+                        LocalDateTime.now(),
+                        LocalDateTime.now()
+                );
 
         // memberService updateProfile mock stub 결과 지정
         Mockito.when(memberService.updateProfile(Mockito.any(),Mockito.any(),Mockito.any()))

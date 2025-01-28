@@ -1,14 +1,15 @@
 package com.carpBread.shareEatIt.global.config;
 
+import com.carpBread.shareEatIt.domain.auth.handler.CustomAuthenticationFailureHandler;
 import com.carpBread.shareEatIt.domain.auth.handler.CustomAuthenticationSuccessHandler;
-import com.carpBread.shareEatIt.domain.auth.oauth2.OAuth2LogoutHandler;
+import com.carpBread.shareEatIt.domain.auth.oauth2.handler.OAuth2FailureHandler;
+import com.carpBread.shareEatIt.domain.auth.oauth2.handler.OAuth2LogoutHandler;
 import com.carpBread.shareEatIt.domain.auth.oauth2.handler.OAuth2SuccessHandler;
-import com.carpBread.shareEatIt.domain.auth.oauth2.repository.OAuth2TokenRepository;
 import com.carpBread.shareEatIt.domain.auth.oauth2.service.CustomOAuth2UserService;
-import com.carpBread.shareEatIt.domain.auth.util.JWTFilter;
-import com.carpBread.shareEatIt.domain.auth.util.JWTUtils;
+import com.carpBread.shareEatIt.global.jwt.JWTFilter;
+import com.carpBread.shareEatIt.global.jwt.JWTUtils;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
-import com.carpBread.shareEatIt.global.exception.JWTCustomExceptionHandler;
+import com.carpBread.shareEatIt.global.jwt.JWTCustomExceptionHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -21,15 +22,11 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
-import org.springframework.security.oauth2.client.web.HttpSessionOAuth2AuthorizationRequestRepository;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.access.ExceptionTranslationFilter;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Arrays;
 
@@ -44,20 +41,24 @@ public class SecurityConfig {
 
     // repository
     private final MemberRepository memberRepository;
-    private final OAuth2TokenRepository oAuth2TokenRepository;
 
     // http connection
     private final ObjectMapper objectMapper;
-    private final WebClient webClient;
 
     // redis
     private final RedisTemplate<String , Object> redisTemplate;
 
     // handler
+
+    // oauth2
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
-    private final CustomAuthenticationSuccessHandler authenticationSuccessHandler;
+    private final OAuth2FailureHandler oAuth2FailureHandler;
     private final CustomOAuth2UserService oAuth2UserService;
     private final OAuth2LogoutHandler oAuth2LogoutHandler;
+
+    // local login
+    private final CustomAuthenticationSuccessHandler authenticationSuccessHandler;
+    private final CustomAuthenticationFailureHandler authenticationFailureHandler;
 
     // 인증이 필요없는 URL 패턴 목록을 정의
     private static final String[] AUTH_WHITELIST = {
@@ -69,6 +70,7 @@ public class SecurityConfig {
             "/signup"
     };
 
+    /* security filter chain 설정 */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http
@@ -81,6 +83,7 @@ public class SecurityConfig {
                     .usernameParameter("username")
                     .passwordParameter("password")
                     .successHandler(authenticationSuccessHandler)
+                    .failureHandler(authenticationFailureHandler)
             )
             .httpBasic(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -90,6 +93,7 @@ public class SecurityConfig {
             )
             .oauth2Login(oauth2 ->oauth2
                     .successHandler(oAuth2SuccessHandler)
+                    .failureHandler(oAuth2FailureHandler)
                     .userInfoEndpoint(endpoint-> endpoint.userService(oAuth2UserService))
             )
             .logout(logout -> logout

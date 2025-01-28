@@ -1,5 +1,7 @@
-package com.carpBread.shareEatIt.global.exception;
+package com.carpBread.shareEatIt.global.jwt;
 
+import com.carpBread.shareEatIt.global.exception.CustomException;
+import com.carpBread.shareEatIt.global.exception.CustomExceptionResponseDto;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import io.sentry.Sentry;
 import jakarta.servlet.FilterChain;
@@ -8,7 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
@@ -16,9 +18,11 @@ import java.io.IOException;
 /* JWT 인증 시 발생하는 CustomException handler */
 @Slf4j
 @RequiredArgsConstructor
-//@Component
 public class JWTCustomExceptionHandler extends OncePerRequestFilter {
     private final ObjectMapper objectMapper;
+
+    @Value("${sentry.dsn}")
+    private String dsn;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -36,7 +40,7 @@ public class JWTCustomExceptionHandler extends OncePerRequestFilter {
                 scope.setContexts("exception_status", responseDto.getExceptionStatus());
                 scope.setContexts("message",responseDto.getMessage());
                 scope.setContexts("timestamp", responseDto.getTimestamp());
-                scope.setContexts("request", responseDto.getRequest());
+                scope.setContexts("causation", responseDto.getCausation());
                 scope.setTag("tag", responseDto.getTag());
             });
 

@@ -6,6 +6,7 @@ import org.locationtech.jts.geom.PrecisionModel;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
+/* point 객체 생성을 위한 geometryFactory config */
 @Configuration
 public class PointGeometryFactoryConfig {
 

@@ -1,13 +1,10 @@
 package com.carpBread.shareEatIt.domain.auth.service;
 
-import com.carpBread.shareEatIt.domain.auth.AuthLoginResponseDto;
-import com.carpBread.shareEatIt.domain.auth.dto.OAuth2UserInfo;
-import com.carpBread.shareEatIt.domain.auth.dto.OAuthLoginDto;
-import com.carpBread.shareEatIt.domain.auth.util.JWTUtils;
+import com.carpBread.shareEatIt.domain.auth.dto.response.AuthLoginResponseDto;
+import com.carpBread.shareEatIt.domain.auth.dto.Pre_OAuth2UserInfo;
+import com.carpBread.shareEatIt.global.jwt.JWTUtils;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
-import com.carpBread.shareEatIt.domain.member.entity.Provider;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
-import com.carpBread.shareEatIt.domain.notice.controller.NoticeController;
 import com.carpBread.shareEatIt.domain.notice.service.SseService;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -31,7 +28,7 @@ import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
-public class OAuth2Service {
+public class Pre_OAuth2Service {
 
     private final MemberRepository memberRepository;
     private final SseService sseService;
@@ -115,15 +112,15 @@ public class OAuth2Service {
         Map<String, Object> response = objectMapper.readValue(result, new TypeReference<Map<String, Object>>() {
         });
 
-        OAuth2UserInfo oAuth2UserInfo= OAuth2UserInfo.of("kakao",response);
+        Pre_OAuth2UserInfo preOAuth2UserInfo = Pre_OAuth2UserInfo.of("kakao",response);
 
-        return loginOrJoin(oAuth2UserInfo, oauth2AccessToken);
+        return loginOrJoin(preOAuth2UserInfo, oauth2AccessToken);
     }
 
     @Transactional
-    private AuthLoginResponseDto loginOrJoin(OAuth2UserInfo oauth2UserInfo, String oauth2AccessToken){
+    private AuthLoginResponseDto loginOrJoin(Pre_OAuth2UserInfo oauth2UserInfoPre, String oauth2AccessToken){
 
-        Optional<Member> member = memberRepository.findByEmail(oauth2UserInfo.email());
+        Optional<Member> member = memberRepository.findByEmail(oauth2UserInfoPre.email());
         if (member.isPresent()){
             Member joinedMember = member.get();
             if(joinedMember.getLocationPoint()==null){
@@ -138,29 +135,30 @@ public class OAuth2Service {
             if (updatedMember.getIsNoticeAvail() && !sseService.isRegistered(updatedMember.getId()))
                 sseService.registerClient(updatedMember.getId());
 
-            return AuthLoginResponseDto.builder()
-                    .isNewMember(false)
-                    .accessToken(accessToken)
-                    .refreshToken(updatedMember.getRefreshToken())
-                    .build();
+            return new AuthLoginResponseDto(
+                    accessToken,
+                    updatedMember.getRefreshToken(),
+                    false
+            );
+
         }else{
-            String refreshToken = jwtUtils.createToken(oauth2UserInfo.email(), oauth2UserInfo.nickname());
+            String refreshToken = jwtUtils.createToken(oauth2UserInfoPre.email(), oauth2UserInfoPre.nickname());
 
             Point point = geometryFactory.createPoint(new Coordinate(127.0016985, 37.5642135));
             point.setSRID(4326);
 
-            Member newMember = oauth2UserInfo.toEntity(oauth2AccessToken,refreshToken, point);
+            Member newMember = oauth2UserInfoPre.toEntity(oauth2AccessToken,refreshToken, point);
             newMember = memberRepository.save(newMember);
 
             String accessToken = "Bearer "+ jwtUtils.createToken(newMember.getEmail(), newMember.getNickname());
 
             sseService.registerClient(newMember.getId());
 
-            return AuthLoginResponseDto.builder()
-                    .isNewMember(true)
-                    .accessToken(accessToken)
-                    .refreshToken(refreshToken)
-                    .build();
+            return new AuthLoginResponseDto(
+                    accessToken,
+                    refreshToken,
+                    true
+            );
         }
 
 

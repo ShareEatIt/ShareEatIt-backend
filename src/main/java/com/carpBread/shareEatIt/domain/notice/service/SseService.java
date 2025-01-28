@@ -5,6 +5,7 @@ package com.carpBread.shareEatIt.domain.notice.service;
 import com.carpBread.shareEatIt.domain.notice.dto.NoticeCreateDto;
 import com.carpBread.shareEatIt.global.exception.CustomException;
 import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
+import com.carpBread.shareEatIt.global.exception.Domain;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -65,7 +66,12 @@ public class SseService {
             }catch (IOException e){
                 clients.remove(memberId);
                 redisTemplate.opsForHash().delete("sse:clients", memberId.toString());
-//                throw new CustomException(CustomExceptionStatus.NOTICE_SEND_FAIL,"알림을 전송하는 과정에서 오류가 발생했습니다","[INNER LOGIC FAIL _ NO URL]");
+                throw new CustomException(
+                        CustomExceptionStatus.NOTICE_SEND_FAIL,
+                        "알림을 전송하는 과정에서 오류가 발생했습니다 \n Error message : "+e.getMessage(),
+                        this.getClass().getSimpleName(),
+                        memberId,
+                        Domain.NOTICE);
             }
         }
     }

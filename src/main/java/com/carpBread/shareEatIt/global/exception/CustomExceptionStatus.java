@@ -15,7 +15,6 @@ public enum CustomExceptionStatus {
     // Member
     NOT_FOUND_MEMBER(HttpStatus.NOT_FOUND),
     INVALID_ACCESS_TOKEN(HttpStatus.NOT_ACCEPTABLE),
-    INVALID_ENUM_VALUE_PROVIDER(HttpStatus.NOT_FOUND),
     INVALID_S3_URL(HttpStatus.NOT_ACCEPTABLE),
 
     // Participation

@@ -1,13 +1,14 @@
-package com.carpBread.shareEatIt.domain.auth.oauth2;
+package com.carpBread.shareEatIt.domain.auth.oauth2.handler;
 
 import com.carpBread.shareEatIt.domain.auth.LoginProvider;
 import com.carpBread.shareEatIt.domain.auth.oauth2.entity.OAuth2Token;
 import com.carpBread.shareEatIt.domain.auth.oauth2.repository.OAuth2TokenRepository;
-import com.carpBread.shareEatIt.domain.auth.util.JWTUtils;
+import com.carpBread.shareEatIt.global.jwt.JWTUtils;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
 import com.carpBread.shareEatIt.global.exception.CustomException;
 import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
+import com.carpBread.shareEatIt.global.exception.Domain;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
@@ -109,8 +110,14 @@ public class OAuth2LogoutHandler implements LogoutHandler {
                 .retrieve()
                 .bodyToMono(Void.class)
                 .doOnError(error -> {
-                    // 로그아웃 중 오류가 발생한 경우 로깅
-                    System.err.println("Error during Kakao logout: " + error.getMessage());
+                    // 로그아웃 중 오류가 발생한 경우
+                    throw new CustomException(
+                            CustomExceptionStatus.LOGOUT_FAIL,
+                            "KAKAO 로그아웃 중 오류가 발생했습니다. \n Error Response : "+error.getMessage(),
+                            OAuth2LogoutHandler.class.getName(),
+                            null,
+                            Domain.AUTH
+                    );
                 })
                 .subscribe();
 
@@ -129,7 +136,14 @@ public class OAuth2LogoutHandler implements LogoutHandler {
                 .retrieve()
                 .bodyToMono(Void.class)
                 .doOnError(error -> {
-                    System.err.println("Error during Naver logout: " + error.getMessage());
+                    // 로그아웃 중 오류가 발생한 경우
+                    throw new CustomException(
+                            CustomExceptionStatus.LOGOUT_FAIL,
+                            "NAVER 로그아웃 중 오류가 발생했습니다. \n Error Response : "+error.getMessage(),
+                            OAuth2LogoutHandler.class.getName(),
+                            null,
+                            Domain.AUTH
+                    );
                 })
                 .subscribe();
 
@@ -146,8 +160,14 @@ public class OAuth2LogoutHandler implements LogoutHandler {
                 .retrieve()
                 .bodyToMono(Void.class)
                 .doOnError(error -> {
-                    // 로그아웃 중 오류가 발생한 경우 로깅
-                    System.err.println("Error during Google logout: " + error.getMessage());
+                    // 로그아웃 중 오류가 발생한 경우
+                    throw new CustomException(
+                            CustomExceptionStatus.LOGOUT_FAIL,
+                            "GOOGLE 로그아웃 중 오류가 발생했습니다. \n Error Response : "+error.getMessage(),
+                            OAuth2LogoutHandler.class.getName(),
+                            null,
+                            Domain.AUTH
+                    );
                 })
                 .subscribe();
 
@@ -160,7 +180,13 @@ public class OAuth2LogoutHandler implements LogoutHandler {
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             token = authHeader.substring(7);  // Extracts token after "Bearer "
         }else{
-//            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,"유효하지 않은 인증 토큰입니다","/logout");
+            throw new CustomException(
+                    CustomExceptionStatus.UNAUTHORIZED_JWT,
+                    "유효하지 않은 ACCESS TOKEN입니다.",
+                    OAuth2LogoutHandler.class.getName(),
+                    null,
+                    Domain.AUTH
+            );
         }
         return token;
     }
@@ -184,12 +210,26 @@ public class OAuth2LogoutHandler implements LogoutHandler {
         // LOCAL 로그인일 경우 - SUB 가 USERNAME
         if(provider.equals(LoginProvider.LOCAL.name())){
             member = memberRepository.findByUsername(sub)
-                    .orElseThrow(() -> null /* new CustomException(CustomExceptionStatus.NOT_FOUND_MEMBER, "해당 이메일에 맞는 회원 정보를 찾을 수 없습니다", "/logout")*/);
+                    .orElseThrow(() -> new CustomException(
+                            CustomExceptionStatus.NOT_FOUND_MEMBER,
+                            "해당 USERNAME을 가진 회원 정보를 찾을 수 없습니다",
+                            OAuth2LogoutHandler.class.getName(),
+                            sub,
+                            Domain.AUTH
+                            )
+                    );
         }
         // 소셜 로그인일 경우 - SUB 가 EMAIL
         else {
             member = memberRepository.findByEmail(sub)
-                    .orElseThrow(() ->null/* new CustomException(CustomExceptionStatus.NOT_FOUND_MEMBER, "해당 이메일에 맞는 회원 정보를 찾을 수 없습니다", "/logout")*/);
+                    .orElseThrow(() -> new CustomException(
+                                    CustomExceptionStatus.NOT_FOUND_MEMBER,
+                                    "해당 EMAIL을 가진 회원 정보를 찾을 수 없습니다",
+                                    OAuth2LogoutHandler.class.getName(),
+                                    sub,
+                                    Domain.AUTH
+                            )
+                    );
         }
         return member;
 
@@ -205,6 +245,13 @@ public class OAuth2LogoutHandler implements LogoutHandler {
     private OAuth2Token getOAuth2Token(Member member, LoginProvider provider){
 
         return oAuth2TokenRepository.findByMemberAndProvider(member, provider)
-                .orElseThrow(()-> null /*new CustomException(CustomExceptionStatus.NOT_FOUND_OAUTH2_ACCESS_TOKEN, "OAUTH2 LOGIN ACCESS TOKEN 정보가 저장되어 있지 않습니다", "/logout")*/);
+                .orElseThrow(()-> new CustomException(
+                        CustomExceptionStatus.NOT_FOUND_OAUTH2_ACCESS_TOKEN,
+                        "OAUTH2 LOGIN ACCESS TOKEN 정보가 저장되어 있지 않아 OAUTH2 로그아웃을 진행할 수 없습니다.",
+                        OAuth2LogoutHandler.class.getName(),
+                        null,
+                        Domain.AUTH
+                        )
+                );
     }
 }

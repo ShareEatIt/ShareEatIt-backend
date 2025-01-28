@@ -1,30 +1,31 @@
 package com.carpBread.shareEatIt.domain.auth.controller;
 
 import com.carpBread.shareEatIt.domain.auth.LoginProvider;
-import com.carpBread.shareEatIt.domain.auth.dto.RefreshRequestDto;
-import com.carpBread.shareEatIt.domain.auth.dto.RefreshTokenResponseDto;
-import com.carpBread.shareEatIt.domain.auth.util.JWTUtils;
+import com.carpBread.shareEatIt.domain.auth.dto.request.RefreshRequestDto;
+import com.carpBread.shareEatIt.domain.auth.dto.response.RefreshTokenResponseDto;
+import com.carpBread.shareEatIt.global.jwt.JWTUtils;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
+import com.carpBread.shareEatIt.global.exception.CustomException;
+import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
+import com.carpBread.shareEatIt.global.exception.Domain;
 import com.carpBread.shareEatIt.global.response.ApiResponse;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletRequest;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.data.redis.core.ValueOperations;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 
-import java.util.UUID;
-
+/* 로그아웃, 리프레시 토큰 관련 인증 핸들러 */
+// 💡 참고 : 로그인/로그아웃 관련하여 변경사항이 많아 수정된 내용이 많아 코드만 남겨둔 상태. 프런트 연결 후 삭제 예정임.
 @RequiredArgsConstructor
 @RequestMapping("/auth")
 @RestController
-public class LogoutController {
+public class AuthController {
 
     private final WebClient webClient;
     private final ObjectMapper objectMapper;
@@ -45,8 +46,12 @@ public class LogoutController {
     public ResponseEntity<ApiResponse<RefreshTokenResponseDto>> refreshAccessToken(@RequestBody @Valid RefreshRequestDto dto)throws Exception{
 
         Member member = memberRepository.findByEmail(dto.getEmail())
-                .orElseThrow(() -> null /* new AppException(ErrorCode.NOT_FOUND_MEMBER, "해당 이메일에 맞는 회원 정보를 찾을 수 없습니다", "/logout")*/);
-
+                .orElseThrow(() -> new CustomException(CustomExceptionStatus.NOT_FOUND_MEMBER,
+                        "해당 이메일에 맞는 회원 정보를 찾을 수 없습니다",
+                        AuthController.class.getName(),
+                        dto.getEmail(),
+                        Domain.AUTH)
+                );
 //        if(jwtUtils.getProvider(dto.getRefreshToken()).equals(LoginProvider.LOCAL.name())){
 //            if(! jwtUtils.getSub(dto.getRefreshToken()).equals(member.getUsername())){
 //                throw null /* new AppException(ErrorCode.INVALID_REFRESH_TOKEN,"유효하지 않은 리프레시 토큰입니다. 재로그인해주십시오","/auth/refresh")*/;
@@ -58,7 +63,12 @@ public class LogoutController {
 //            }
 //        }
         if (!member.getRefreshToken().equals(dto.getRefreshToken())){
-//            throw null;
+            throw new CustomException(CustomExceptionStatus.INVALID_REFRESH_TOKEN,
+                    "올바르지 않은 리프레시 토큰입니다.",
+                    AuthController.class.getName(),
+                    null,
+                    Domain.AUTH
+                    );
         }
 
         String newAccessToken = "Bearer "+jwtUtils.createAccessToken(member.getEmail(), LoginProvider.KAKAO);
@@ -69,10 +79,7 @@ public class LogoutController {
         System.out.println(newAccessToken);
         System.out.println(newRefreshToken);
 
-        RefreshTokenResponseDto refreshTokenResponseDto = RefreshTokenResponseDto.builder()
-                .accessToken(newAccessToken)
-                .refreshToken(newRefreshToken)
-                .build();
+        RefreshTokenResponseDto refreshTokenResponseDto =  new RefreshTokenResponseDto(newAccessToken, newRefreshToken);
 
         ApiResponse<RefreshTokenResponseDto> responseDto = new ApiResponse<>(HttpStatus.OK.value(), "리프레시 토큰 발급 성공", refreshTokenResponseDto);
 

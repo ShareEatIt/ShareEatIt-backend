@@ -1,18 +1,15 @@
 package com.carpBread.shareEatIt.domain.auth.oauth2.service;
 
 import com.carpBread.shareEatIt.domain.auth.LoginProvider;
-import com.carpBread.shareEatIt.domain.auth.oauth2.OAuth2Attribute;
+import com.carpBread.shareEatIt.domain.auth.oauth2.dto.OAuth2Attribute;
 import com.carpBread.shareEatIt.domain.auth.oauth2.entity.OAuth2Token;
 import com.carpBread.shareEatIt.domain.auth.oauth2.repository.OAuth2TokenRepository;
-import com.carpBread.shareEatIt.domain.auth.util.JWTUtils;
+import com.carpBread.shareEatIt.global.jwt.JWTUtils;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.entity.Provider;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
-import com.querydsl.core.Tuple;
-import com.sun.media.jai.opimage.PatternRIF;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.security.core.authority.AuthorityUtils;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -112,19 +109,13 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
 
         // oauth2 token이 존재하는 경우 - 새로운 객체 저장
         if (auth2Token.isEmpty()){
-            newToken = OAuth2Token.builder()
-                    .accessToken(accessToken)
-                    .provider(provider)
-                    .member(member)
-                    .build();
-
+            newToken = new OAuth2Token(member,provider,accessToken);
         }
         // oauth2 token이 존재하지 않는 경우 - 있는 객체
         else{
             newToken= auth2Token.get();
             newToken.updateAccessToken(accessToken);
         }
-
 
         oAuth2TokenRepository.save(newToken);
 

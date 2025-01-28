@@ -7,16 +7,18 @@ import com.carpBread.shareEatIt.domain.member.entity.Provider;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
 import com.carpBread.shareEatIt.global.exception.CustomException;
 import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
+import com.carpBread.shareEatIt.global.exception.Domain;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Coordinate;
 import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 
 /* 사용자 회원가입 service */
-@Service
+@Service @Transactional
 @RequiredArgsConstructor
 public class SignUpService {
     private final MemberRepository memberRepository;
@@ -29,14 +31,26 @@ public class SignUpService {
         // username 고유 여부 인증
         boolean isUsernameOccupied = memberRepository.existsByUsername(dto.getUsername());
         if (isUsernameOccupied){
-//            throw new CustomException(CustomExceptionStatus.ALREADY_EXISTS_USERNAME,dto.getUsername()+"은 이미 존재하는 username 입니다.", "/signup");
+            throw new CustomException(
+                    CustomExceptionStatus.ALREADY_EXISTS_USERNAME,
+                    "이미 존재하는 USERNAME입니다.",
+                    SignUpService.class.getName(),
+                    dto.getUsername(),
+                    Domain.MEMBER
+            );
         }
 
         // email 있다면 고유 여부 인증
         if (dto.getEmail()!=null){
             boolean isEmailOccupied = memberRepository.existsByEmail(dto.getEmail());
             if (isEmailOccupied){
-//                throw new CustomException(CustomExceptionStatus.ALREADY_EXISTS_EMAIL,dto.getEmail()+"은 이미 존재하는 email 입니다.", "/signup");
+                throw new CustomException(
+                        CustomExceptionStatus.ALREADY_EXISTS_EMAIL,
+                        "이미 존재하는 EMAIL 입니다",
+                        SignUpService.class.getName(),
+                        dto.getEmail(),
+                        Domain.MEMBER
+                );
             }
         }
 
@@ -51,10 +65,10 @@ public class SignUpService {
 
         Member savedMember = memberRepository.save(newMember);
 
-        return SignUpResponseDto.builder()
-                .id(savedMember.getId())
-                .username(savedMember.getUsername())
-                .build();
+        return new SignUpResponseDto(
+                savedMember.getId(),
+                savedMember.getUsername()
+        );
 
     }
 

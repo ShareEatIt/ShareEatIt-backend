@@ -1,6 +1,6 @@
 package com.carpBread.shareEatIt.domain.participation.controller;
 
-import com.carpBread.shareEatIt.domain.auth.AuthUser;
+import com.carpBread.shareEatIt.domain.auth.annotation.AuthUser;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.participation.dto.ParticipationHistoryListResponseDto;
 import com.carpBread.shareEatIt.domain.participation.dto.ParticipationRequestDto;
