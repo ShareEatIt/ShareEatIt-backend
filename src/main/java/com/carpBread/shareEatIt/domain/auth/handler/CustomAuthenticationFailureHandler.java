@@ -29,7 +29,7 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
         CustomException customException = new CustomException(
                 CustomExceptionStatus.LOGIN_FAIL,
                 "어플리케이션 자체 로그인 인증과정에서 오류가 발생하여 로그인에 실패했습니다. \n Error message : "+exception.getMessage(),
-                CustomAuthenticationFailureHandler.class.getName(),
+                this.getClass().getSimpleName(),
                 null,
                 Domain.AUTH);
 
@@ -41,11 +41,14 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
         });
 
         Sentry.configureScope(scope ->{
-            scope.setContexts("file_path", responseDto.getFilePath());
-            scope.setContexts("exception_status", responseDto.getExceptionStatus());
-            scope.setContexts("message",responseDto.getMessage());
-            scope.setContexts("timestamp", responseDto.getTimestamp());
-            scope.setContexts("causation", responseDto.getCausation());
+            scope.setTransaction(request.getRequestURI());
+            scope.setExtra("file_path", responseDto.getFilePath());
+            scope.setExtra("exception_status", responseDto.getExceptionStatus());
+            scope.setExtra("message",responseDto.getMessage());
+            scope.setExtra("timestamp", String.valueOf(responseDto.getTimestamp()));
+            scope.setExtra("causation", responseDto.getCausation());
+            scope.setExtra("request_method", request.getMethod());
+            scope.setExtra("request_uri", request.getRequestURI());
             scope.setTag("tag", responseDto.getTag());
             Sentry.captureException(customException);
         });

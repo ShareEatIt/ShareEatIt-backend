@@ -31,7 +31,7 @@ public class OAuth2FailureHandler extends SimpleUrlAuthenticationFailureHandler 
         CustomException customException = new CustomException(
                 CustomExceptionStatus.LOGIN_FAIL,
                 "OAUTH2 로그인 인증과정에서 오류가 발생하여 로그인에 실패했습니다. \n Error message : "+exception.getMessage(),
-                OAuth2FailureHandler.class.getName(),
+                this.getClass().getSimpleName(),
                 null,
                 Domain.AUTH);
 
@@ -43,11 +43,14 @@ public class OAuth2FailureHandler extends SimpleUrlAuthenticationFailureHandler 
         });
 
         Sentry.configureScope(scope ->{
-            scope.setContexts("file_path", responseDto.getFilePath());
-            scope.setContexts("exception_status", responseDto.getExceptionStatus());
-            scope.setContexts("message",responseDto.getMessage());
-            scope.setContexts("timestamp", responseDto.getTimestamp());
-            scope.setContexts("causation", responseDto.getCausation());
+            scope.setTransaction(request.getRequestURI());
+            scope.setExtra("file_path", responseDto.getFilePath());
+            scope.setExtra("exception_status", responseDto.getExceptionStatus());
+            scope.setExtra("message",responseDto.getMessage());
+            scope.setExtra("timestamp", String.valueOf(responseDto.getTimestamp()));
+            scope.setExtra("causation", responseDto.getCausation());
+            scope.setExtra("request_method", request.getMethod());
+            scope.setExtra("request_uri", request.getRequestURI());
             scope.setTag("tag", responseDto.getTag());
             Sentry.captureException(customException);
         });
@@ -65,8 +68,6 @@ public class OAuth2FailureHandler extends SimpleUrlAuthenticationFailureHandler 
 
         // 클라리언트 리다이랙트
         String redirectUrl = buildRedirectUrl();
-
-        System.out.println(request.getRequestURL());
 
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
 

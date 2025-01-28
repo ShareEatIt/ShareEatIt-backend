@@ -24,7 +24,7 @@ public enum LoginProvider {
         throw new CustomException(
                 CustomExceptionStatus.INVALID_LOGIN_TYPE,
                 "서버에서 제공하지 않는 로그인 경로(Login provider)입니다.",
-                LoginProvider.class.getName(),
+                LoginProvider.class.getSimpleName(),
                 name,
                 Domain.AUTH);
     }

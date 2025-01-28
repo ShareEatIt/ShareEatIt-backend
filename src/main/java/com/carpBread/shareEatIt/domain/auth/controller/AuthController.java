@@ -48,7 +48,7 @@ public class AuthController {
         Member member = memberRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new CustomException(CustomExceptionStatus.NOT_FOUND_MEMBER,
                         "해당 이메일에 맞는 회원 정보를 찾을 수 없습니다",
-                        AuthController.class.getName(),
+                        AuthController.class.getSimpleName(),
                         dto.getEmail(),
                         Domain.AUTH)
                 );
@@ -65,7 +65,7 @@ public class AuthController {
         if (!member.getRefreshToken().equals(dto.getRefreshToken())){
             throw new CustomException(CustomExceptionStatus.INVALID_REFRESH_TOKEN,
                     "올바르지 않은 리프레시 토큰입니다.",
-                    AuthController.class.getName(),
+                    AuthController.class.getSimpleName(),
                     null,
                     Domain.AUTH
                     );

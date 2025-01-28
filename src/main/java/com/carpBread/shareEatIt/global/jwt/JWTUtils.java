@@ -125,7 +125,7 @@ public class JWTUtils {
         }catch (Exception e){
             throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,
                     "유효하지 않은 JWT입니다",
-                    JWTUtils.class.getName(),
+                    this.getClass().getSimpleName(),
                     null,
                     Domain.AUTH);
         }
@@ -145,7 +145,7 @@ public class JWTUtils {
         }catch (Exception e){
             throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,
                     "유효하지 않은 JWT입니다",
-                    JWTUtils.class.getName(),
+                    this.getClass().getSimpleName(),
                     null,
                     Domain.AUTH);
         }
