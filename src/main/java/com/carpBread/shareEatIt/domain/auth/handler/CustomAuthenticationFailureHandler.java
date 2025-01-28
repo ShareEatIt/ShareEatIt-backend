@@ -36,12 +36,13 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
         CustomExceptionResponseDto responseDto = new CustomExceptionResponseDto(customException);
 
         // Sentry 시스템에 전송
+
         Sentry.configureScope(scope ->{
             scope.setContexts("file_path", responseDto.getFilePath());
             scope.setContexts("exception_status", responseDto.getExceptionStatus());
             scope.setContexts("message",responseDto.getMessage());
             scope.setContexts("timestamp", responseDto.getTimestamp());
-            scope.setContexts("request", responseDto.getRequest());
+            scope.setContexts("causation", responseDto.getCausation());
             scope.setTag("tag", responseDto.getTag());
         });
 

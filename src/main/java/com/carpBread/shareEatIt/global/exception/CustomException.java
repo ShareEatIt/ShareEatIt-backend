@@ -23,7 +23,7 @@ public class CustomException extends RuntimeException{
     private String filePath;
 
     // 문제가 되는 오류 REQUEST
-    private Object request;
+    private Object causation;
 
     // 오류 발생 시점
     private final LocalDateTime timestamp=LocalDateTime.now();
@@ -32,11 +32,11 @@ public class CustomException extends RuntimeException{
     private Domain tag;
 
     public CustomException(CustomExceptionStatus exceptionStatus,String message,
-                           String filePath, Object request, Domain tag){
+                           String filePath, Object causation, Domain tag){
         this.exceptionStatus=exceptionStatus;
         this.message=message;
         this.filePath=filePath;
-        this.request=request;
+        this.causation=causation;
         this.tag=tag;
     }
 
