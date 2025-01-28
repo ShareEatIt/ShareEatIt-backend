@@ -133,7 +133,7 @@ public class ParticipationService {
 
         // 검증1: 해당 참여의 나눔글과 동일한 상태로 변경하려는 상태인지 확인 (이미 찜 or 나눔완료 된 나눔글의 참여인 경우)
         if (sharingPostStatus.equals(participationStatus)){
-            log.error("이미 나눔글이 {}인 상태로, 같은 상태로 변경 불가", sharingPostStatus);
+            log.warn("이미 나눔글이 {}인 상태로, 같은 상태로 변경 불가", sharingPostStatus);
             if (sharingPostStatus.equals("COMPLETED")){
                 throw new CustomException(ALREADY_COMPLETED_SHARINGPOST, "이미 나눔 완료된 나눔입니다.", "ParticipationService", null, PARTICIPATION);
             }
@@ -147,7 +147,7 @@ public class ParticipationService {
 
         // 검증2: 사용자가 나눔자의 writer인지 확인
         if (!giver.getId().equals(participation.getPost().getWriter().getId())){
-            log.error("사용자 != 나눔글 작성자");
+            log.warn("사용자 != 나눔글 작성자");
             log.info("giverId : {}", giver.getId());
             log.info("writerId : {}", participation.getPost().getWriter().getId());
             throw new CustomException(NOT_WRITER_OF_SHARINGPOST, "나눔글 작성자가 아니므로 나눔 상태를 변경할 수 없습니다.", "ParticipationService", null, PARTICIPATION);
@@ -163,7 +163,7 @@ public class ParticipationService {
             SharingPost post = participation.getPost();
             post.updateStatus(postStatus);
         } catch (IllegalArgumentException e) {
-            log.error("잘못된 상태값으로, 해당 나눔글의 상태 변경에 실패");
+            log.warn("잘못된 상태값으로, 해당 나눔글의 상태 변경에 실패");
             throw new CustomException(INVALID_STATUS_VALUE ,"잘못된 상태값으로, 해당 나눔글의 상태 변경에 실패하였습니다.", "ParticipationService", null, PARTICIPATION);
         }
 
