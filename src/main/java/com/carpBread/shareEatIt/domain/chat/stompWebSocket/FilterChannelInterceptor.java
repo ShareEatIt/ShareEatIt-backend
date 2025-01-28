@@ -110,7 +110,6 @@ public class FilterChannelInterceptor implements ChannelInterceptor {
                     JWTFilter.class.getName(),
                     authorization,
                     Domain.AUTH);
-
         }
 
         // 4. 토큰에서 member 객체 추출
@@ -179,6 +178,7 @@ public class FilterChannelInterceptor implements ChannelInterceptor {
                 new AuthenticationPrincipal(member),
                 sub,
                 Collections.singleton(new SimpleGrantedAuthority("ROLE_MEMBER")));
+
 
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
