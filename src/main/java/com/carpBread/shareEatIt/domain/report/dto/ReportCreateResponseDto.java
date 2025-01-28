@@ -6,8 +6,7 @@ import lombok.Getter;
 
 import java.time.LocalDateTime;
 
-@AllArgsConstructor
-@Builder @Getter
+@Getter
 public class ReportCreateResponseDto {
     private Long id;
     private String title;
@@ -18,4 +17,18 @@ public class ReportCreateResponseDto {
     private LocalDateTime createdAt;
     private String status;
 
+    public ReportCreateResponseDto(Long id, String title,
+                                   String content, String imgUrl,
+                                   ReportMemberResponseComponent reporter,
+                                   ReportPostResponseComponent post,
+                                   LocalDateTime createdAt, String status) {
+        this.id = id;
+        this.title = title;
+        this.content = content;
+        this.imgUrl = imgUrl;
+        this.reporter = reporter;
+        this.post = post;
+        this.createdAt = createdAt;
+        this.status = status;
+    }
 }
