@@ -35,6 +35,10 @@ public class JWTCustomExceptionHandler extends OncePerRequestFilter {
             CustomExceptionResponseDto responseDto= new CustomExceptionResponseDto(e);
 
             // Sentry 시스템에 전송
+            Sentry.init(options -> {
+                options.setDsn("https://1c2ac0504036a173f428c1d39c271693@o4508679774142464.ingest.us.sentry.io/4508679775584256");
+            });
+
             Sentry.configureScope(scope ->{
                 scope.setContexts("file_path", responseDto.getFilePath());
                 scope.setContexts("exception_status", responseDto.getExceptionStatus());
@@ -42,6 +46,7 @@ public class JWTCustomExceptionHandler extends OncePerRequestFilter {
                 scope.setContexts("timestamp", responseDto.getTimestamp());
                 scope.setContexts("causation", responseDto.getCausation());
                 scope.setTag("tag", responseDto.getTag());
+                Sentry.captureException(e);
             });
 
             // 클라이언트에 JSON 응답 전달
