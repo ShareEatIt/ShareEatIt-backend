@@ -1,6 +1,6 @@
 package com.carpBread.shareEatIt.domain.notice.controller;
 
-import com.carpBread.shareEatIt.domain.auth.AuthUser;
+import com.carpBread.shareEatIt.domain.auth.annotation.AuthUser;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.notice.dto.NoticeListResponseDto;
 import com.carpBread.shareEatIt.domain.notice.dto.NoticeResponseDto;
@@ -11,9 +11,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
-import java.io.IOException;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
 @RequestMapping("/notice")

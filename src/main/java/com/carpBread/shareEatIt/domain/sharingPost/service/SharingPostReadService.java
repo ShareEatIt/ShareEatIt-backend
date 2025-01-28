@@ -1,9 +1,10 @@
 package com.carpBread.shareEatIt.domain.sharingPost.service;
 
 
-import com.carpBread.shareEatIt.domain.member.dto.MemberAsWriterSimpleDtoComponent;
+import com.carpBread.shareEatIt.domain.member.dto.response.MemberAsWriterSimpleDtoComponent;
 import com.carpBread.shareEatIt.domain.member.dto.response.LocationResponseDtoComponent;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
+import com.carpBread.shareEatIt.domain.member.entity.Provider;
 import com.carpBread.shareEatIt.domain.participation.entity.GratitudeSticker;
 import com.carpBread.shareEatIt.domain.participation.entity.GratitudeType;
 import com.carpBread.shareEatIt.domain.participation.entity.Participation;
@@ -21,6 +22,7 @@ import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostQueryds
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
 import com.carpBread.shareEatIt.global.exception.CustomException;
 import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
+import com.carpBread.shareEatIt.global.exception.Domain;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -51,7 +53,13 @@ public class SharingPostReadService {
         // 점검 : MySQL 8.4 Reference Manual 에 정의된 메뉴얼에 따라, latitude(위도)는 [-90.0, 90.0] / longitude(경도)는 [-180.0, 180.0] 범위로 지정
         if ((dto.getLatitude()>90.0 || dto.getLatitude()<-90.0)
                 || (dto.getLongitude()>180.0 || dto.getLongitude()<-180.0)){
-            /* throw new CustomException(CustomExceptionStatus.VALUE_OUT_OF_RANGE,"입력한 위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.","/sharing/list")*/;
+            new CustomException(
+                    CustomExceptionStatus.VALUE_OUT_OF_RANGE,
+                    "입력한 위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.",
+                    this.getClass().getSimpleName(),
+                    "latitude : "+dto.getLatitude()+" longitude : "+dto.getLongitude(),
+                    Domain.SHARING_POST
+            );
         }
 
         // 나눔글 리스트 반환
@@ -60,10 +68,10 @@ public class SharingPostReadService {
         // 나눔글 객체 미리보기 list component 생성
         List<SharingPostSimpleResponseComponent> componentList = changeSharingPostEntityListToComponentList(postList);
 
-        return SharingPostListResponseDto.builder()
-                .provider(dto.getPostType())
-                .postList(componentList)
-                .build();
+        return new SharingPostListResponseDto(
+                dto.getPostType(),
+                componentList
+        );
     }
 
 
@@ -72,9 +80,12 @@ public class SharingPostReadService {
     public SharingPostResponseDto findSharingPostByID(Member member, Long id) {
         // 나눔글 조회
         SharingPost findPost = sharingPostRepository.findById(id)
-                .orElseThrow(() -> null /* new CustomException(CustomExceptionStatus.NOT_FOUND_POST,
-                        "해당 id에 대응하는 SHARING POST가 존재하지 않습니다.",
-                        "/sharing/" + id)*/);
+                .orElseThrow(() -> new CustomException(
+                        CustomExceptionStatus.NOT_FOUND_POST,
+                        "해당 ID를 가진 SHARING POST가 존재하지 않습니다.",
+                        this.getClass().getSimpleName(),
+                        id,
+                        Domain.SHARING_POST));
 
         // subject 지정
         String subject = determineSubject(findPost, member);
@@ -90,38 +101,30 @@ public class SharingPostReadService {
             imgUrlList.add(img.getUrl());
         }
 
-        return SharingPostResponseDto.builder()
-                .id(findPost.getId())
-                .title(findPost.getTitle())
-                .imgList(imgUrlList)
-                .category(findPost.getCategory().name())
-                .isFinished(findPost.getIsFinished())
-                .foodName(findPost.getFoodName())
-                .expDate(findPost.getExpDate())
-                .purchaseDate(findPost.getPurchaseDate())
-                .location(location)
-                .endAt(findPost.getEndAt())
-                .createdAt(findPost.getCreatedAt())
-                .modifiedAt(findPost.getModifiedAt())
-                .writer(writer)
-                .postType(findPost.getPostType().name())
-                .description(findPost.getDescription())
-                .status(findPost.getStatus().name())
-                .subject(subject)
-                .gratitudeSticker(gratitudeSticker!=null ? gratitudeSticker.name(): null)
-                .build();
+        return new SharingPostResponseDto(
+                findPost.getId(),findPost.getTitle(),
+                imgUrlList, findPost.getCategory().name(),
+                findPost.getIsFinished(), findPost.getFoodName(),
+                findPost.getExpDate(), findPost.getPurchaseDate(),
+                location, findPost.getEndAt(),findPost.getCreatedAt(),
+                findPost.getModifiedAt(), writer,
+                findPost.getPostType().name(), findPost.getDescription(),
+                findPost.getStatus().name(), subject,
+                gratitudeSticker!=null ? gratitudeSticker.name(): null
+
+        );
     }
 
 
     /* 나눔글 작성자 simple writer component 생성 */
     @Transactional(value = Transactional.TxType.REQUIRES_NEW)
     private MemberAsWriterSimpleDtoComponent getSimpleWriterComponent(Member writer){
-        return MemberAsWriterSimpleDtoComponent.builder()
-                .id(writer.getId())
-                .img(writer.getProfileImgUrl())
-                .nickname(writer.getNickname())
-                .sharingTotal(sharingPostRepository.countByWriter(writer))
-                .build();
+        return new MemberAsWriterSimpleDtoComponent(
+                writer.getId(),
+                writer.getProfileImgUrl(),
+                writer.getNickname(),
+                sharingPostRepository.countByWriter(writer)
+        );
     }
 
     /* 나눔글의 평가 스티커 조회 */
@@ -130,7 +133,12 @@ public class SharingPostReadService {
         Boolean exists = gratitudeStickerRepository.existsByPost(post);
         if (exists){
             GratitudeSticker gratitudeSticker = gratitudeStickerRepository.findByPost(post)
-                    .orElseThrow(() -> null/*new CustomException(CustomExceptionStatus.NOT_FOUND_POST, "GRATITUDE STICKER 객체를 통한 POST 객체를 조회할 수 없는 서버 내부 문제가 발생하였습니다.", "/sharing" + post.getId())*/);
+                    .orElseThrow(() -> new CustomException(
+                            CustomExceptionStatus.NOT_FOUND_POST,
+                            "POST 객체에 GRATITUDE STICKER가 존재하지 않습니다.",
+                            this.getClass().getSimpleName(),
+                            post.getId(),
+                            Domain.SHARING_POST));
             return gratitudeSticker.getGratitudeType();
         }
         else
@@ -155,7 +163,13 @@ public class SharingPostReadService {
                     radius, PostType.toEnumType(dto.getPostType())
             );
         }else{
-            /* throw new CustomException(CustomExceptionStatus.INVALID_ENUM_VALUE, "잘못된 SHARING POST TYPE ENUM 값 입니다","/sharing/list")*/;
+            throw new CustomException(
+                    CustomExceptionStatus.INVALID_ENUM_VALUE,
+                    "존재하지 않는 POSTTYPE 값입니다",
+                    Provider.class.getName(),
+                    dto.getPostType(),
+                    Domain.SHARING_POST
+            );
         }
 
         return postList;
@@ -172,17 +186,13 @@ public class SharingPostReadService {
             String ago = calculateAgo(entity.getCreatedAt());
             String firstImgUrl = findFirstImgUrl(entity);
 
-            SharingPostSimpleResponseComponent component = SharingPostSimpleResponseComponent.builder()
-                    .id(entity.getId())
-                    .createdAt(entity.getCreatedAt())
-                    .title(entity.getTitle())
-                    .endAt(entity.getEndAt())
-                    .nickname(entity.getWriter().getNickname())
-                    .category(entity.getCategory().name())
-                    .dDay(dDay)
-                    .ago(ago)
-                    .img(firstImgUrl)
-                    .build();
+            SharingPostSimpleResponseComponent component = new SharingPostSimpleResponseComponent(
+                    entity.getId(), entity.getCreatedAt(),
+                    entity.getTitle(), entity.getEndAt(),
+                    entity.getWriter().getNickname(),
+                    entity.getCategory().name(),
+                    dDay, ago, firstImgUrl
+            );
             componentList.add(component);
         }
         return componentList;
@@ -247,18 +257,23 @@ public class SharingPostReadService {
                 return imgUrl.getUrl();
             }
         }
-        /* throw new CustomException(CustomExceptionStatus.NOT_FOUND_POST_IMAGE, "현재 POST에 해당하는 IMAGE를 찾을 수 없습니다", "/sharing")*/;
-        return "";
+        throw new CustomException(
+                CustomExceptionStatus.NOT_FOUND_POST_IMAGE,
+                "현재 POST에 첫 번째 IMAGE를 찾을 수 없습니다",
+                this.getClass().getSimpleName(),
+                null,
+                Domain.SHARING_POST);
+
     }
 
     /* 나눔글 만남 위치 locationComponent 생성 */
     private LocationResponseDtoComponent getLocationComponent(SharingPost post){
-        return LocationResponseDtoComponent.builder()
-                .addressSt(post.getAddressSt())
-                .addressDetail(post.getAddressDetail())
-                .latitude(post.getLocationPoint().getY())
-                .longitude(post.getLocationPoint().getX())
-                .build();
+        return new LocationResponseDtoComponent(
+                post.getAddressSt(),
+                post.getAddressDetail(),
+                post.getLocationPoint().getY(),
+                post.getLocationPoint().getX()
+        );
     }
 
     /* 나눔글 이미지 리스트 조회 */

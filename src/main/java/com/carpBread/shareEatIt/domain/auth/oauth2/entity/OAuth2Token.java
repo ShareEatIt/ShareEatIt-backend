@@ -15,7 +15,6 @@ import lombok.experimental.SuperBuilder;
 @Table(name = "OAUTH2_TOKEN")
 @Getter @SuperBuilder
 @NoArgsConstructor
-@AllArgsConstructor
 public class OAuth2Token extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -34,6 +33,14 @@ public class OAuth2Token extends BaseEntity {
 
     public void updateAccessToken(String accessToken){
         this.accessToken=accessToken;
+    }
+
+    public OAuth2Token(Member member, LoginProvider provider, String accessToken){
+        super();
+        this.member=member;
+        this.provider=provider;
+        this.accessToken=accessToken;
+
     }
 
 

@@ -3,7 +3,7 @@ package com.carpBread.shareEatIt.domain.sharingPost.service;
 import com.amazonaws.services.s3.AmazonS3;
 import com.amazonaws.services.s3.model.ObjectMetadata;
 import com.carpBread.shareEatIt.domain.member.dto.response.LocationResponseDtoComponent;
-import com.carpBread.shareEatIt.domain.member.dto.MemberAsWriterSimpleDtoComponent;
+import com.carpBread.shareEatIt.domain.member.dto.response.MemberAsWriterSimpleDtoComponent;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.entity.Provider;
 import com.carpBread.shareEatIt.domain.participation.entity.GratitudeSticker;
@@ -18,6 +18,7 @@ import com.carpBread.shareEatIt.domain.sharingPost.repository.PostImgUrlReposito
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
 import com.carpBread.shareEatIt.global.exception.CustomException;
 import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
+import com.carpBread.shareEatIt.global.exception.Domain;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Coordinate;
@@ -59,29 +60,56 @@ public class SharingPostService {
     @Transactional
     public SharingPostResponseDto updateSharingPost(Member member, Long id, List<MultipartFile> imgList, SharingPostUpdateRequestDto dto) {
         SharingPost targetPost = sharingPostRepository.findById(id)
-                .orElseThrow(() -> null /*new CustomException(CustomExceptionStatus.NOT_FOUND_POST, "해당 id에 대응하는 SHARING POST가 존재하지 않습니다.", "/sharing/" + id)*/);
+                .orElseThrow(() -> new CustomException(
+                        CustomExceptionStatus.NOT_FOUND_POST,
+                        "해당 ID를 갖는 SHARING POST가 존재하지 않습니다.",
+                        this.getClass().getSimpleName(),
+                        id,
+                        Domain.SHARING_POST)
+                );
 
         // 점검 1 : 작성자 본인인지 확인 -> 작성자가 아닐 경우 삭제 불가
-        if (targetPost.getWriter().getId() != member.getId()){}
-            /* throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_MEMBER_TO_UPDATE_POST, "작성자가 아니므로 해당 POST에 대한 내용 수정이 불가합니다.", "/sharing/" + id)*/;
+        if (targetPost.getWriter().getId() != member.getId())
+            throw new CustomException(
+                    CustomExceptionStatus.UNAUTHORIZED_MEMBER_TO_UPDATE_POST,
+                    "작성자가 아니므로 해당 POST에 대한 내용 수정이 불가합니다.",
+                    this.getClass().getSimpleName(),
+                    "targetPost ID : "+targetPost.getWriter().getId()+" member ID : "+member.getId(),
+                    Domain.SHARING_POST);
 
         // 점검 2 : 참여가 진행중이거나 완료된 sharing post 일 경우 내용 수정 불가
         List<Participation> participationList = participationRepository.findByPostIdAndStatus(targetPost.getId());
+
         if (participationList.size()!=0 || targetPost.getStatus()==PostStatus.COMPLETED) {
-            /* throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_UPDATE_POST, "참여가 완료된 나눔이므로 POST에 대한 내용 수정이 불가합니다", "/sharing" + id)*/;
+            throw new CustomException(
+                    CustomExceptionStatus.UNAUTHORIZED_UPDATE_POST,
+                    "참여가 완료된 나눔이므로 POST에 대한 내용 수정이 불가합니다",
+                    this.getClass().getSimpleName(),
+                    null,
+                    Domain.SHARING_POST
+                    );
         }
 
         // 점검 3 : 변경하고자 하는 posttype이 store인 경우 member의 Provider가 Store인지 점검
         if (dto.getPostType().equals(PostType.STORE.name()) && member.getProvider().name().equals(Provider.INDIVIDUAL.name())){
-            /* throw new CustomException(CustomExceptionStatus.INVALID_PROVIDER_WITH_POSTTYPE_STORE,
+            throw new CustomException(
+                    CustomExceptionStatus.INVALID_PROVIDER_WITH_POSTTYPE_STORE,
                     "회원의 PROVIDER 가 `개인`으로 설정되어있어 나눔글을 STORE로 변경할 수 없습니다",
-                    "/sharing")*/;
+                    this.getClass().getSimpleName(),
+                    member.getProvider().name(),
+                    Domain.SHARING_POST);
         }
 
         // 점검 4 : MySQL 8.4 Reference Manual 에 정의된 메뉴얼에 따라, latitude(위도)는 [-90.0, 90.0] / longitude(경도)는 [-180.0, 180.0] 범위로 지정
         if ((dto.getLatitude()>90.0 || dto.getLatitude()<-90.0)
                 || (dto.getLongitude()>180.0 || dto.getLongitude()<-180.0)){
-            /* throw new CustomException(CustomExceptionStatus.VALUE_OUT_OF_RANGE,"입력한 위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.","/members")*/;
+            new CustomException(
+                    CustomExceptionStatus.VALUE_OUT_OF_RANGE,
+                    "입력한 위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.",
+                    this.getClass().getSimpleName(),
+                    "latitude : "+dto.getLatitude()+" longitude : "+dto.getLongitude(),
+                    Domain.SHARING_POST
+            );
         }
 
         // point 객체 생성
@@ -110,26 +138,18 @@ public class SharingPostService {
             imgUrlList.add(imgUrl.getUrl());
         }
 
-        return SharingPostResponseDto.builder()
-                .id(updatedPost.getId())
-                .title(updatedPost.getTitle())
-                .imgList(imgUrlList)
-                .category(updatedPost.getCategory().name())
-                .isFinished(updatedPost.getIsFinished())
-                .foodName(updatedPost.getFoodName())
-                .expDate(updatedPost.getExpDate())
-                .purchaseDate(updatedPost.getPurchaseDate())
-                .location(location)
-                .endAt(updatedPost.getEndAt())
-                .createdAt(updatedPost.getCreatedAt())
-                .modifiedAt(updatedPost.getModifiedAt())
-                .writer(writer)
-                .postType(updatedPost.getPostType().name())
-                .description(updatedPost.getDescription())
-                .status(updatedPost.getStatus().name())
-                .subject(subject)
-                .gratitudeSticker(gratitudeSticker!=null ? gratitudeSticker.name(): null)
-                .build();
+        return new SharingPostResponseDto(
+                updatedPost.getId(),updatedPost.getTitle(),
+                imgUrlList, updatedPost.getCategory().name(),
+                updatedPost.getIsFinished(), updatedPost.getFoodName(),
+                updatedPost.getExpDate(), updatedPost.getPurchaseDate(),
+                location, updatedPost.getEndAt(),updatedPost.getCreatedAt(),
+                updatedPost.getModifiedAt(), writer,
+                updatedPost.getPostType().name(), updatedPost.getDescription(),
+                updatedPost.getStatus().name(), subject,
+                gratitudeSticker!=null ? gratitudeSticker.name(): null
+
+        );
 
     }
 
@@ -138,11 +158,23 @@ public class SharingPostService {
     public void deleteSharingPost(Member member, Long id) {
         // 나눔글 조회
         SharingPost targetPost = sharingPostRepository.findById(id)
-                .orElseThrow(() -> null /*new CustomException(CustomExceptionStatus.NOT_FOUND_POST, "해당 id에 대응하는 SHARING POST가 존재하지 않습니다.", "/sharing/" + id)*/);
+                .orElseThrow(() -> new CustomException(
+                        CustomExceptionStatus.NOT_FOUND_POST,
+                        "해당 ID를 갖는 SHARING POST가 존재하지 않습니다.",
+                        this.getClass().getSimpleName(),
+                        id,
+                        Domain.SHARING_POST
+                        )
+                );
 
         // 나눔글 작제 권한 여부 조회
         if (targetPost.getWriter().getId() != member.getId())
-            /* throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_MEMBER_TO_DELETE_POST, "작성자가 아니므로 해당 POST에 대한 삭제가 불가합니다.", "/sharing/" + id)*/;
+            throw new CustomException(
+                    CustomExceptionStatus.UNAUTHORIZED_MEMBER_TO_DELETE_POST,
+                    "작성자가 아니므로 해당 POST에 대한 삭제가 불가합니다.",
+                    this.getClass().getSimpleName(),
+                    "post writer ID : "+targetPost.getWriter().getId() +" Login member ID : "+member.getId(),
+                    Domain.SHARING_POST);
 
         // 나눔글 삭제
         sharingPostRepository.delete(targetPost);
@@ -190,12 +222,12 @@ public class SharingPostService {
     /* 나눔글 작성자 simple writer component 생성 */
     @Transactional(value = Transactional.TxType.REQUIRES_NEW)
     private MemberAsWriterSimpleDtoComponent getSimpleWriterComponent(Member writer){
-        return MemberAsWriterSimpleDtoComponent.builder()
-                .id(writer.getId())
-                .img(writer.getProfileImgUrl())
-                .nickname(writer.getNickname())
-                .sharingTotal(sharingPostRepository.countByWriter(writer))
-                .build();
+        return new MemberAsWriterSimpleDtoComponent(
+                writer.getId(),
+                writer.getProfileImgUrl(),
+                writer.getNickname(),
+                sharingPostRepository.countByWriter(writer)
+        );
     }
 
     /* 나눔글의 평가 스티커 조회 */
@@ -204,7 +236,13 @@ public class SharingPostService {
         Boolean exists = gratitudeStickerRepository.existsByPost(post);
         if (exists){
             GratitudeSticker gratitudeSticker = gratitudeStickerRepository.findByPost(post)
-                    .orElseThrow(() -> null /* new CustomException(CustomExceptionStatus.NOT_FOUND_POST, "GRATITUDE STICKER 객체를 통한 POST 객체를 조회할 수 없는 서버 내부 문제가 발생하였습니다.", "/sharing" + post.getId())*/);
+                    .orElseThrow(() -> new CustomException(
+                            CustomExceptionStatus.NOT_FOUND_POST,
+                            "POST에 GRATITUDE STICKER 객체가 존재하지 않아 조회할 수 없습니다.",
+                            this.getClass().getSimpleName(),
+                            null,
+                            Domain.SHARING_POST)
+                    );
             return gratitudeSticker.getGratitudeType();
         }
         else
@@ -213,12 +251,12 @@ public class SharingPostService {
 
     /* 나눔글 만남 위치 locationComponent 생성 */
     private LocationResponseDtoComponent getLocationComponent(SharingPost post){
-        return LocationResponseDtoComponent.builder()
-                .addressSt(post.getAddressSt())
-                .addressDetail(post.getAddressDetail())
-                .latitude(post.getLocationPoint().getY())
-                .longitude(post.getLocationPoint().getX())
-                .build();
+        return new LocationResponseDtoComponent(
+                post.getAddressSt(),
+                post.getAddressDetail(),
+                post.getLocationPoint().getY(),
+                post.getLocationPoint().getX()
+        );
     }
 
     /* 나눔글 조회 사용자 구분 - 작성자/참여자/제 3자 */
@@ -269,7 +307,13 @@ public class SharingPostService {
                 try (InputStream inputStream = img.getInputStream()) {
                     s3Client.putObject(bucketName, key, inputStream, metadata);
                 } catch (IOException e) {
-                    /* throw new CustomException(CustomExceptionStatus.AWS_S3_IMG_UPLOAD_CONNECTION_ERROR, "sharing post create - POST error", "/sharing")*/;
+                    throw new CustomException(
+                            CustomExceptionStatus.AWS_S3_IMG_UPLOAD_CONNECTION_ERROR,
+                            "AWS S3에 이미지를 업로드하는 과정에 오류가 발생하여 S3에 이미지를 업로드하지 못했습니다. \n Error message : "+e.getMessage(),
+                            this.getClass().getSimpleName(),
+                            null,
+                            Domain.SHARING_POST
+                    );
                 }
 
                 String newUrl = s3Client.getUrl(bucketName, key).toString();

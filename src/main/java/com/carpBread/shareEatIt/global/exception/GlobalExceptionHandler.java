@@ -21,19 +21,18 @@ public class GlobalExceptionHandler {
         CustomExceptionResponseDto responseDto= new CustomExceptionResponseDto(e);
 
         // Sentry 시스템에 전송
+
         Sentry.configureScope(scope ->{
             scope.setContexts("file_path", responseDto.getFilePath());
             scope.setContexts("exception_status", responseDto.getExceptionStatus());
             scope.setContexts("message",responseDto.getMessage());
             scope.setContexts("timestamp", responseDto.getTimestamp());
-            scope.setContexts("request", responseDto.getRequest());
+            scope.setContexts("causation", responseDto.getCausation());
             scope.setTag("tag", responseDto.getTag());
         });
 
         // controller에서와 달리 exception 발생 시에는 각 HttpStatus가 다르므로, status() 함수 사용을 위해 ResponseEntity를 사용하였습니다.
         return ResponseEntity.status(e.getExceptionStatus().getStatus()).body(responseDto);
     }
-
-
-
+    
 }

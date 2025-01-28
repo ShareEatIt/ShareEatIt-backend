@@ -1,6 +1,6 @@
 package com.carpBread.shareEatIt.domain.chat.controller;
 
-import com.carpBread.shareEatIt.domain.auth.AuthUser;
+import com.carpBread.shareEatIt.domain.auth.annotation.AuthUser;
 import com.carpBread.shareEatIt.domain.chat.dto.ChatListResponseDto;
 import com.carpBread.shareEatIt.domain.chat.dto.ChatMessageRequestDto;
 import com.carpBread.shareEatIt.domain.chat.dto.ChatMessageResponseDto;

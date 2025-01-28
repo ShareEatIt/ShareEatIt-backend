@@ -9,7 +9,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-/* 로그인한 유저의 username이 존재하는지 여부를 확인하고 해당 Member를 반환하거나 없으면 에러를 반환하는 서비스 함수 */
+/* 자체 로그인한 유저의 username이 존재하는지 여부를 확인하고 해당 Member를 반환하거나 없으면 에러를 반환하는 서비스 함수 */
 @Service
 @RequiredArgsConstructor
 public class CustomUserDetailsService implements UserDetailsService {

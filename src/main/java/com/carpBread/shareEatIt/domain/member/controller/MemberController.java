@@ -1,13 +1,10 @@
 package com.carpBread.shareEatIt.domain.member.controller;
 
-import com.carpBread.shareEatIt.domain.auth.AuthUser;
+import com.carpBread.shareEatIt.domain.auth.annotation.AuthUser;
 import com.carpBread.shareEatIt.domain.member.dto.request.MemberProfileUpdateRequestDto;
 import com.carpBread.shareEatIt.domain.member.dto.response.*;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.service.MemberService;
-import com.carpBread.shareEatIt.global.exception.CustomException;
-import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
-import com.carpBread.shareEatIt.global.exception.Domain;
 import com.carpBread.shareEatIt.global.response.ApiResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -35,21 +32,22 @@ public class MemberController {
     public ApiResponse<MemberProfileResponseDto> memberProfile(@AuthUser Member member){
         Point point=member.getLocationPoint();
 
-        MemberProfileResponseDto responseDto = MemberProfileResponseDto.builder()
-                .id(member.getId())
-                .profileImg(member.getProfileImgUrl())
-                .nickname(member.getNickname())
-                .email(member.getEmail())
-                .location(LocationResponseDtoComponent.builder()
-                        .addressSt(member.getAddressSt())
-                        .addressDetail(member.getAddressDetail())
-                        .latitude(point.getY())
-                        .longitude(point.getX())
-                        .build())
-                .provider(member.getProvider().name())
-                .joinedAt(member.getCreatedAt())
-                .recentModifiedAt(member.getModifiedAt())
-                .build();
+        LocationResponseDtoComponent locationResponseDtoComponent = new LocationResponseDtoComponent(
+                member.getAddressSt(),
+                member.getAddressDetail(),
+                point.getY(), point.getX()
+        );
+
+        MemberProfileResponseDto responseDto = new MemberProfileResponseDto(
+                member.getId(),
+                member.getProfileImgUrl(),
+                member.getNickname(),
+                member.getEmail(),
+                locationResponseDtoComponent,
+                member.getProvider().name(),
+                member.getCreatedAt(),
+                member.getModifiedAt()
+        );
 
         ApiResponse response = new ApiResponse<>(HttpStatus.OK.value(),
                 "회원 수정페이지 정보 조회 성공",
