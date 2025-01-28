@@ -92,7 +92,7 @@ public class MemberService {
             throw new CustomException(
                     CustomExceptionStatus.VALUE_OUT_OF_RANGE,
                     "입력한 위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.",
-                    MemberService.class.getName(),
+                    this.getClass().getSimpleName(),
                     "longitude : "+updateRequestDto.getLongitude()+", latitude : "+updateRequestDto.getLatitude(),
                     Domain.MEMBER
             );
@@ -183,7 +183,7 @@ public class MemberService {
                 throw new CustomException(
                         CustomExceptionStatus.INVALID_S3_URL,
                         "S3 URL 형식에 맞지 않습니다.",
-                        MemberService.class.getName(),
+                        this.getClass().getSimpleName(),
                         profileImgUrl,
                         Domain.MEMBER
                 );
@@ -245,7 +245,7 @@ public class MemberService {
             throw new CustomException(
                     CustomExceptionStatus.AWS_S3_IMG_UPLOAD_CONNECTION_ERROR,
                     "AWS S3 이미지를 업로드 중 서버 내부의 에러가 발생하여 이미지를 S3에 업로드하지 못했습니다. \n Error message : "+e.getMessage(),
-                    MemberService.class.getName(),
+                    this.getClass().getSimpleName(),
                     null,
                     Domain.MEMBER
             );
@@ -324,7 +324,7 @@ public class MemberService {
                 .orElseThrow(() -> new CustomException(
                         CustomExceptionStatus.NOT_FOUND_MEMBER,
                         "상대방 회원 ID로 회원 조회를 하지 못했습니다.",
-                        MemberService.class.getName(),
+                        this.getClass().getSimpleName(),
                         opponentId,
                         Domain.MEMBER
                     )

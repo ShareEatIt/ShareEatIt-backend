@@ -30,11 +30,12 @@ public class SignUpService {
 
         // username 고유 여부 인증
         boolean isUsernameOccupied = memberRepository.existsByUsername(dto.getUsername());
+
         if (isUsernameOccupied){
             throw new CustomException(
                     CustomExceptionStatus.ALREADY_EXISTS_USERNAME,
                     "이미 존재하는 USERNAME입니다.",
-                    SignUpService.class.getName(),
+                    this.getClass().getSimpleName(),
                     dto.getUsername(),
                     Domain.MEMBER
             );
@@ -47,7 +48,7 @@ public class SignUpService {
                 throw new CustomException(
                         CustomExceptionStatus.ALREADY_EXISTS_EMAIL,
                         "이미 존재하는 EMAIL 입니다",
-                        SignUpService.class.getName(),
+                        this.getClass().getSimpleName(),
                         dto.getEmail(),
                         Domain.MEMBER
                 );

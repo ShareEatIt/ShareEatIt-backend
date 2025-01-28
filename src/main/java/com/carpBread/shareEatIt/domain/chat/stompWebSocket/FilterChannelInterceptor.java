@@ -2,6 +2,7 @@ package com.carpBread.shareEatIt.domain.chat.stompWebSocket;
 
 import com.carpBread.shareEatIt.domain.auth.LoginProvider;
 import com.carpBread.shareEatIt.domain.auth.annotation.AuthenticationPrincipal;
+import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
 import com.carpBread.shareEatIt.global.jwt.JWTUtils;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
@@ -148,7 +149,7 @@ public class FilterChannelInterceptor implements ChannelInterceptor {
         } catch (JwtException e) {
             throw new JwtException("JwtException - jwt 인증 오류");  // preSend에서 catch문에 걸리기 위함
         } catch (Exception e) {
-            throw new CustomException(UNAUTHORIZED_JWT, "Exception - jwt 인증 오류", "FilterChannelInterceptor", "/ws", Domain.CHAT);  // preSend에서 catch문에 걸리기 위함
+            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT, "Exception - jwt 인증 오류", "FilterChannelInterceptor", "/ws", Domain.CHAT);  // preSend에서 catch문에 걸리기 위함
 
         }
 
