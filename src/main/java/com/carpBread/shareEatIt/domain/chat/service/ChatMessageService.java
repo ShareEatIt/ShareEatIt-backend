@@ -48,7 +48,7 @@ public class ChatMessageService {
 
         // requestDto로 받아온 roomId로 채팅방 조회
         ChatRoom chatRoom = chatRoomRepository.findById(requestDto.getChatRoomId())
-                .orElseThrow(() -> new CustomException(NOT_FOUND_CHATROOM, "해당 Id의 채팅방을 찾을수 없습니다.", "ChatMessageService", "/chat/message", CHAT));
+                .orElseThrow(() -> new CustomException(NOT_FOUND_CHATROOM, "해당 Id의 채팅방을 찾을수 없습니다.", "ChatMessageService", "chatRoomId: "+requestDto.getChatRoomId(), CHAT));
 
         // chatMessage 객체 생성
         ChatMessage message = ChatMessage.builder()
@@ -76,7 +76,7 @@ public class ChatMessageService {
 
         // 해당 채팅방에 속한 사람인지 확인
         if (!chatRoomRepository.existsByMemberInChatRoom(member.getId(), chatRoomId)){
-            throw new CustomException(NOT_MEMBER_OF_CHATROOM, "채팅방의 유저가 아니므로 접근할 수 없습니다.", "ChatMessageService", "/chat/message/" + chatRoomId, CHAT);
+            throw new CustomException(NOT_MEMBER_OF_CHATROOM, "채팅방의 유저가 아니므로 접근할 수 없습니다.", "ChatMessageService", "memberId: "+ member.getId() + chatRoomId, CHAT);
         }
 
         List<ChatMessage> chatMessageList = chatMessageRepository.findByChatRoomId(chatRoomId);
@@ -103,7 +103,7 @@ public class ChatMessageService {
     private void sendNotification(ChatMessage chat){
         // 사용자 탐색
         ChatRoom chatRoom = chatRoomRepository.findById(chat.getChatRoomId())
-                .orElseThrow(() -> new CustomException(NOT_FOUND_CHATROOM, "해당 Id의 채팅방을 찾을수 없습니다." , "ChatMessageService", "/chat/message", CHAT));
+                .orElseThrow(() -> new CustomException(NOT_FOUND_CHATROOM, "해당 Id의 채팅방을 찾을수 없습니다." , "ChatMessageService", "ChatRoomId: "+chat.getChatRoomId(), CHAT));
         Participation participation = chatRoom.getParticipation();
         Member recipient;
         Member receiver = participation.getReceiver();

@@ -33,7 +33,7 @@ public class ChatRoomService {
 
         // Participation 객체 찾기
         Participation participation = participationRepository.findById(participationId)
-                .orElseThrow(() ->  new CustomException(NOT_FOUND_PARTICIPATION, "해당 Id의 participation을 찾을 수 없습니다.", "ChatRoomService", "/chatRoom?" + participationId, CHAT));
+                .orElseThrow(() ->  new CustomException(NOT_FOUND_PARTICIPATION, "해당 Id의 participation을 찾을 수 없습니다.", "ChatRoomService", "participationId: " + participationId, CHAT));
 
         // 채팅방 객체 생성
         ChatRoom chatRoom = ChatRoom.builder()
@@ -77,7 +77,7 @@ public class ChatRoomService {
         } else if (!chatRoom.getParticipation().getReceiver().getId().equals(memberId)) {
             return chatRoom.getParticipation().getReceiver();
         }
-        throw new CustomException(NOT_FOUND_OPPONENT, "채팅방에 상대방이 존재하지 않습니다.", "ChatRoomService", "/chatRoom", CHAT);
+        throw new CustomException(NOT_FOUND_OPPONENT, "채팅방에 상대방이 존재하지 않습니다.", "ChatRoomService", null, CHAT);
     }
 
 
@@ -86,7 +86,7 @@ public class ChatRoomService {
 
         // chatRoom 객체 찾아오기
         ChatRoom chatRoom = chatRoomRepository.findById(chatRoomId)
-                .orElseThrow(()-> new CustomException(NOT_FOUND_CHATROOM, "해당 Id의 채팅방을 찾을수 없습니다.", "ChatRoomService", "/chatRoom/" + chatRoomId, CHAT));
+                .orElseThrow(()-> new CustomException(NOT_FOUND_CHATROOM, "해당 Id의 채팅방을 찾을수 없습니다.", "ChatRoomService", "chatRoomId: "+ chatRoomId, CHAT));
         // 상태 변경
         chatRoom.updateStatus();
         // 변경 내용 저장
