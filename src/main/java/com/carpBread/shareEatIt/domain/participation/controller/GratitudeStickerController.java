@@ -8,7 +8,6 @@ import com.carpBread.shareEatIt.domain.participation.service.GratitudeStickerSer
 import com.carpBread.shareEatIt.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -21,7 +20,7 @@ public class GratitudeStickerController {
     /* 고마움 남기기(생성) */
     @PostMapping("/{postId}")
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<ApiResponse<GratitudeResponseDto>> createGratitudeSticker(@AuthUser Member member,
+    public ApiResponse<GratitudeResponseDto> createGratitudeSticker(@AuthUser Member member,
                                                                                     @PathVariable("postId") Long postId,
                                                                                     @RequestParam("gratitudeType")GratitudeType gratitudeType){
         GratitudeResponseDto responseDto = gratitudeStickerService.createGratitudeSticker(postId, member, gratitudeType);
@@ -30,13 +29,13 @@ public class GratitudeStickerController {
                 "고마움 생성 성공",   // 성공 메시지
                 responseDto      // 실제 데이터
         );
-        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+        return response;
     }
 
     /* 고마움 수정하기 */
     @PatchMapping("/{gsId}")
     @ResponseStatus(HttpStatus.OK)
-    public ResponseEntity<ApiResponse<GratitudeResponseDto>> updateGratitudeSticker(@AuthUser Member member,
+    public ApiResponse<GratitudeResponseDto> updateGratitudeSticker(@AuthUser Member member,
                                                                                     @PathVariable("gsId") Long gratitudeStickerId,
                                                                                     @RequestParam("gratitudeType")GratitudeType gratitudeType){
         GratitudeResponseDto responseDto = gratitudeStickerService.updateGratitudeStickers(gratitudeStickerId, member, gratitudeType);
@@ -45,6 +44,6 @@ public class GratitudeStickerController {
                 "고마움 스티커 수정 성공",  // 성공 메시지
                 responseDto
         );
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return response;
     }
 }

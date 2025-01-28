@@ -10,7 +10,6 @@ import com.carpBread.shareEatIt.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.messaging.handler.annotation.SendTo;
@@ -39,14 +38,14 @@ public class ChatController {
 
     /* 해당 채팅방의 채팅 내역 조회 */
     @GetMapping("/chat/message/{chatRoomId}")
-    public ResponseEntity<ApiResponse<ChatListResponseDto>> getAllMessageByChatRoomId(@AuthUser Member member,@PathVariable("chatRoomId") Long roomId){
+    public ApiResponse<ChatListResponseDto> getAllMessageByChatRoomId(@AuthUser Member member,@PathVariable("chatRoomId") Long roomId){
         ChatListResponseDto responseDto = chatMessageService.getMessageByChatRoomId(member, roomId);
         ApiResponse<ChatListResponseDto> response = new ApiResponse<>(
                 HttpStatus.OK.value(),  // 상태코드 201
                 "채팅 내역 조회",   // 성공 메시지
                 responseDto      // 실제 데이터
         );
-        return ResponseEntity.status(HttpStatus.OK).body(response);
+        return response;
     }
 
 }

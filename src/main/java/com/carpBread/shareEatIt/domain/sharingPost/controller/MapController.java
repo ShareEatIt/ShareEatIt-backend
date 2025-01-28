@@ -9,8 +9,10 @@ import com.carpBread.shareEatIt.global.response.ApiResponse;
 import jakarta.validation.constraints.NotNull;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequiredArgsConstructor
@@ -20,7 +22,7 @@ public class MapController {
     private final MapService mapService;
 
     @GetMapping("/list")
-    public ResponseEntity<ApiResponse<MapListResponseDto>> getMapList(@AuthUser Member member,
+    public ApiResponse<MapListResponseDto> getMapList(@AuthUser Member member,
                                                                       @NotNull @RequestParam(name = "longitude")Double longitude,
                                                                       @NotNull @RequestParam(name = "latitude")Double latitude){
         MapRequestDto dto = new MapRequestDto(longitude, latitude);
@@ -30,6 +32,6 @@ public class MapController {
 
         ApiResponse<MapListResponseDto> response = new ApiResponse<>(HttpStatus.OK.value(),"지도 나눔글 목록 조회 성공", responseDto);
 
-        return ResponseEntity.ok().body(response);
+        return response;
     }
 }

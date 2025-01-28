@@ -9,7 +9,6 @@ import com.carpBread.shareEatIt.domain.notice.service.SseService;
 import com.carpBread.shareEatIt.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
@@ -22,21 +21,21 @@ public class NoticeController {
     private final NoticeService noticeService;
 
     @GetMapping("/list")
-    public ResponseEntity<ApiResponse<NoticeListResponseDto>> findNoticeList(@AuthUser Member member){
+    public ApiResponse<NoticeListResponseDto> findNoticeList(@AuthUser Member member){
         NoticeListResponseDto responseDto = noticeService.findUnreadNoticeList(member);
 
         ApiResponse<NoticeListResponseDto> response = new ApiResponse<>(HttpStatus.OK.value(),"알림 목록 조회 성공", responseDto);
 
-        return ResponseEntity.ok().body(response);
+        return response;
 
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ApiResponse<NoticeResponseDto>> findNotice(@AuthUser Member member,
+    public ApiResponse<NoticeResponseDto> findNotice(@AuthUser Member member,
                                                                      @PathVariable(name = "id") Long id){
         NoticeResponseDto responseDto = noticeService.findNoticeById(member, id);
         ApiResponse<NoticeResponseDto> response = new ApiResponse<>(HttpStatus.OK.value(), "알림 조회 성공", responseDto);
-        return ResponseEntity.ok().body(response);
+        return response;
     }
 
     // 클라이언트가 서버에 연결될 때
