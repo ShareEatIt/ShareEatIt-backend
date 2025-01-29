@@ -114,7 +114,7 @@ public class OAuth2LogoutHandler implements LogoutHandler {
                     throw new CustomException(
                             CustomExceptionStatus.LOGOUT_FAIL,
                             "KAKAO 로그아웃 중 오류가 발생했습니다. \n Error Response : "+error.getMessage(),
-                            OAuth2LogoutHandler.class.getName(),
+                            this.getClass().getSimpleName(),
                             null,
                             Domain.AUTH
                     );
@@ -140,7 +140,7 @@ public class OAuth2LogoutHandler implements LogoutHandler {
                     throw new CustomException(
                             CustomExceptionStatus.LOGOUT_FAIL,
                             "NAVER 로그아웃 중 오류가 발생했습니다. \n Error Response : "+error.getMessage(),
-                            OAuth2LogoutHandler.class.getName(),
+                            this.getClass().getSimpleName(),
                             null,
                             Domain.AUTH
                     );
@@ -164,7 +164,7 @@ public class OAuth2LogoutHandler implements LogoutHandler {
                     throw new CustomException(
                             CustomExceptionStatus.LOGOUT_FAIL,
                             "GOOGLE 로그아웃 중 오류가 발생했습니다. \n Error Response : "+error.getMessage(),
-                            OAuth2LogoutHandler.class.getName(),
+                            this.getClass().getSimpleName(),
                             null,
                             Domain.AUTH
                     );
@@ -183,7 +183,7 @@ public class OAuth2LogoutHandler implements LogoutHandler {
             throw new CustomException(
                     CustomExceptionStatus.UNAUTHORIZED_JWT,
                     "유효하지 않은 ACCESS TOKEN입니다.",
-                    OAuth2LogoutHandler.class.getName(),
+                    this.getClass().getSimpleName(),
                     null,
                     Domain.AUTH
             );
@@ -213,7 +213,7 @@ public class OAuth2LogoutHandler implements LogoutHandler {
                     .orElseThrow(() -> new CustomException(
                             CustomExceptionStatus.NOT_FOUND_MEMBER,
                             "해당 USERNAME을 가진 회원 정보를 찾을 수 없습니다",
-                            OAuth2LogoutHandler.class.getName(),
+                            this.getClass().getSimpleName(),
                             sub,
                             Domain.AUTH
                             )
@@ -225,7 +225,7 @@ public class OAuth2LogoutHandler implements LogoutHandler {
                     .orElseThrow(() -> new CustomException(
                                     CustomExceptionStatus.NOT_FOUND_MEMBER,
                                     "해당 EMAIL을 가진 회원 정보를 찾을 수 없습니다",
-                                    OAuth2LogoutHandler.class.getName(),
+                                    this.getClass().getSimpleName(),
                                     sub,
                                     Domain.AUTH
                             )
@@ -248,7 +248,7 @@ public class OAuth2LogoutHandler implements LogoutHandler {
                 .orElseThrow(()-> new CustomException(
                         CustomExceptionStatus.NOT_FOUND_OAUTH2_ACCESS_TOKEN,
                         "OAUTH2 LOGIN ACCESS TOKEN 정보가 저장되어 있지 않아 OAUTH2 로그아웃을 진행할 수 없습니다.",
-                        OAuth2LogoutHandler.class.getName(),
+                        this.getClass().getSimpleName(),
                         null,
                         Domain.AUTH
                         )

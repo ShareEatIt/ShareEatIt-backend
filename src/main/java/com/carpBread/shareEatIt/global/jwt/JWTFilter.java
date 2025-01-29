@@ -48,7 +48,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
             throw new CustomException(CustomExceptionStatus.INVALID_JWT,
                     "HTTP header의 Authorization 필드에 토큰이 존재하지 않습니다.",
-                    JWTFilter.class.getName(),
+                    this.getClass().getSimpleName(),
                     null,
                     Domain.AUTH);
         }
@@ -61,7 +61,7 @@ public class JWTFilter extends OncePerRequestFilter {
         }catch (Exception e){
             throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,
                     "Access Token의 유효 기간이 만료되었습니다. 다시 로그인해주십시오.",
-                    JWTFilter.class.getName(),
+                    this.getClass().getSimpleName(),
                     null,
                     Domain.AUTH);
         }
@@ -70,7 +70,7 @@ public class JWTFilter extends OncePerRequestFilter {
         if (isLogout(token)){
             throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,
                     "로그아웃된 Access Token입니다. 다시 로그인해주십시오.",
-                    JWTFilter.class.getName(),
+                    this.getClass().getSimpleName(),
                     null,
                     Domain.AUTH);
 
@@ -84,7 +84,7 @@ public class JWTFilter extends OncePerRequestFilter {
         if (member==null){
             throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,
                     "Access Token의 sub에 매칭되는 회원 정보가 존재하지 않습니다. 다시 로그인해주십시오.",
-                    JWTFilter.class.getName(),
+                    this.getClass().getSimpleName(),
                     null,
                     Domain.AUTH);
 

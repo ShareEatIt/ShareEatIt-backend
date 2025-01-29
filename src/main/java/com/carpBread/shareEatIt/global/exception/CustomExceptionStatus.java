@@ -72,6 +72,7 @@ public enum CustomExceptionStatus {
     // report
     CANNOT_REPORT_SELF(HttpStatus.FORBIDDEN),
     CANNOT_BE_NULL_IMG_FILE_FOR_REPORT(HttpStatus.NO_CONTENT),
+    ALREADY_EXISTS_REPORT(HttpStatus.ALREADY_REPORTED),
 
     // ChatRoom
     NOT_FOUND_CHATROOM(HttpStatus.NOT_FOUND),
