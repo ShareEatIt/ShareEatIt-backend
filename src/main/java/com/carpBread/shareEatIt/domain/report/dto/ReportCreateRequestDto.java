@@ -14,4 +14,9 @@ public class ReportCreateRequestDto {
     @NotNull
     private String content;
 
+    public ReportCreateRequestDto(Long postId, String title, String content) {
+        this.postId = postId;
+        this.title = title;
+        this.content = content;
+    }
 }
