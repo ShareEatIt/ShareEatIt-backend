@@ -179,7 +179,6 @@ public class FilterChannelInterceptor implements ChannelInterceptor {
                 sub,
                 Collections.singleton(new SimpleGrantedAuthority("ROLE_MEMBER")));
 
-
         SecurityContextHolder.getContext().setAuthentication(authenticationToken);
 
     }
