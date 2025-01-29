@@ -11,6 +11,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.web.authentication.AuthenticationFailureHandler;
 import org.springframework.stereotype.Component;
@@ -22,6 +23,9 @@ import java.io.IOException;
 @Slf4j
 @RequiredArgsConstructor
 public class CustomAuthenticationFailureHandler implements AuthenticationFailureHandler {
+
+    @Value("${sentry.dsn}")
+    private String dsn;
 
     private final ObjectMapper objectMapper;
     @Override
@@ -37,7 +41,9 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
 
         // Sentry 시스템에 전송
         Sentry.init(options -> {
-            options.setDsn("https://1c2ac0504036a173f428c1d39c271693@o4508679774142464.ingest.us.sentry.io/4508679775584256");
+            options.setDsn(
+                    dsn
+            );
         });
 
         Sentry.configureScope(scope ->{
