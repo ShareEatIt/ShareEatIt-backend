@@ -36,7 +36,7 @@ public class OAuth2Attribute {
                 throw new CustomException(
                         CustomExceptionStatus.NOT_FOUND_OAUTH2_REGISTRATION_ID,
                         "제공하지 않는 소셜 로그인입니다.",
-                        OAuth2Attribute.class.getName(),
+                        OAuth2Attribute.class.getSimpleName(),
                         provider,
                         Domain.AUTH);
         }

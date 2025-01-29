@@ -34,7 +34,7 @@ public class Pre_OAuth2LoginController {
             throw new CustomException(
                     CustomExceptionStatus.LOGIN_FAIL,
                     "소셜 로그인에 실패하였습니다. \n Error Message : "+e.getMessage(),
-                    Pre_OAuth2LoginController.class.getName(),
+                    Pre_OAuth2LoginController.class.getSimpleName(),
                     null,
                     Domain.AUTH
             );

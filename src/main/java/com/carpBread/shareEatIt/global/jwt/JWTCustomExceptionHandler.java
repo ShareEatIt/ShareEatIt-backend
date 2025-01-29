@@ -40,11 +40,14 @@ public class JWTCustomExceptionHandler extends OncePerRequestFilter {
             });
 
             Sentry.configureScope(scope ->{
-                scope.setContexts("file_path", responseDto.getFilePath());
-                scope.setContexts("exception_status", responseDto.getExceptionStatus());
-                scope.setContexts("message",responseDto.getMessage());
-                scope.setContexts("timestamp", responseDto.getTimestamp());
-                scope.setContexts("causation", responseDto.getCausation());
+                scope.setTransaction(request.getRequestURI());
+                scope.setExtra("file_path", responseDto.getFilePath());
+                scope.setExtra("exception_status", responseDto.getExceptionStatus());
+                scope.setExtra("message",responseDto.getMessage());
+                scope.setExtra("timestamp", String.valueOf(responseDto.getTimestamp()));
+                scope.setExtra("causation", responseDto.getCausation());
+                scope.setExtra("request_method", request.getMethod());
+                scope.setExtra("request_uri", request.getRequestURI());
                 scope.setTag("tag", responseDto.getTag());
                 Sentry.captureException(e);
             });
@@ -59,8 +62,6 @@ public class JWTCustomExceptionHandler extends OncePerRequestFilter {
 
             // 응답 본문 작성
             response.getWriter().write(jsonResponse);
-
-
         }
 
     }
