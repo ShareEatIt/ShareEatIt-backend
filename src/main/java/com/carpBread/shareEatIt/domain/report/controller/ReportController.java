@@ -21,6 +21,7 @@ public class ReportController {
     private final ReportService reportService;
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<ReportCreateResponseDto> createNewReport(@AuthUser Member member,
                                                                                 @RequestPart(name = "imgFile") @NotNull MultipartFile imgFile,
                                                                                 @RequestPart(name = "dto") @Valid ReportCreateRequestDto dto){

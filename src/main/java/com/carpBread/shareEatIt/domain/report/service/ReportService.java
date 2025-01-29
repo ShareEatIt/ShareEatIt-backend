@@ -39,6 +39,8 @@ public class ReportService {
 
 
     public ReportCreateResponseDto createNewReport(Member member, MultipartFile imgFile, ReportCreateRequestDto dto) {
+
+        // 1. 게시글 확인
         SharingPost findPost = sharingPostRepository.findById(dto.getPostId())
                 .orElseThrow(() -> new CustomException(
                         CustomExceptionStatus.NOT_FOUND_POST,
@@ -47,6 +49,19 @@ public class ReportService {
                         dto.getPostId(),
                         Domain.REPORT));
 
+        // 2. 이전에 같은 신고자가 같은 글을 신고한 기록이 있는지 확인
+        boolean exists = reportRepository.existsByReporterAndPost(member, findPost);
+        if (exists){
+            throw new CustomException(
+                    CustomExceptionStatus.ALREADY_EXISTS_REPORT,
+                    "동일한 나눔글에 대한 신고자의 신고내역이 존재하여 신고글을 생성할 수 없습니다.",
+                    this.getClass().getSimpleName(),
+                    "Member ID : "+member.getId()+" Post ID : "+findPost.getId(),
+                    Domain.REPORT
+            );
+        }
+
+        // 3. 신고자와 게시글 작성자 다른지 확인
         if (findPost.getWriter().getId()==member.getId()){
             throw new CustomException(
                     CustomExceptionStatus.CANNOT_REPORT_SELF,
@@ -57,25 +72,21 @@ public class ReportService {
                     );
         }
 
+        // 이미지가 있을 경우 S3에 업로드
         String imgUrl = uploadReportImageToS3(imgFile);
 
-        Report newReport = Report.builder()
-                .title(dto.getTitle())
-                .content(dto.getContent())
-                .status(ReportStatus.IN_PROGRESS)
-                .response(null)
-                .imgUrl(imgUrl)
-                .reviewedAt(null)
-                .responseAt(null)
-                .reporter(member)
-                .post(findPost)
-                .build();
+        // 새로운 REPORT 객체 생성
+        Report newReport = new Report(
+                dto.getTitle(), dto.getContent(), ReportStatus.IN_PROGRESS,
+                imgUrl, member, findPost
+        );
         Report savedReport = reportRepository.save(newReport);
 
+
+        // response dto 생성
         ReportMemberResponseComponent reporter = new ReportMemberResponseComponent(member.getId(), member.getNickname());
 
-        ReportMemberResponseComponent writer= new ReportMemberResponseComponent(findPost.getWriter().getId(),findPost.getWriter().getNickname() );
-
+        ReportMemberResponseComponent writer= new ReportMemberResponseComponent(findPost.getWriter().getId(),findPost.getWriter().getNickname());
 
         ReportPostResponseComponent post = new ReportPostResponseComponent(findPost.getId(), writer);
 
