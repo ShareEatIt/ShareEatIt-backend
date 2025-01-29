@@ -49,6 +49,7 @@ public class SecurityConfig {
     private final RedisTemplate<String , Object> redisTemplate;
 
     // handler
+    private final JWTCustomExceptionHandler jwtCustomExceptionHandler;
 
     // oauth2
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
@@ -77,7 +78,7 @@ public class SecurityConfig {
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .addFilterBefore(new JWTFilter(jwtUtils, memberRepository, redisTemplate), UsernamePasswordAuthenticationFilter.class)
-            .addFilterBefore(new JWTCustomExceptionHandler(objectMapper), JWTFilter.class)
+            .addFilterBefore(jwtCustomExceptionHandler, JWTFilter.class)
             // form login 활성화
             .formLogin(login -> login
                     .usernameParameter("username")

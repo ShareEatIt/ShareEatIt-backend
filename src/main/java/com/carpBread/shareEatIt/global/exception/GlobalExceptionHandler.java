@@ -4,6 +4,7 @@ import io.sentry.Sentry;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpRequest;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.ExceptionHandler;
@@ -16,6 +17,9 @@ import java.time.LocalDateTime;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    @Value("${sentry.dsn}")
+    private String dsn;
+
     /* CustomException 핸들러 */
     @ExceptionHandler(CustomException.class)
     public ResponseEntity<CustomExceptionResponseDto> handleAppException(CustomException e, HttpServletRequest request){
@@ -24,7 +28,9 @@ public class GlobalExceptionHandler {
 
         // Sentry 시스템에 전송
         Sentry.init(options -> {
-            options.setDsn("https://1c2ac0504036a173f428c1d39c271693@o4508679774142464.ingest.us.sentry.io/4508679775584256");
+            options.setDsn(
+                    dsn
+            );
         });
 
         Sentry.configureScope(scope ->{
