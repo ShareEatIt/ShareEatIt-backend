@@ -19,7 +19,7 @@ public enum Provider {
         throw new CustomException(
                 CustomExceptionStatus.INVALID_ENUM_VALUE,
                 "존재하지 않는 Provider 값입니다",
-                Provider.class.getName(),
+                Provider.class.getSimpleName(),
                 value,
                 Domain.MEMBER
         );
