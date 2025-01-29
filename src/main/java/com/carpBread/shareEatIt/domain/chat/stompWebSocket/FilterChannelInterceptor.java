@@ -110,6 +110,7 @@ public class FilterChannelInterceptor implements ChannelInterceptor {
                     JWTFilter.class.getName(),
                     authorization,
                     Domain.AUTH);
+
         }
 
         // 4. 토큰에서 member 객체 추출
