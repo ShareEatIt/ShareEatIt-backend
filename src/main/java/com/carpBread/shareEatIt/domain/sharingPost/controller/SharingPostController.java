@@ -2,7 +2,12 @@ package com.carpBread.shareEatIt.domain.sharingPost.controller;
 
 import com.carpBread.shareEatIt.domain.auth.annotation.AuthUser;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
-import com.carpBread.shareEatIt.domain.sharingPost.dto.*;
+import com.carpBread.shareEatIt.domain.sharingPost.dto.request.SharingPostListRequestDto;
+import com.carpBread.shareEatIt.domain.sharingPost.dto.request.SharingPostRequestDto;
+import com.carpBread.shareEatIt.domain.sharingPost.dto.request.SharingPostUpdateRequestDto;
+import com.carpBread.shareEatIt.domain.sharingPost.dto.response.SharingPostCreateResponseDto;
+import com.carpBread.shareEatIt.domain.sharingPost.dto.response.SharingPostListResponseDto;
+import com.carpBread.shareEatIt.domain.sharingPost.dto.response.SharingPostResponseDto;
 import com.carpBread.shareEatIt.domain.sharingPost.service.CreateSharingPostService;
 import com.carpBread.shareEatIt.domain.sharingPost.service.SharingPostReadService;
 import com.carpBread.shareEatIt.domain.sharingPost.service.SharingPostService;
@@ -29,8 +34,8 @@ public class SharingPostController {
 
     @PostMapping
     public ApiResponse<SharingPostCreateResponseDto> createNewSharingPost(@AuthUser Member member,
-                                                                                          @RequestPart(name = "imgList") @NotNull List<MultipartFile> imgList,
-                                                                                          @RequestPart(name = "dto") @Valid SharingPostRequestDto dto){
+                                                                          @RequestPart(name = "imgList") @NotNull List<MultipartFile> imgList,
+                                                                          @RequestPart(name = "dto") @Valid SharingPostRequestDto dto){
         SharingPostCreateResponseDto responseDto = createSharingPostService.createSharingPost(imgList,dto,member);
         ApiResponse<SharingPostCreateResponseDto> response = new ApiResponse<>(HttpStatus.CREATED.value(),"나눔글 생성 성공", responseDto);
 
@@ -39,9 +44,9 @@ public class SharingPostController {
 
     @GetMapping("/list")
     public ApiResponse<SharingPostListResponseDto> findSharingPostListByProviderType(@AuthUser Member member,
-                                                                                                     @NotBlank @RequestParam(name = "postType")String postType,
-                                                                                                     @NotNull @RequestParam(name = "latitude")Double latitude,
-                                                                                                     @NotNull @RequestParam(name = "longitude")Double longitude){
+                                                                                     @NotBlank @RequestParam(name = "postType")String postType,
+                                                                                     @NotNull @RequestParam(name = "latitude")Double latitude,
+                                                                                     @NotNull @RequestParam(name = "longitude")Double longitude){
 
         SharingPostListRequestDto dto = new SharingPostListRequestDto(postType, latitude, longitude);
         SharingPostListResponseDto responseDto = sharingPostReadService.findPostListByProviderType(dto);
@@ -53,7 +58,7 @@ public class SharingPostController {
 
     @GetMapping("/{id}")
     public ApiResponse<SharingPostResponseDto> findSharingPostById(@AuthUser Member member,
-                                                                                   @PathVariable(name = "id")Long id){
+                                                                   @PathVariable(name = "id")Long id){
         SharingPostResponseDto responseDto = sharingPostReadService.findSharingPostByID(member, id);
         ApiResponse<SharingPostResponseDto> response = new ApiResponse<>(HttpStatus.OK.value(),"나눔글 상세 조회 성공", responseDto);
 
