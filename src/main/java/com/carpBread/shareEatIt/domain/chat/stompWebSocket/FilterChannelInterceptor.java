@@ -59,7 +59,7 @@ public class FilterChannelInterceptor implements ChannelInterceptor {
             try {
                 checkToken(authorization);
             } catch (Exception e) {
-                log.warn("토큰 인증 실패 (Authentication failed): {}", e.getMessage());
+                log.error("토큰 인증 실패 (Authentication failed): {}", e.getMessage());
                 // 연결을 차단하려면 `null`을 반환
                 // WebSocket에서는 preSend 메소드에서 null을 반환하면 연결을 차단하는 효과
                 return null;

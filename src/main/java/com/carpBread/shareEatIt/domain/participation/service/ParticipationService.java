@@ -1,6 +1,7 @@
 package com.carpBread.shareEatIt.domain.participation.service;
 
 import com.carpBread.shareEatIt.domain.chat.entity.ChatRoom;
+import com.carpBread.shareEatIt.domain.chat.repository.ChatRoomRepository;
 import com.carpBread.shareEatIt.domain.chat.service.ChatRoomService;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.notice.dto.NoticeCreateDto;
@@ -24,6 +25,8 @@ import com.carpBread.shareEatIt.global.exception.CustomException;
 import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -43,16 +46,20 @@ public class ParticipationService {
     private final ParticipationRepository participationRepository;
     private final SharingPostRepository sharingPostRepository;
     private final GratitudeStickerRepository gratitudeStickerRepository;
+    private final ChatRoomRepository chatRoomRepository;
     private final NoticeRepository noticeRepository;
+
     private final ChatRoomService chatRoomService;
     private final SseService sseService;
     private final SharingPostService sharingPostService;
 
     /* 참여 생성 - 나눔글 채팅 참여 */
-    public ParticipationResponseDto createParticipation(Member receiver, ParticipationRequestDto requestDto) {
+    public Pair<HttpStatus, ParticipationResponseDto> createParticipation(Member receiver, ParticipationRequestDto requestDto) {
+
+        Long postId= requestDto.getSharingPostId();
 
         // requestDto로 받아온 postId의 나눔글 조회
-        SharingPost post = sharingPostRepository.findById(requestDto.getSharingPostId())
+        SharingPost post = sharingPostRepository.findById(postId)
                 .orElseThrow(() -> new CustomException(NOT_FOUND_SHARINGPOST, "해당ID의 나눔글을 찾지 못했습니다.", "ParticipationService", "participationId: "+requestDto.getSharingPostId(), PARTICIPATION));
 
         // 참여하려는 사용자가 개설자가 아닌지 확인
@@ -60,8 +67,15 @@ public class ParticipationService {
             throw new CustomException(CAN_NOT_PARTICIPATE_MY_POST, "본인의 나눔글에는 참여할 수 없습니다. ", "ParticipationService", null, PARTICIPATION);
         }
 
-        // Participation 객체 생성
-        Participation participation = Participation.builder()
+        // 이미 참여한 나눔인 경우 - 참여 기록 반환
+        Participation existingParticipation = participationRepository.findByPostIdAndReceiverId(postId, receiver.getId());
+        if (existingParticipation != null) {
+            ChatRoom existingChatRoom = chatRoomRepository.findByParticipationId(existingParticipation.getId());
+            return Pair.of(HttpStatus.OK, ParticipationResponseDto.from(existingParticipation, existingChatRoom));
+        }
+
+        // 참여 객체 생성
+        Participation newParticipation = Participation.builder()
                 .post(post)
                 .status(ParticipationStatus.AVAILABLE)
                 .giver(post.getWriter())
@@ -69,17 +83,11 @@ public class ParticipationService {
                 .isGiverInChat(true)
                 .isReceiverInChat(true)
                 .build();
-
-        // Participation 객체 저장
-        Participation savedParticipation = participationRepository.save(participation);
-
+        Participation savedParticipation = participationRepository.save(newParticipation);
         // 채팅방 생성
-        ChatRoom savedChatRoom = chatRoomService.createChatRoom(receiver, participation.getId());
+        ChatRoom savedChatRoom = chatRoomService.createChatRoom(receiver, savedParticipation.getId());
 
-        // 응답 DTO 생성
-        ParticipationResponseDto responseDto = ParticipationResponseDto.from(savedParticipation, savedChatRoom);
-        return responseDto;
-
+        return Pair.of(HttpStatus.CREATED, ParticipationResponseDto.from(savedParticipation, savedChatRoom));
     }
 
 
@@ -229,11 +237,5 @@ public class ParticipationService {
 
 
     }
-
-
-
-
-
-
 
 }

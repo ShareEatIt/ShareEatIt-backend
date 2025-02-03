@@ -1,7 +1,6 @@
 package com.carpBread.shareEatIt.domain.chat.repository;
 
 import com.carpBread.shareEatIt.domain.chat.entity.ChatRoom;
-import com.carpBread.shareEatIt.domain.member.entity.Member;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -23,6 +22,10 @@ public interface ChatRoomRepository extends JpaRepository<ChatRoom, Long> {
             "WHERE c.id = :chatRoomId " +
             "AND (c.participation.giver.id = :memberId OR c.participation.receiver.id = :memberId)")
     boolean existsByMemberInChatRoom(@Param("memberId") Long memberId, @Param("chatRoomId") Long chatRoomId);
+
+    // ptId로 조회
+    @Query("SELECT c FROM ChatRoom c WHERE c.participation.id = :ptId")
+    ChatRoom findByParticipationId(@Param("ptId") Long ptId);
 
 }
 
