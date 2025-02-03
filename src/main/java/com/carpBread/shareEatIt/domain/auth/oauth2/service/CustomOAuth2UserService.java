@@ -10,6 +10,9 @@ import com.carpBread.shareEatIt.domain.member.entity.Provider;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.locationtech.jts.geom.Coordinate;
+import org.locationtech.jts.geom.GeometryFactory;
+import org.locationtech.jts.geom.Point;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.oauth2.client.userinfo.DefaultOAuth2UserService;
 import org.springframework.security.oauth2.client.userinfo.OAuth2UserRequest;
@@ -32,6 +35,7 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
     private final MemberRepository memberRepository;
     private final OAuth2TokenRepository oAuth2TokenRepository;
     private final JWTUtils jwtUtils;
+    private final GeometryFactory geometryFactory;
 
     @Override
     public OAuth2User loadUser(OAuth2UserRequest userRequest) throws OAuth2AuthenticationException {
@@ -81,12 +85,19 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
             return false;
         }
 
+        // point 객체 생성 - 기본 : 서울 광화문 광장 설정
+        Double latitude = 37.572447;
+        Double longitude= 126.976936;
+        Point point = geometryFactory.createPoint(new Coordinate(longitude, latitude));
+
+
         // Member 객체 생성
         Member newMember = Member.builder()
                 .email(attribute.getEmail())
                 .nickname(attribute.getNickname())
                 .profileImgUrl(attribute.getProfileImage())
                 .provider(Provider.INDIVIDUAL)
+                .locationPoint(point)
                 .refreshToken(refreshToken)
                 .isKeywordAvail(true)
                 .isNoticeAvail(true)

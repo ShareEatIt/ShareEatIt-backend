@@ -1,7 +1,5 @@
-package com.carpBread.shareEatIt.domain.sharingPost.dto;
+package com.carpBread.shareEatIt.domain.sharingPost.dto.response;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 

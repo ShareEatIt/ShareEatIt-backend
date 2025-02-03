@@ -59,7 +59,7 @@ public class FilterChannelInterceptor implements ChannelInterceptor {
             try {
                 checkToken(authorization);
             } catch (Exception e) {
-                log.warn("토큰 인증 실패 (Authentication failed): {}", e.getMessage());
+                log.error("토큰 인증 실패 (Authentication failed): {}", e.getMessage());
                 // 연결을 차단하려면 `null`을 반환
                 // WebSocket에서는 preSend 메소드에서 null을 반환하면 연결을 차단하는 효과
                 return null;
@@ -85,8 +85,8 @@ public class FilterChannelInterceptor implements ChannelInterceptor {
         if (authorization == null || !authorization.startsWith("Bearer ")) {
             throw new CustomException(CustomExceptionStatus.INVALID_JWT,
                     "HTTP header의 Authorization 필드에 토큰이 존재하지 않습니다.",
-                    JWTFilter.class.getName(),
-                    null,
+                    this.getClass().getSimpleName(),
+                    authorization,
                     Domain.AUTH);
         }
 
@@ -98,8 +98,8 @@ public class FilterChannelInterceptor implements ChannelInterceptor {
         }catch (Exception e){
             throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,
                     "Access Token의 유효 기간이 만료되었습니다. 다시 로그인해주십시오.",
-                    JWTFilter.class.getName(),
-                    null,
+                    this.getClass().getSimpleName(),
+                    token,
                     Domain.AUTH);
         }
 
@@ -107,8 +107,8 @@ public class FilterChannelInterceptor implements ChannelInterceptor {
         if (isLogout(token)){
             throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,
                     "로그아웃된 Access Token입니다. 다시 로그인해주십시오.",
-                    JWTFilter.class.getName(),
-                    null,
+                    this.getClass().getSimpleName(),
+                    authorization,
                     Domain.AUTH);
 
         }
@@ -120,8 +120,8 @@ public class FilterChannelInterceptor implements ChannelInterceptor {
         if (member==null){
             throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,
                     "Access Token의 sub에 매칭되는 회원 정보가 존재하지 않습니다. 다시 로그인해주십시오.",
-                    JWTFilter.class.getName(),
-                    null,
+                    this.getClass().getSimpleName(),
+                    authorization,
                     Domain.AUTH);
 
         }
