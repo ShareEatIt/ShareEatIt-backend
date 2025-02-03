@@ -13,4 +13,5 @@ public interface MemberQuerydslRepository {
     List<Member> findMemberWithRadius(double latitude,
                                       double longitude,
                                       double radius);
+
 }

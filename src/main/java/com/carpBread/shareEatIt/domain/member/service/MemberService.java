@@ -48,6 +48,7 @@ public class MemberService {
     private final SharingPostRepository sharingPostRepository;
     private final SseService sseService;
     private final AmazonS3 s3Client;
+    private final GeometryFactory geometryFactory;
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
@@ -257,7 +258,7 @@ public class MemberService {
 
     /* MemberService private 함수 : 새로운 위도와 경도로 Point 객체 새로 생성 */
     private Point createNewPoint(double latitude, double longitude){
-        Point newPoint = new GeometryFactory().createPoint(new Coordinate(longitude, latitude));
+        Point newPoint = geometryFactory.createPoint(new Coordinate(longitude, latitude));
         newPoint.setSRID(4326);
 
         return newPoint;

@@ -25,6 +25,15 @@ public class MemberController {
 
         System.out.println(member.getEmail());
 
+        try{
+            throw new NullPointerException();
+
+        }catch (Exception e){
+            System.out.println(e.getMessage());
+            System.out.println(e.getStackTrace()[0].toString());
+            System.out.println(e.getStackTrace()[1].toString());
+        }
+
         return ResponseEntity.ok("로그인 성공!");
     }
 
