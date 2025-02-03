@@ -117,14 +117,15 @@ public class SharingPostQuerydslRepositoryImpl implements SharingPostQuerydslRep
         currentLocation.setSRID(4326); // GPS의 기준이 되는 좌표계 SRS가 4326이다
 
         // 쿼리
-        List<SharingPost> sharingPostList = query.selectFrom(sharingPost)
+        List<SharingPost> sharingPostList = query
+                .selectFrom(sharingPost)
                 .where(
                         // 여부 확인을 위한 booleanTemplate expression 템플릿 사용
                         Expressions.booleanTemplate(
-                                "ST_Distance_Sphere({0},{1}) <= {2}",
-                                sharingPost.locationPoint,
+                                "ST_Contains(ST_Buffer({0}, {1}), {2})",
                                 currentLocation,
-                                radius
+                                radius,
+                                sharingPost.locationPoint
                         )
 
                 )
@@ -148,10 +149,10 @@ public class SharingPostQuerydslRepositoryImpl implements SharingPostQuerydslRep
                 .where(
                         // 여부 확인을 위한 booleanTemplate expression 템플릿 사용
                         Expressions.booleanTemplate(
-                                "ST_Distance_Sphere({0},{1}) <= {2}",
-                                sharingPost.locationPoint,
+                                "ST_Contains(ST_Buffer({0}, {1}), {2})",
                                 currentLocation,
-                                radius
+                                radius,
+                                sharingPost.locationPoint
                         ),
                         (sharingPost.postType.eq(postType))
 

@@ -39,10 +39,10 @@ public class MemberQuerydslRepositoryImpl implements MemberQuerydslRepository{
                 .where(
                         // 여부 확인을 위한 booleanTemplate expression 템플릿 사용
                         Expressions.booleanTemplate(
-                                "ST_Distance_Sphere({0},{1}) <= {2}",
-                                member.locationPoint,
+                                "ST_Contains(ST_Buffer({0}, {1}), {2})",
                                 currentLocation,
-                                radius
+                                radius,
+                                member.locationPoint
                         )
 
                 )
