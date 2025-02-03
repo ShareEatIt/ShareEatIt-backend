@@ -24,7 +24,6 @@ public class MemberController {
     public String test(@AuthUser Member member){
 
         System.out.println(member.getEmail());
-
         return "로그인 성공!";
     }
 

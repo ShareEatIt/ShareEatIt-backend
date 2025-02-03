@@ -1,4 +1,4 @@
-package com.carpBread.shareEatIt.domain.sharingPost.dto;
+package com.carpBread.shareEatIt.domain.sharingPost.dto.response;
 
 import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
 import lombok.*;

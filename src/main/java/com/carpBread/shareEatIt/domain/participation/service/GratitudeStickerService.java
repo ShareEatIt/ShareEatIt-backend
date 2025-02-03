@@ -11,6 +11,7 @@ import com.carpBread.shareEatIt.domain.sharingPost.entity.PostStatus;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
 import com.carpBread.shareEatIt.global.exception.CustomException;
+import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -56,7 +57,8 @@ public class GratitudeStickerService {
 
         // 검증 5 : 이미 고마움을 남긴 경우
         if (gratitudeStickerRepository.existsByParticipationId(participation.getId())){
-            throw new CustomException(ALREADY_EXISTS_GRATITUDESTICKER, "이미 고마움을 남긴 나눔입니다.", "GratitudeStickerService",  null, PARTICIPATION);
+//            throw new CustomException(ALREADY_EXISTS_GRATITUDESTICKER, "이미 고마움을 남긴 나눔입니다.", "GratitudeStickerService",  null, PARTICIPATION);
+            throw new NullPointerException("----------------");
         }
 
         // GratitudeSticker 객체 생성

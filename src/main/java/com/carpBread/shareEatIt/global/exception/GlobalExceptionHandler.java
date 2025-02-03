@@ -12,7 +12,6 @@ import org.springframework.web.bind.annotation.RestControllerAdvice;
 @Slf4j
 @RestControllerAdvice
 public class GlobalExceptionHandler {
-
     @Value("${sentry.dsn}")
     private String dsn;
 
@@ -26,6 +25,7 @@ public class GlobalExceptionHandler {
         Sentry.init(options -> {
             options.setDsn(
                     dsn
+//                    "https://1c2ac0504036a173f428c1d39c271693@o4508679774142464.ingest.us.sentry.io/4508679775584256"
             );
         });
 

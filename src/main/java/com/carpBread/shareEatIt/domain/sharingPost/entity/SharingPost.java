@@ -2,18 +2,15 @@ package com.carpBread.shareEatIt.domain.sharingPost.entity;
 
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.participation.entity.Participation;
-import com.carpBread.shareEatIt.domain.participation.entity.ParticipationStatus;
-import com.carpBread.shareEatIt.domain.sharingPost.dto.SharingPostRequestDto;
-import com.carpBread.shareEatIt.domain.sharingPost.dto.SharingPostUpdateRequestDto;
+import com.carpBread.shareEatIt.domain.sharingPost.dto.request.SharingPostUpdateRequestDto;
 import com.carpBread.shareEatIt.global.entity.BaseEntity;
 import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotNull;
 import lombok.*;
 import lombok.experimental.SuperBuilder;
-import org.hibernate.annotations.Type;
 import org.locationtech.jts.geom.Point;
 
-import java.sql.Date;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -62,6 +59,7 @@ public class SharingPost extends BaseEntity {
     private String addressDetail;
 
     @Column(columnDefinition = "POINT", name = "location_point")
+    @NotNull
     private Point locationPoint;
 
     private String kakaoLocationCode;
@@ -81,6 +79,13 @@ public class SharingPost extends BaseEntity {
     private Member writer;
 
     private Boolean noticed;
+
+    @PrePersist
+    public void prePersist(){
+        if (locationPoint!=null){
+            locationPoint.setSRID(4326);
+        }
+    }
 
     @OneToMany(mappedBy = "post",fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     List<PostImgUrl> postImgUrlList=new ArrayList<>();

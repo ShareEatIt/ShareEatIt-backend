@@ -34,14 +34,12 @@ public class ParticipationResponseDto {
         this.modifiedAt = modifiedAt;
     }
 
-
-
     public static ParticipationResponseDto from(Participation participation, ChatRoom chatRoom){
         return new ParticipationResponseDto(
                 participation.getId(),
                 participation.getPost().getId(),
                 participation.getGiver().getId(),
-                participation.getPost().getWriter().getId(),
+                participation.getReceiver().getId(),
                 chatRoom.getId(),
                 participation.getStatus(),
                 participation.getCreatedAt(),
