@@ -28,6 +28,7 @@ public class SharingPostController {
     private final CreateSharingPostService createSharingPostService;
 
     @PostMapping
+    @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<SharingPostCreateResponseDto> createNewSharingPost(@AuthUser Member member,
                                                                                           @RequestPart(name = "imgList") @NotNull List<MultipartFile> imgList,
                                                                                           @RequestPart(name = "dto") @Valid SharingPostRequestDto dto){
@@ -38,6 +39,7 @@ public class SharingPostController {
     }
 
     @GetMapping("/list")
+    @ResponseStatus(HttpStatus.OK)
     public ApiResponse<SharingPostListResponseDto> findSharingPostListByProviderType(@AuthUser Member member,
                                                                                                      @NotBlank @RequestParam(name = "postType")String postType,
                                                                                                      @NotNull @RequestParam(name = "latitude")Double latitude,
@@ -52,6 +54,7 @@ public class SharingPostController {
     }
 
     @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public ApiResponse<SharingPostResponseDto> findSharingPostById(@AuthUser Member member,
                                                                                    @PathVariable(name = "id")Long id){
         SharingPostResponseDto responseDto = sharingPostReadService.findSharingPostByID(member, id);
@@ -62,6 +65,7 @@ public class SharingPostController {
     }
 
     @PutMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public ApiResponse<SharingPostResponseDto> updateSharingPost(@AuthUser Member member,
                                                                                  @PathVariable(name = "id")Long id,
                                                                                  @RequestPart(name = "imgList", required = false) List<MultipartFile> imgList,
@@ -73,6 +77,7 @@ public class SharingPostController {
     }
 
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public ApiResponse<Long> deleteSharingPost(@AuthUser Member member,
                                                                @PathVariable(name = "id")Long id){
 

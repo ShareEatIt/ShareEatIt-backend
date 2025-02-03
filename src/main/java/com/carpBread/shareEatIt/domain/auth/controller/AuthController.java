@@ -16,7 +16,6 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.client.WebClient;
 
@@ -43,7 +42,8 @@ public class AuthController {
 
     /* 리프레시 토큰 발급, 수정 예정!!! */
     @PostMapping("/refresh")
-    public ResponseEntity<ApiResponse<RefreshTokenResponseDto>> refreshAccessToken(@RequestBody @Valid RefreshRequestDto dto)throws Exception{
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiResponse<RefreshTokenResponseDto> refreshAccessToken(@RequestBody @Valid RefreshRequestDto dto)throws Exception{
 
         Member member = memberRepository.findByEmail(dto.getEmail())
                 .orElseThrow(() -> new CustomException(CustomExceptionStatus.NOT_FOUND_MEMBER,
@@ -81,9 +81,7 @@ public class AuthController {
 
         RefreshTokenResponseDto refreshTokenResponseDto =  new RefreshTokenResponseDto(newAccessToken, newRefreshToken);
 
-        ApiResponse<RefreshTokenResponseDto> responseDto = new ApiResponse<>(HttpStatus.OK.value(), "리프레시 토큰 발급 성공", refreshTokenResponseDto);
-
-        return ResponseEntity.ok().body(responseDto);
+        return new ApiResponse<>(HttpStatus.CREATED.value(), "리프레시 토큰 발급 성공", refreshTokenResponseDto);
 
     }
 //

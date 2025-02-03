@@ -21,6 +21,7 @@ public class NoticeController {
     private final NoticeService noticeService;
 
     @GetMapping("/list")
+    @ResponseStatus(HttpStatus.OK)
     public ApiResponse<NoticeListResponseDto> findNoticeList(@AuthUser Member member){
         NoticeListResponseDto responseDto = noticeService.findUnreadNoticeList(member);
 
@@ -31,6 +32,7 @@ public class NoticeController {
     }
 
     @GetMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public ApiResponse<NoticeResponseDto> findNotice(@AuthUser Member member,
                                                                      @PathVariable(name = "id") Long id){
         NoticeResponseDto responseDto = noticeService.findNoticeById(member, id);
@@ -40,6 +42,7 @@ public class NoticeController {
 
     // 클라이언트가 서버에 연결될 때
     @GetMapping("/subscribe")
+    @ResponseStatus(HttpStatus.OK)
     public SseEmitter subscribe(@AuthUser Member member){
         SseEmitter sseEmitter = new SseEmitter();
         if (!sseService.isRegistered(member.getId()))
@@ -50,6 +53,7 @@ public class NoticeController {
     }
 
     @GetMapping("/isOnList")
+    @ResponseStatus(HttpStatus.OK)
     public Boolean isOnList(@AuthUser Member member){
         return sseService.isRegistered(member.getId());
     }

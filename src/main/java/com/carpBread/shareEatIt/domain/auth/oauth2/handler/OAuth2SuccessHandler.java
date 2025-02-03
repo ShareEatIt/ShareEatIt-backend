@@ -48,8 +48,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         String redirectUrl = buildRedirectUrl(responseDto);
 
-        System.out.println(request.getRequestURL());
-
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
 
 

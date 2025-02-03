@@ -264,7 +264,8 @@ public class CreateSharingPostService {
             catch (IOException e){
                 throw new CustomException(
                         CustomExceptionStatus.AWS_S3_IMG_UPLOAD_CONNECTION_ERROR,
-                        "AWS S3에 이미지를 업로드하는 과정에 오류가 발생하여 S3에 이미지를 업로드하지 못했습니다. \n Error message : "+e.getMessage(),
+                        "AWS S3에 이미지를 업로드하는 과정에 오류가 발생하여 S3에 이미지를 업로드하지 못했습니다. "+
+                        System.lineSeparator()+" Error message : "+e.getMessage(),
                         this.getClass().getSimpleName(),
                         null,
                         Domain.SHARING_POST

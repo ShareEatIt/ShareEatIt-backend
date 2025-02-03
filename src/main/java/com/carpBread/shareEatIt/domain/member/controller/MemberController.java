@@ -10,7 +10,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.locationtech.jts.geom.Point;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,14 +20,16 @@ public class MemberController {
     private final MemberService memberService;
 
     @GetMapping("/test")
-    public ResponseEntity<String> test(@AuthUser Member member){
+    @ResponseStatus(HttpStatus.OK)
+    public String test(@AuthUser Member member){
 
         System.out.println(member.getEmail());
 
-        return ResponseEntity.ok("로그인 성공!");
+        return "로그인 성공!";
     }
 
     @GetMapping
+    @ResponseStatus(HttpStatus.OK)
     public ApiResponse<MemberProfileResponseDto> memberProfile(@AuthUser Member member){
         Point point=member.getLocationPoint();
 
@@ -57,6 +58,7 @@ public class MemberController {
     }
 
     @GetMapping("/stickers")
+    @ResponseStatus(HttpStatus.OK)
     public ApiResponse memberStickers(@AuthUser Member member){
         MemberStickerResponseDto responseDto = memberService.findStickers(member);
 
@@ -68,6 +70,7 @@ public class MemberController {
     }
 
     @GetMapping("/sharing/category")
+    @ResponseStatus(HttpStatus.OK)
     public ApiResponse<MemberSharingStatusResponseDto> getMemberSharingStatus(@AuthUser Member member){
         MemberSharingStatusResponseDto responseDto = memberService.findMemberSharingStatus(member);
 
@@ -79,6 +82,7 @@ public class MemberController {
 
     /* 회원 정보 수정 - PUT */
     @PutMapping
+    @ResponseStatus(HttpStatus.OK)
     public ApiResponse updateMemberProfile(@AuthUser Member member,
                                                            @RequestPart(name = "imgFile",required = false) MultipartFile imgFile,
                                                            @Valid @RequestPart(name = "dto") MemberProfileUpdateRequestDto dto){
@@ -93,6 +97,7 @@ public class MemberController {
     }
 
     @PatchMapping("/avail/keyword")
+    @ResponseStatus(HttpStatus.OK)
     public ApiResponse<AvailResponseDto> updateMemberAvailKeyword(@AuthUser Member member,
                                                                                   @RequestParam(name = "keyword")Boolean keyword){
 
@@ -105,6 +110,7 @@ public class MemberController {
     }
 
     @PatchMapping("/avail/notice")
+    @ResponseStatus(HttpStatus.OK)
     public ApiResponse<AvailResponseDto> updateMemberAvail(@AuthUser Member member,
                                                                             @RequestParam(name = "notice") Boolean notice){
         AvailResponseDto responseDto = memberService.updateAvailNotice(member, notice);
@@ -116,6 +122,7 @@ public class MemberController {
     }
 
     @DeleteMapping
+    @ResponseStatus(HttpStatus.OK)
     public ApiResponse memberWithdrawal(@AuthUser Member member){
         MemberWithdrawalResponseDto responseDto = memberService.withdrawal(member);
 
@@ -129,6 +136,7 @@ public class MemberController {
 
     /* 채팅 - 상대 프로필 조회 */
     @GetMapping("/{opponentId}")
+    @ResponseStatus(HttpStatus.OK)
     public ApiResponse<OpponentInfoResponseDto> getOpponentInfo(@AuthUser Member member,
                                                                                 @PathVariable(name = "opponentId") Long opponentId){
         OpponentInfoResponseDto responseDto = memberService.findOpponentInfo(opponentId);

@@ -11,13 +11,15 @@ import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
 import com.carpBread.shareEatIt.global.exception.Domain;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /*notice 관련 db 리스트 조회 기능을 담당하는 service*/
-@Service @Transactional(value = Transactional.TxType.REQUIRES_NEW)
+@Service @Slf4j
+@Transactional(value = Transactional.TxType.REQUIRES_NEW)
 @RequiredArgsConstructor
 public class NoticeService {
 

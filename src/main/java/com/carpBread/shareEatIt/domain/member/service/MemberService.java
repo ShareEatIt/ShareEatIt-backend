@@ -244,7 +244,9 @@ public class MemberService {
         catch (IOException e){
             throw new CustomException(
                     CustomExceptionStatus.AWS_S3_IMG_UPLOAD_CONNECTION_ERROR,
-                    "AWS S3 이미지를 업로드 중 서버 내부의 에러가 발생하여 이미지를 S3에 업로드하지 못했습니다. \n Error message : "+e.getMessage(),
+                    "AWS S3 이미지를 업로드 중 서버 내부의 에러가 발생하여 이미지를 S3에 업로드하지 못했습니다. "+
+                    System.lineSeparator()+
+                    " Error message : "+e.getMessage(),
                     this.getClass().getSimpleName(),
                     null,
                     Domain.MEMBER

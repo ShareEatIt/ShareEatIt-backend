@@ -32,7 +32,8 @@ public class CustomAuthenticationFailureHandler implements AuthenticationFailure
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
         CustomException customException = new CustomException(
                 CustomExceptionStatus.LOGIN_FAIL,
-                "어플리케이션 자체 로그인 인증과정에서 오류가 발생하여 로그인에 실패했습니다. \n Error message : "+exception.getMessage(),
+                "어플리케이션 자체 로그인 인증과정에서 오류가 발생하여 로그인에 실패했습니다. "+
+                System.lineSeparator()+" Error message : "+exception.getMessage(),
                 this.getClass().getSimpleName(),
                 null,
                 Domain.AUTH);

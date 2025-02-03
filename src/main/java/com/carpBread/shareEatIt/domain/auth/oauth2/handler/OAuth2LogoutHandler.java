@@ -113,7 +113,8 @@ public class OAuth2LogoutHandler implements LogoutHandler {
                     // 로그아웃 중 오류가 발생한 경우
                     throw new CustomException(
                             CustomExceptionStatus.LOGOUT_FAIL,
-                            "KAKAO 로그아웃 중 오류가 발생했습니다. \n Error Response : "+error.getMessage(),
+                            "KAKAO 로그아웃 중 오류가 발생했습니다. "+
+                            System.lineSeparator()+" Error Response : "+error.getMessage(),
                             this.getClass().getSimpleName(),
                             null,
                             Domain.AUTH
@@ -139,7 +140,8 @@ public class OAuth2LogoutHandler implements LogoutHandler {
                     // 로그아웃 중 오류가 발생한 경우
                     throw new CustomException(
                             CustomExceptionStatus.LOGOUT_FAIL,
-                            "NAVER 로그아웃 중 오류가 발생했습니다. \n Error Response : "+error.getMessage(),
+                            "NAVER 로그아웃 중 오류가 발생했습니다. "+
+                            System.lineSeparator()+" Error Response : "+error.getMessage(),
                             this.getClass().getSimpleName(),
                             null,
                             Domain.AUTH
@@ -163,7 +165,8 @@ public class OAuth2LogoutHandler implements LogoutHandler {
                     // 로그아웃 중 오류가 발생한 경우
                     throw new CustomException(
                             CustomExceptionStatus.LOGOUT_FAIL,
-                            "GOOGLE 로그아웃 중 오류가 발생했습니다. \n Error Response : "+error.getMessage(),
+                            "GOOGLE 로그아웃 중 오류가 발생했습니다. "+
+                            System.lineSeparator()+" Error Response : "+error.getMessage(),
                             this.getClass().getSimpleName(),
                             null,
                             Domain.AUTH
