@@ -117,11 +117,9 @@ tasks.withType(JavaCompile).configureEach {
 	options.getGeneratedSourceOutputDirectory().set(file(querydslDir))
 }
 
+
+
 clean.doLast {
 	file(querydslDir).deleteDir()
-}
-
-clean {
-	delete file('src/main/generated')
 }
 
