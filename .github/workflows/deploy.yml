@@ -55,7 +55,7 @@ jobs:
       - name: Docker Build
         run: |
           docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker PUSH ${{ secrets.DOCKER_USERNAME }}/shareEatIt:latest
+          docker push ${{ secrets.DOCKER_USERNAME }}/shareEatIt:latest
 
       # GitHub Secrets에 추가한 액세스 키 값으로 AWS 사용자 인증
       - name: Configure AWS credentials
