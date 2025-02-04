@@ -105,37 +105,37 @@ tasks.withType(JavaCompile) {
 tasks.named('test') {
 	useJUnitPlatform()
 }
-
-// querydsl config
-
-//// 1. Q클래스가 생성될 경로 지정
-def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile
-
-//// 2. querydsl 플러그인의 설정
-querydsl{
-	jpa = true
-	querydslSourcesDir = querydslDir
-}
-
-//// 3. Gradle이 Q클래스를 소스코드로 인식하도록 sourcesSets에 경로 추가
-sourceSets {
-	main.java.srcDir querydslDir
-}
-
-//// 4. compilequerydsl 어노테이션 프로세서가 실행될 수 있도록 gradle 컴파일 과정에 포함시킴
-compileQuerydsl{
-	options.annotationProcessorPath = configurations.querydsl
-}
-
-//// 5. compileOnly에 어노테이션 프로세서가 컴파일에 필요한 라이브러리를 사용할 수 있게, 컴파일된 버전을 사용할 수 있게 경로 참조하도록 설정
-configurations {
-	compileOnly {
-		extendsFrom annotationProcessor
-	}
-	querydsl.extendsFrom compileClasspath
-}
 //
-//compileQuerydsl.doFirst {
-//	if(file(querydslDir).exists() )
-//		delete(file(querydslDir))
+//// querydsl config
+//
+////// 1. Q클래스가 생성될 경로 지정
+//def querydslDir = layout.buildDirectory.dir("generated/querydsl").get().asFile
+//
+////// 2. querydsl 플러그인의 설정
+//querydsl{
+//	jpa = true
+//	querydslSourcesDir = querydslDir
 //}
+//
+////// 3. Gradle이 Q클래스를 소스코드로 인식하도록 sourcesSets에 경로 추가
+//sourceSets {
+//	main.java.srcDir querydslDir
+//}
+//
+////// 4. compilequerydsl 어노테이션 프로세서가 실행될 수 있도록 gradle 컴파일 과정에 포함시킴
+//compileQuerydsl{
+//	options.annotationProcessorPath = configurations.querydsl
+//}
+//
+////// 5. compileOnly에 어노테이션 프로세서가 컴파일에 필요한 라이브러리를 사용할 수 있게, 컴파일된 버전을 사용할 수 있게 경로 참조하도록 설정
+//configurations {
+//	compileOnly {
+//		extendsFrom annotationProcessor
+//	}
+//	querydsl.extendsFrom compileClasspath
+//}
+////
+////compileQuerydsl.doFirst {
+////	if(file(querydslDir).exists() )
+////		delete(file(querydslDir))
+////}

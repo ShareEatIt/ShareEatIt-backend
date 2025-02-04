@@ -26,6 +26,9 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class OAuth2FailureHandler extends SimpleUrlAuthenticationFailureHandler {
 
+    @Value("${spring.security.oauth2.client-redirect-url}")
+    private String clientRedirectUrl;
+
     @Value("${sentry.dsn}")
     private String dsn;
 
@@ -83,7 +86,7 @@ public class OAuth2FailureHandler extends SimpleUrlAuthenticationFailureHandler 
     /* 프런트엔드 redirect url 빌드 */
     private String buildRedirectUrl(){
         return UriComponentsBuilder
-                .fromUriString("http://localhost:3000/home")
+                .fromUriString(clientRedirectUrl)
                 .build().toUriString();
     }
 }
