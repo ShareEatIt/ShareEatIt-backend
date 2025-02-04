@@ -14,7 +14,7 @@ import lombok.experimental.SuperBuilder;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "PARTICIPATIONS")
+@Table(name = "participations")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @SuperBuilder
 @Getter

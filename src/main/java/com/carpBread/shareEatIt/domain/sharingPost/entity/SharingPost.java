@@ -17,7 +17,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "SHARING_POSTS")
+@Table(name = "sharing_posts")
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder

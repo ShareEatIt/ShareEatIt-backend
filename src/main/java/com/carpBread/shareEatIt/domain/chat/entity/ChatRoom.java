@@ -10,7 +10,7 @@ import lombok.experimental.SuperBuilder;
 import org.springframework.context.annotation.Profile;
 
 @Entity
-@Table(name = "CHAT_ROOM")
+@Table(name = "chat_room")
 @NoArgsConstructor
 @AllArgsConstructor
 @SuperBuilder
