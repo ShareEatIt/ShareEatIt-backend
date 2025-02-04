@@ -68,7 +68,7 @@ public class SseService {
                 redisTemplate.opsForHash().delete("sse:clients", memberId.toString());
                 throw new CustomException(
                         CustomExceptionStatus.NOTICE_SEND_FAIL,
-                        "알림을 전송하는 과정에서 오류가 발생했습니다 \n Error message : "+e.getMessage(),
+                        "알림을 전송하는 과정에서 오류가 발생했습니다 "+System.lineSeparator()+" Error message : "+e.getMessage(),
                         this.getClass().getSimpleName(),
                         memberId,
                         Domain.NOTICE);

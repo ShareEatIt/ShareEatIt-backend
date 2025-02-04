@@ -37,7 +37,7 @@ public interface SharingPostQuerydslRepository {
     // 전체 나눔 사용자 중 순위
     int findSharingRank(Member member);
 
-    // 기간 내 작성자 작성한 sharingPost total
+    // radius 내 나눔 사용자 중 순위
     int findSharingRankInRadius(Member writer,
                                           double radius);
 

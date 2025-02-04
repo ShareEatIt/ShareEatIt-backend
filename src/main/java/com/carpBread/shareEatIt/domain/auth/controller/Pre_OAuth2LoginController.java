@@ -9,7 +9,6 @@ import com.carpBread.shareEatIt.global.response.ApiResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 /* 소셜 로그인 controller */
@@ -23,7 +22,8 @@ public class Pre_OAuth2LoginController {
     private final Pre_OAuth2Service preOAuth2Service;
 
     @GetMapping
-    public ResponseEntity<ApiResponse<AuthLoginResponseDto>> oauth2Login(@RequestParam(name = "code")String code){
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiResponse<AuthLoginResponseDto> oauth2Login(@RequestParam(name = "code")String code){
         String oauth2AccessToken="";
         AuthLoginResponseDto responseDto=null;
 
@@ -33,16 +33,15 @@ public class Pre_OAuth2LoginController {
         }catch (Exception e){
             throw new CustomException(
                     CustomExceptionStatus.LOGIN_FAIL,
-                    "소셜 로그인에 실패하였습니다. \n Error Message : "+e.getMessage(),
+                    "소셜 로그인에 실패하였습니다. "+System.lineSeparator()+" Error Message : "+e.getMessage(),
                     Pre_OAuth2LoginController.class.getSimpleName(),
                     null,
                     Domain.AUTH
             );
         }
 
-        ApiResponse<AuthLoginResponseDto> response = new ApiResponse<>(HttpStatus.OK.value(), "소셜 로그인 성공", responseDto);
+        return new ApiResponse<>(HttpStatus.CREATED.value(), "소셜 로그인 성공", responseDto);
 
-        return ResponseEntity.ok().body(response);
 
     }
 }

@@ -33,6 +33,7 @@ public class KeywordController {
 
     // 사용중인(avail==true) 키워드 리스트 조회
     @GetMapping("/avail")
+    @ResponseStatus(HttpStatus.OK)
     public ApiResponse<KeywordAvailableListResponseDto> getAllAvailKeywordsList(@AuthUser Member member){
         KeywordAvailableListResponseDto responseDto = keywordService.getAllAvailKeywordList(member);
         ApiResponse<KeywordAvailableListResponseDto> response = new ApiResponse<>(HttpStatus.OK.value(), "현재 사용중인 키워드 목록 조회 성공", responseDto);
@@ -42,6 +43,7 @@ public class KeywordController {
 
     // 등록 기력이 있는 키워드 리스트 조회
     @GetMapping("/all")
+    @ResponseStatus(HttpStatus.OK)
     public ApiResponse<KeywordAvailableListResponseDto> getAllKeywordsList(@AuthUser Member member){
         KeywordAvailableListResponseDto responseDto = keywordService.getAllKeywordList(member);
         ApiResponse<KeywordAvailableListResponseDto> response = new ApiResponse<>(HttpStatus.OK.value(), "등록 이력이 있는 키워드 목록 조회 성공", responseDto);
@@ -51,6 +53,7 @@ public class KeywordController {
 
     // 키워드 사용 중지
     @PatchMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public ApiResponse<KeywordResponseDto> changeKeywordUsageToUnAvailable(@AuthUser Member member,
                                                                                            @PathVariable(name = "id") Long id){
         KeywordResponseDto responseDto = keywordService.changeKeywordUsageToUnAvailable(member,id);
@@ -63,6 +66,7 @@ public class KeywordController {
 
     // 키워드 삭제
     @DeleteMapping("/{id}")
+    @ResponseStatus(HttpStatus.OK)
     public ApiResponse<KeywordResponseDto> deleteKeyword(@AuthUser Member member,
                                                                          @PathVariable(name = "id") Long id){
         KeywordResponseDto responseDto = keywordService.deleteKeyword(member,id);
