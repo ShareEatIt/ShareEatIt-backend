@@ -1,6 +1,7 @@
 package com.carpBread.shareEatIt.domain.participation.service;
 
 import com.carpBread.shareEatIt.domain.chat.entity.ChatRoom;
+import com.carpBread.shareEatIt.domain.chat.repository.ChatRoomRepository;
 import com.carpBread.shareEatIt.domain.chat.service.ChatRoomService;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.notice.dto.NoticeCreateDto;
@@ -8,7 +9,6 @@ import com.carpBread.shareEatIt.domain.notice.dto.NoticeRelatedObjectResponseCom
 import com.carpBread.shareEatIt.domain.notice.entity.Notice;
 import com.carpBread.shareEatIt.domain.notice.entity.NoticeType;
 import com.carpBread.shareEatIt.domain.notice.repository.NoticeRepository;
-import com.carpBread.shareEatIt.domain.notice.service.NoticeService;
 import com.carpBread.shareEatIt.domain.notice.service.SseService;
 import com.carpBread.shareEatIt.domain.participation.dto.*;
 import com.carpBread.shareEatIt.domain.participation.entity.Participation;
@@ -21,18 +21,21 @@ import com.carpBread.shareEatIt.domain.sharingPost.entity.PostType;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
 import com.carpBread.shareEatIt.domain.sharingPost.service.SharingPostService;
-import com.carpBread.shareEatIt.global.exception.AppException;
-import com.carpBread.shareEatIt.global.exception.ErrorCode;
+import com.carpBread.shareEatIt.global.exception.CustomException;
+import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.apache.commons.lang3.tuple.Pair;
+import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.carpBread.shareEatIt.global.exception.ErrorCode.*;
-import static com.carpBread.shareEatIt.global.exception.ErrorCode.CAN_NOT_PARTICIPATE_MY_POST;
+import static com.carpBread.shareEatIt.global.exception.CustomExceptionStatus.*;
+import static com.carpBread.shareEatIt.global.exception.CustomExceptionStatus.CAN_NOT_PARTICIPATE_MY_POST;
+import static com.carpBread.shareEatIt.global.exception.Domain.PARTICIPATION;
 
 @Service
 @Transactional
@@ -43,25 +46,36 @@ public class ParticipationService {
     private final ParticipationRepository participationRepository;
     private final SharingPostRepository sharingPostRepository;
     private final GratitudeStickerRepository gratitudeStickerRepository;
+    private final ChatRoomRepository chatRoomRepository;
     private final NoticeRepository noticeRepository;
+
     private final ChatRoomService chatRoomService;
     private final SseService sseService;
     private final SharingPostService sharingPostService;
 
     /* 참여 생성 - 나눔글 채팅 참여 */
-    public ParticipationResponseDto createParticipation(Member receiver, ParticipationRequestDto requestDto) {
+    public Pair<HttpStatus, ParticipationResponseDto> createParticipation(Member receiver, ParticipationRequestDto requestDto) {
+
+        Long postId= requestDto.getSharingPostId();
 
         // requestDto로 받아온 postId의 나눔글 조회
-        SharingPost post = sharingPostRepository.findById(requestDto.getSharingPostId())
-                .orElseThrow(() -> new AppException(NOT_FOUND_SHARINGPOST, "해당ID의 나눔글을 찾지 못했습니다.", "/participations"));
+        SharingPost post = sharingPostRepository.findById(postId)
+                .orElseThrow(() -> new CustomException(NOT_FOUND_SHARINGPOST, "해당ID의 나눔글을 찾지 못했습니다.", "ParticipationService", "participationId: "+requestDto.getSharingPostId(), PARTICIPATION));
 
         // 참여하려는 사용자가 개설자가 아닌지 확인
         if(post.getWriter().getId().equals(receiver.getId())){
-            throw new AppException(CAN_NOT_PARTICIPATE_MY_POST, "본인의 나눔글에는 참여할 수 없습니다. ", "/participations");
+            throw new CustomException(CAN_NOT_PARTICIPATE_MY_POST, "본인의 나눔글에는 참여할 수 없습니다. ", "ParticipationService", null, PARTICIPATION);
         }
 
-        // Participation 객체 생성
-        Participation participation = Participation.builder()
+        // 이미 참여한 나눔인 경우 - 참여 기록 반환
+        Participation existingParticipation = participationRepository.findByPostIdAndReceiverId(postId, receiver.getId());
+        if (existingParticipation != null) {
+            ChatRoom existingChatRoom = chatRoomRepository.findByParticipationId(existingParticipation.getId());
+            return Pair.of(HttpStatus.OK, ParticipationResponseDto.from(existingParticipation, existingChatRoom));
+        }
+
+        // 참여 객체 생성
+        Participation newParticipation = Participation.builder()
                 .post(post)
                 .status(ParticipationStatus.AVAILABLE)
                 .giver(post.getWriter())
@@ -69,17 +83,11 @@ public class ParticipationService {
                 .isGiverInChat(true)
                 .isReceiverInChat(true)
                 .build();
-
-        // Participation 객체 저장
-        Participation savedParticipation = participationRepository.save(participation);
-
+        Participation savedParticipation = participationRepository.save(newParticipation);
         // 채팅방 생성
-        ChatRoom savedChatRoom = chatRoomService.createChatRoom(receiver, participation.getId());
+        ChatRoom savedChatRoom = chatRoomService.createChatRoom(receiver, savedParticipation.getId());
 
-        // 응답 DTO 생성
-        ParticipationResponseDto responseDto = ParticipationResponseDto.from(savedParticipation, savedChatRoom);
-        return responseDto;
-
+        return Pair.of(HttpStatus.CREATED, ParticipationResponseDto.from(savedParticipation, savedChatRoom));
     }
 
 
@@ -117,8 +125,7 @@ public class ParticipationService {
                 .filter(imgUrl -> imgUrl.getImgOrder() == 1) // imgOrder가 1인 이미지 필터링
                 .map(PostImgUrl::getUrl) // URL만 추출
                 .findFirst() // 첫 번째 URL 가져오기
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_POST_IMAGE,
-                        "현재 POST에 해당하는 IMAGE를 찾을 수 없습니다", "/sharing"));
+                .orElseThrow(() -> new CustomException(CustomExceptionStatus.NOT_FOUND_POST_IMAGE, "ParticipationService", "현재 POST에 해당하는 IMAGE를 찾을 수 없습니다", null, PARTICIPATION));
     }
 
 
@@ -127,31 +134,31 @@ public class ParticipationService {
 
         // participation 객체 찾아오기
         Participation participation = participationRepository.findById(ptId)
-                .orElseThrow(() -> new AppException(NOT_FOUND_PARTICIPATION, "해당 ID의 참여기록을 찾지 못했습니다.", "/participation/"+ptId));
+                .orElseThrow(() -> new CustomException(NOT_FOUND_PARTICIPATION, "해당 ID의 참여기록을 찾지 못했습니다.", "ParticipationService", "participationId: "+ptId, PARTICIPATION));
 
         String sharingPostStatus = participation.getPost().getStatus().toString();
         String participationStatus = ptStatus.toString();
 
         // 검증1: 해당 참여의 나눔글과 동일한 상태로 변경하려는 상태인지 확인 (이미 찜 or 나눔완료 된 나눔글의 참여인 경우)
         if (sharingPostStatus.equals(participationStatus)){
-            log.error("이미 나눔글이 {}인 상태로, 같은 상태로 변경 불가", sharingPostStatus);
+            log.warn("이미 나눔글이 {}인 상태로, 같은 상태로 변경 불가", sharingPostStatus);
             if (sharingPostStatus.equals("COMPLETED")){
-                throw new AppException(ALREADY_COMPLETED_SHARINGPOST, "이미 나눔 완료된 나눔입니다.", "/participation/"+ptId);
+                throw new CustomException(ALREADY_COMPLETED_SHARINGPOST, "이미 나눔 완료된 나눔입니다.", "ParticipationService", null, PARTICIPATION);
             }
             else if (sharingPostStatus.equals("MATCHED")){
-                throw new AppException(ALREADY_MATCHED_SHARINGPOST, "이미 찜 상태인 나눔입니다.", "/participation/"+ptId);
+                throw new CustomException(ALREADY_MATCHED_SHARINGPOST, "이미 찜 상태인 나눔입니다.", "ParticipationService", null, PARTICIPATION);
             }
             else {
-                throw new AppException(ALREADY_AVAILABLE_SHARINGPSOT, "현재 나눔 가능한 상태로 변경할 상태가 없습니다.", "/participation/"+ptId);
+                throw new CustomException(ALREADY_AVAILABLE_SHARINGPSOT, "현재 나눔 가능한 상태로 변경할 상태가 없습니다.", "ParticipationService", null, PARTICIPATION);
             }
         }
 
         // 검증2: 사용자가 나눔자의 writer인지 확인
         if (!giver.getId().equals(participation.getPost().getWriter().getId())){
-            log.error("사용자 != 나눔글 작성자");
+            log.warn("사용자 != 나눔글 작성자");
             log.info("giverId : {}", giver.getId());
             log.info("writerId : {}", participation.getPost().getWriter().getId());
-            throw new AppException(NOT_WRITER_OF_SHARINGPOST, "나눔글 작성자가 아니므로 나눔 상태를 변경할 수 없습니다.", "/participation/"+ptId);
+            throw new CustomException(NOT_WRITER_OF_SHARINGPOST, "나눔글 작성자가 아니므로 나눔 상태를 변경할 수 없습니다.", "ParticipationService", null, PARTICIPATION);
         }
 
         // 상태 변경
@@ -164,8 +171,8 @@ public class ParticipationService {
             SharingPost post = participation.getPost();
             post.updateStatus(postStatus);
         } catch (IllegalArgumentException e) {
-            log.error("잘못된 상태값으로, 해당 나눔글의 상태 변경에 실패");
-            throw new AppException(INVALID_STATUS_VALUE ,"잘못된 상태값으로, 해당 나눔글의 상태 변경에 실패하였습니다.", "/participation/"+ptId);
+            log.warn("잘못된 상태값으로, 해당 나눔글의 상태 변경에 실패");
+            throw new CustomException(INVALID_STATUS_VALUE ,"잘못된 상태값으로, 해당 나눔글의 상태 변경에 실패하였습니다.", "ParticipationService", null, PARTICIPATION);
         }
 
         // 변경한 내용 저장
@@ -181,7 +188,7 @@ public class ParticipationService {
     }
 
 
-    // review notice 보내기
+    /* review notice 보내기 */
     private void sendNotification(Participation participation,ParticipationStatus status){
         // 검증 1. 참여자가 Notice 설정을 하지 않은 경우 반환
         if (!sseService.isRegistered(participation.getReceiver().getId()))
@@ -230,11 +237,5 @@ public class ParticipationService {
 
 
     }
-
-
-
-
-
-
 
 }

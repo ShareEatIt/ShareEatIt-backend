@@ -8,7 +8,7 @@ import org.springframework.data.redis.listener.ChannelTopic;
 import org.springframework.data.redis.repository.configuration.EnableRedisRepositories;
 import org.springframework.data.redis.serializer.GenericJackson2JsonRedisSerializer;
 import org.springframework.data.redis.serializer.StringRedisSerializer;
-
+/* Redis 설정 */
 @Configuration
 @EnableRedisRepositories
 public class RedisConfig {

@@ -10,13 +10,12 @@ import com.carpBread.shareEatIt.domain.report.dto.ReportPostResponseComponent;
 import com.carpBread.shareEatIt.domain.report.entity.Report;
 import com.carpBread.shareEatIt.domain.report.entity.ReportStatus;
 import com.carpBread.shareEatIt.domain.report.repository.ReportRepository;
-import com.carpBread.shareEatIt.domain.sharingPost.entity.PostImgUrl;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
-import com.carpBread.shareEatIt.global.exception.AppException;
-import com.carpBread.shareEatIt.global.exception.ErrorCode;
+import com.carpBread.shareEatIt.global.exception.CustomException;
+import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
+import com.carpBread.shareEatIt.global.exception.Domain;
 import jakarta.transaction.Transactional;
-import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -40,17 +39,83 @@ public class ReportService {
 
 
     public ReportCreateResponseDto createNewReport(Member member, MultipartFile imgFile, ReportCreateRequestDto dto) {
-        SharingPost findPost = sharingPostRepository.findById(dto.getPostId())
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_POST, "해당 id에 대응하는 SHARING POST가 존재하지 않습니다.", "/report"));
 
-        if (findPost.getWriter().getId()==member.getId()){
-            throw new AppException(ErrorCode.CANNOT_REPORT_SELF,"본인의 게시글을 신고할 수 없습니다","/report");
+        // 1. 게시글 확인
+        SharingPost findPost = sharingPostRepository.findById(dto.getPostId())
+                .orElseThrow(() -> new CustomException(
+                        CustomExceptionStatus.NOT_FOUND_POST,
+                        "해당 ID에 대응하는 SHARING POST가 존재하지 않습니다.",
+                        this.getClass().getSimpleName(),
+                        dto.getPostId(),
+                        Domain.REPORT));
+
+        // 2. 이전에 같은 신고자가 같은 글을 신고한 기록이 있는지 확인
+        boolean exists = reportRepository.existsByReporterAndPost(member, findPost);
+        if (exists){
+            throw new CustomException(
+                    CustomExceptionStatus.ALREADY_EXISTS_REPORT,
+                    "동일한 나눔글에 대한 신고자의 신고내역이 존재하여 신고글을 생성할 수 없습니다.",
+                    this.getClass().getSimpleName(),
+                    "Member ID : "+member.getId()+" Post ID : "+findPost.getId(),
+                    Domain.REPORT
+            );
         }
 
+        // 3. 신고자와 게시글 작성자 다른지 확인
+        if (findPost.getWriter().getId()==member.getId()){
+            throw new CustomException(
+                    CustomExceptionStatus.CANNOT_REPORT_SELF,
+                    "본인의 게시글을 신고할 수 없습니다",
+                    this.getClass().getSimpleName(),
+                    "post writer id : "+findPost.getWriter().getId()+
+                    System.lineSeparator()+
+                    " login member id : "+member.getId(),
+                    Domain.REPORT
+                    );
+        }
+
+        // 이미지가 있을 경우 S3에 업로드
+        String imgUrl = uploadReportImageToS3(imgFile);
+
+        // 새로운 REPORT 객체 생성
+        Report newReport = new Report(
+                dto.getTitle(), dto.getContent(), ReportStatus.IN_PROGRESS,
+                imgUrl, member, findPost
+        );
+        Report savedReport = reportRepository.save(newReport);
+
+
+        // response dto 생성
+        ReportMemberResponseComponent reporter = new ReportMemberResponseComponent(member.getId(), member.getNickname());
+
+        ReportMemberResponseComponent writer= new ReportMemberResponseComponent(findPost.getWriter().getId(),findPost.getWriter().getNickname());
+
+        ReportPostResponseComponent post = new ReportPostResponseComponent(findPost.getId(), writer);
+
+        return new ReportCreateResponseDto(
+                savedReport.getId(),
+                savedReport.getTitle(),
+                savedReport.getContent(),
+                savedReport.getImgUrl(),
+                reporter,
+                post,
+                savedReport.getCreatedAt(),
+                savedReport.getStatus().name()
+        );
+    }
+
+
+    /* AWS S3에 신고 이미지 업로드 */
+    private String uploadReportImageToS3(MultipartFile imgFile){
         String imgUrl="";
 
         if (imgFile==null){
-            throw new AppException(ErrorCode.CANNOT_BE_NULL_IMG_FILE_FOR_REPORT,"신고 시 사진 파일은 필수입니다","/report");
+            throw new CustomException(
+                    CustomExceptionStatus.CANNOT_BE_NULL_IMG_FILE_FOR_REPORT,
+                    "신고 시 사진 파일은 필수입니다",
+                    this.getClass().getSimpleName(),
+                    null,
+                    Domain.REPORT);
         }else{
             String key="images/"+ UUID.randomUUID()+"_"+imgFile.getOriginalFilename();
             ObjectMetadata metadata = new ObjectMetadata();
@@ -60,50 +125,18 @@ public class ReportService {
             try (InputStream inputStream = imgFile.getInputStream()) {
                 s3Client.putObject(bucketName, key, inputStream, metadata);
             } catch (IOException e) {
-                throw new AppException(ErrorCode.AWS_S3_IMG_UPLOAD_CONNECTION_ERROR, "sharing post create - POST error", "/sharing");
+                throw new CustomException(
+                        CustomExceptionStatus.AWS_S3_IMG_UPLOAD_CONNECTION_ERROR,
+                        "AWS S3 이미지를 업로드 중 서버 내부의 에러가 발생하여 이미지를 S3에 업로드하지 못했습니다. "+
+                        System.lineSeparator()+" Error message : "+e.getMessage(),
+                        this.getClass().getSimpleName(),
+                        null,
+                        Domain.REPORT);
             }
 
             imgUrl = s3Client.getUrl(bucketName, key).toString();
 
         }
-
-        Report newReport = Report.builder()
-                .title(dto.getTitle())
-                .content(dto.getContent())
-                .status(ReportStatus.IN_PROGRESS)
-                .response(null)
-                .imgUrl(imgUrl)
-                .reviewedAt(null)
-                .responseAt(null)
-                .reporter(member)
-                .post(findPost)
-                .build();
-        Report savedReport = reportRepository.save(newReport);
-
-        ReportMemberResponseComponent reporter = ReportMemberResponseComponent.builder()
-                .id(member.getId())
-                .nickname(member.getNickname())
-                .build();
-        ReportMemberResponseComponent writer= ReportMemberResponseComponent.builder()
-                .id(findPost.getWriter().getId())
-                .nickname(findPost.getWriter().getNickname())
-                .build();
-
-        ReportPostResponseComponent post = ReportPostResponseComponent.builder()
-                .id(findPost.getId())
-                .writer(writer)
-                .build();
-
-        return ReportCreateResponseDto.builder()
-                .id(savedReport.getId())
-                .title(savedReport.getTitle())
-                .content(savedReport.getContent())
-                .imgUrl(savedReport.getImgUrl())
-                .createdAt(savedReport.getCreatedAt())
-                .status(savedReport.getStatus().name())
-                .reporter(reporter)
-                .post(post)
-                .build();
-
+        return imgUrl;
     }
 }

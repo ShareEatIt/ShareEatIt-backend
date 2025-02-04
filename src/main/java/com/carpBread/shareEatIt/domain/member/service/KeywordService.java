@@ -6,8 +6,9 @@ import com.carpBread.shareEatIt.domain.member.dto.keyword.KeywordResponseDto;
 import com.carpBread.shareEatIt.domain.member.entity.Keywords;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.repository.KeywordsRepository;
-import com.carpBread.shareEatIt.global.exception.AppException;
-import com.carpBread.shareEatIt.global.exception.ErrorCode;
+import com.carpBread.shareEatIt.global.exception.CustomException;
+import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
+import com.carpBread.shareEatIt.global.exception.Domain;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,8 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+
+/* keyword 수정/삭제/조회 관련 서비스 */
 @Service
 @Transactional
 @RequiredArgsConstructor
@@ -24,7 +27,7 @@ public class KeywordService {
 
     public KeywordResponseDto createNewKeyword(Member member, KeywordCreateRequestDto dto) {
 
-        Keywords targetKeyword;
+        Keywords targetKeyword=null;
 
         // 해당 사용자가 사용하고 있는 경우
         if (keywordsRepository.existsByKeywordAndMember(dto.getKeyword(), member)){
@@ -32,7 +35,13 @@ public class KeywordService {
                     .orElseThrow(() -> new RuntimeException("domain.member.service.KeywordService inner server RUNTIME ERROR"));
 
             if (findKeyword.getAvail()){
-                throw new AppException(ErrorCode.ALREADY_USING_KEYWORD,"이미 사용중인 Keyword 입니다","/keyword");
+                throw new CustomException(
+                        CustomExceptionStatus.ALREADY_USING_KEYWORD,
+                        "이미 사용중인 Keyword 입니다",
+                        this.getClass().getSimpleName(),
+                        dto.getKeyword(),
+                        Domain.KEYWORD
+                        );
             }
             else{
                 findKeyword.changeAvail(true);
@@ -96,11 +105,17 @@ public class KeywordService {
 
     }
 
+    /* keyword 비활성화 */
     public KeywordResponseDto changeKeywordUsageToUnAvailable(Member member, Long id) {
 
         Keywords targetKeyword = keywordsRepository.findByMemberAndId(member, id)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_KEYWORD_UNAVAILABLE_ID, "update keyword unavailable - PATCH error", "/keyword/" + id));
-
+                .orElseThrow(() -> new CustomException(
+                        CustomExceptionStatus.NOT_FOUND_KEYWORD_UNAVAILABLE_ID,
+                        "회원과 KEYWORD ID에 해당하는 KEYWORD를 찾을 수 없습니다",
+                        this.getClass().getSimpleName(),
+                        id,
+                        Domain.KEYWORD
+                ));
         targetKeyword.changeAvail(false);
         Keywords changedKeyword = keywordsRepository.save(targetKeyword);
 
@@ -115,7 +130,12 @@ public class KeywordService {
     public KeywordResponseDto deleteKeyword(Member member, Long id) {
 
         Keywords deleteKeyword = keywordsRepository.findByMemberAndId(member, id)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_AVAILABLE_MEMBER_TO_DELETE_KEYWORD, "delete keyword - DELETE error", "/keyword/" + id));
+                .orElseThrow(() -> new CustomException(
+                        CustomExceptionStatus.NOT_AVAILABLE_MEMBER_TO_DELETE_KEYWORD,
+                        "회원과 KEYWORD ID에 해당하는 KEYWORD를 찾을 수 없습니다",
+                        this.getClass().getSimpleName(),
+                        id,
+                        Domain.KEYWORD));
 
         keywordsRepository.delete(deleteKeyword);
         return KeywordResponseDto.builder()

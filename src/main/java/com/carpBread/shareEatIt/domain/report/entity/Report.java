@@ -17,7 +17,6 @@ import java.time.LocalDateTime;
 @Entity
 @Table(name = "REPORT")
 @NoArgsConstructor
-@AllArgsConstructor
 @SuperBuilder
 @Getter
 public class Report extends BaseEntity {
@@ -56,5 +55,16 @@ public class Report extends BaseEntity {
     @ManyToOne
     @JoinColumn(name = "post_id")
     private SharingPost post;
+
+    public Report(String title, String content, ReportStatus status,
+                  String imgUrl, Member reporter, SharingPost post){
+        super();
+        this.title=title;
+        this.content=content;
+        this.status=status;
+        this.imgUrl=imgUrl;
+        this.reporter=reporter;
+        this.post=post;
+    }
 
 }

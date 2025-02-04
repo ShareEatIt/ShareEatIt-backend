@@ -1,34 +1,32 @@
 package com.carpBread.shareEatIt.global.config;
 
-import com.carpBread.shareEatIt.domain.auth.AuthLoginResponseDto;
-import com.carpBread.shareEatIt.domain.auth.OAuth2LogoutHandler;
-import com.carpBread.shareEatIt.domain.auth.util.JWTFilter;
-import com.carpBread.shareEatIt.domain.auth.util.JWTUtils;
-import com.carpBread.shareEatIt.domain.member.entity.Member;
+import com.carpBread.shareEatIt.domain.auth.handler.CustomAuthenticationFailureHandler;
+import com.carpBread.shareEatIt.domain.auth.handler.CustomAuthenticationSuccessHandler;
+import com.carpBread.shareEatIt.domain.auth.oauth2.handler.OAuth2FailureHandler;
+import com.carpBread.shareEatIt.domain.auth.oauth2.handler.OAuth2LogoutHandler;
+import com.carpBread.shareEatIt.domain.auth.oauth2.handler.OAuth2SuccessHandler;
+import com.carpBread.shareEatIt.domain.auth.oauth2.service.CustomOAuth2UserService;
+import com.carpBread.shareEatIt.global.jwt.JWTFilter;
+import com.carpBread.shareEatIt.global.jwt.JWTUtils;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
-import com.carpBread.shareEatIt.global.exception.AppException;
-import com.carpBread.shareEatIt.global.exception.ErrorCode;
-import com.carpBread.shareEatIt.global.response.ApiResponse;
+import com.carpBread.shareEatIt.global.jwt.JWTCustomExceptionHandler;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.HttpStatus;
 import org.springframework.security.config.annotation.method.configuration.EnableMethodSecurity;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.oauth2.core.user.DefaultOAuth2User;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
-import org.springframework.security.web.authentication.AuthenticationSuccessHandler;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-import org.springframework.web.reactive.function.client.WebClient;
 
 import java.util.Arrays;
 
@@ -38,42 +36,83 @@ import java.util.Arrays;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
+    // jwt
     private final JWTUtils jwtUtils;
+
+    // repository
     private final MemberRepository memberRepository;
+
+    // http connection
     private final ObjectMapper objectMapper;
-    private final WebClient webClient;
+
+    // redis
     private final RedisTemplate<String , Object> redisTemplate;
+
+    // handler
+    private final JWTCustomExceptionHandler jwtCustomExceptionHandler;
+
+    // oauth2
+    private final OAuth2SuccessHandler oAuth2SuccessHandler;
+    private final OAuth2FailureHandler oAuth2FailureHandler;
+    private final CustomOAuth2UserService oAuth2UserService;
+    private final OAuth2LogoutHandler oAuth2LogoutHandler;
+
+    // local login
+    private final CustomAuthenticationSuccessHandler authenticationSuccessHandler;
+    private final CustomAuthenticationFailureHandler authenticationFailureHandler;
 
     // 인증이 필요없는 URL 패턴 목록을 정의
     private static final String[] AUTH_WHITELIST = {
             "/login/**", // 로그인
             "/ws/**",
             "/oauth2/**",
-            "/auth/refresh"
+            "/auth/refresh",
+            "/sentry",
+            "/signup"
     };
 
+    /* security filter chain 설정 */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-            .formLogin(AbstractHttpConfigurer::disable)
+            .addFilterBefore(new JWTFilter(jwtUtils, memberRepository, redisTemplate), UsernamePasswordAuthenticationFilter.class)
+            .addFilterBefore(jwtCustomExceptionHandler, JWTFilter.class)
+            // form login 활성화
+            .formLogin(login -> login
+                    .usernameParameter("username")
+                    .passwordParameter("password")
+                    .successHandler(authenticationSuccessHandler)
+                    .failureHandler(authenticationFailureHandler)
+            )
             .httpBasic(AbstractHttpConfigurer::disable)
             .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
             .authorizeHttpRequests(request-> request
                     .requestMatchers(AUTH_WHITELIST).permitAll()  // 채팅 엔드포인트 인증 제외함
                     .anyRequest().hasRole("MEMBER")
             )
-            .addFilterBefore(new JWTFilter(jwtUtils,memberRepository,objectMapper,redisTemplate), UsernamePasswordAuthenticationFilter.class)
+            .oauth2Login(oauth2 ->oauth2
+                    .successHandler(oAuth2SuccessHandler)
+                    .failureHandler(oAuth2FailureHandler)
+                    .userInfoEndpoint(endpoint-> endpoint.userService(oAuth2UserService))
+            )
             .logout(logout -> logout
-                    .addLogoutHandler(new OAuth2LogoutHandler(webClient,memberRepository,jwtUtils,redisTemplate))
+                    .addLogoutHandler(oAuth2LogoutHandler)
                     .logoutUrl("/logout")
             );
+        ;
         return http.build();
 
     }
 
+    /* 비밀번호 암호화 해시 함수 bean 등록 */
+    @Bean
+    public PasswordEncoder passwordEncoder(){
+        return new BCryptPasswordEncoder();
+    }
 
+    /* cors 허용 범위 설정 */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
@@ -83,7 +122,7 @@ public class SecurityConfig {
         configuration.addAllowedOrigin("http://localhost:3000");
         configuration.addAllowedOrigin("http://localhost:5173");
         configuration.addAllowedOrigin("http://localhost:6379");
-//        configuration.addAllowedOrigin("http://localhost:8080");
+        configuration.addAllowedOrigin("http://localhost:8080");
         configuration.addAllowedOrigin("https://shareeatit.netlify.app");
         configuration.addAllowedOrigin("https://api.shareeat.r-e.kr");
 //        configuration.addAllowedOrigin("http://54.180.228.54:8080");

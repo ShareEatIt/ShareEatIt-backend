@@ -17,20 +17,19 @@ import com.carpBread.shareEatIt.domain.notice.repository.NoticeRepository;
 import com.carpBread.shareEatIt.domain.notice.service.SseService;
 import com.carpBread.shareEatIt.domain.participation.entity.Participation;
 import com.carpBread.shareEatIt.domain.participation.repository.ParticipationRepository;
-import com.carpBread.shareEatIt.global.exception.AppException;
-import com.carpBread.shareEatIt.global.exception.ErrorCode;
+import com.carpBread.shareEatIt.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static com.carpBread.shareEatIt.global.exception.ErrorCode.NOT_FOUND_CHATROOM;
-import static com.carpBread.shareEatIt.global.exception.ErrorCode.NOT_MEMBER_OF_CHATROOM;
+import static com.carpBread.shareEatIt.global.exception.CustomExceptionStatus.NOT_FOUND_CHATROOM;
+import static com.carpBread.shareEatIt.global.exception.CustomExceptionStatus.NOT_MEMBER_OF_CHATROOM;
+import static com.carpBread.shareEatIt.global.exception.Domain.CHAT;
 
 @Service
 @RequiredArgsConstructor
@@ -49,7 +48,7 @@ public class ChatMessageService {
 
         // requestDto로 받아온 roomId로 채팅방 조회
         ChatRoom chatRoom = chatRoomRepository.findById(requestDto.getChatRoomId())
-                .orElseThrow(() -> new AppException(NOT_FOUND_CHATROOM, "해당 Id의 채팅방을 찾을수 없습니다." , "/chat/message"));
+                .orElseThrow(() -> new CustomException(NOT_FOUND_CHATROOM, "해당 Id의 채팅방을 찾을수 없습니다.", "ChatMessageService", "chatRoomId: "+requestDto.getChatRoomId(), CHAT));
 
         // chatMessage 객체 생성
         ChatMessage message = ChatMessage.builder()
@@ -77,7 +76,7 @@ public class ChatMessageService {
 
         // 해당 채팅방에 속한 사람인지 확인
         if (!chatRoomRepository.existsByMemberInChatRoom(member.getId(), chatRoomId)){
-            throw new AppException(NOT_MEMBER_OF_CHATROOM, "채팅방의 유저가 아니므로 접근할 수 없습니다.", "/chat/message/" + chatRoomId);
+            throw new CustomException(NOT_MEMBER_OF_CHATROOM, "채팅방의 유저가 아니므로 접근할 수 없습니다.", "ChatMessageService", "memberId: "+ member.getId() + chatRoomId, CHAT);
         }
 
         List<ChatMessage> chatMessageList = chatMessageRepository.findByChatRoomId(chatRoomId);
@@ -86,7 +85,6 @@ public class ChatMessageService {
             count++;
         }
         System.out.println(count);
-
 
         List<ChatMessageResponseDto> dtoList = convertDtoToList(chatMessageList);
         return new ChatListResponseDto(dtoList);
@@ -100,11 +98,12 @@ public class ChatMessageService {
 
     }
 
-    // chatting 알람 보내기
+
+    /* chatting 알람 보내기 */
     private void sendNotification(ChatMessage chat){
         // 사용자 탐색
         ChatRoom chatRoom = chatRoomRepository.findById(chat.getChatRoomId())
-                .orElseThrow(() -> new AppException(NOT_FOUND_CHATROOM, "해당 Id의 채팅방을 찾을수 없습니다." , "/chat/message"));
+                .orElseThrow(() -> new CustomException(NOT_FOUND_CHATROOM, "해당 Id의 채팅방을 찾을수 없습니다." , "ChatMessageService", "ChatRoomId: "+chat.getChatRoomId(), CHAT));
         Participation participation = chatRoom.getParticipation();
         Member recipient;
         Member receiver = participation.getReceiver();

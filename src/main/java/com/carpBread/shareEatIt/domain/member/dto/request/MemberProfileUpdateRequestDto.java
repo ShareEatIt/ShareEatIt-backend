@@ -7,10 +7,10 @@ import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
-@Getter @Builder
+@Getter
 @NoArgsConstructor
-@AllArgsConstructor
 public class MemberProfileUpdateRequestDto {
+
     private String profileImg;
 
     @NotBlank
@@ -29,5 +29,15 @@ public class MemberProfileUpdateRequestDto {
     @NotBlank
     private String addressDetail;
 
-
+    public MemberProfileUpdateRequestDto(String profileImg, String nickname,
+                                         String provider, Double latitude, Double longitude,
+                                         String addressSt, String addressDetail) {
+        this.profileImg = profileImg;
+        this.nickname = nickname;
+        this.provider = provider;
+        this.latitude = latitude;
+        this.longitude = longitude;
+        this.addressSt = addressSt;
+        this.addressDetail = addressDetail;
+    }
 }

@@ -1,26 +1,25 @@
 package com.carpBread.shareEatIt.domain.notice.service;
 
 import com.carpBread.shareEatIt.domain.member.entity.Member;
-import com.carpBread.shareEatIt.domain.notice.controller.NoticeController;
-import com.carpBread.shareEatIt.domain.notice.dto.NoticeCreateDto;
 import com.carpBread.shareEatIt.domain.notice.dto.NoticeListResponseDto;
 import com.carpBread.shareEatIt.domain.notice.dto.NoticeResponseComponent;
 import com.carpBread.shareEatIt.domain.notice.dto.NoticeResponseDto;
 import com.carpBread.shareEatIt.domain.notice.entity.Notice;
 import com.carpBread.shareEatIt.domain.notice.repository.NoticeRepository;
-import com.carpBread.shareEatIt.global.exception.AppException;
-import com.carpBread.shareEatIt.global.exception.ErrorCode;
+import com.carpBread.shareEatIt.global.exception.CustomException;
+import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
+import com.carpBread.shareEatIt.global.exception.Domain;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
-import org.springframework.web.servlet.mvc.method.annotation.SseEmitter;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
 /*notice 관련 db 리스트 조회 기능을 담당하는 service*/
-@Service @Transactional(value = Transactional.TxType.REQUIRES_NEW)
+@Service @Slf4j
+@Transactional(value = Transactional.TxType.REQUIRES_NEW)
 @RequiredArgsConstructor
 public class NoticeService {
 
@@ -53,14 +52,30 @@ public class NoticeService {
                 .build();
 
     }
+
+    /* 알림을 id로 조회 */
     public NoticeResponseDto findNoticeById(Member member, Long id) {
         Notice notice = noticeRepository.findById(id)
-                .orElseThrow(() -> new AppException(ErrorCode.NOT_FOUND_NOTICE, "ID=" + id + "에 해당하는 알림을 찾을 수 없습니다","/notice/"+id));
-
+                .orElseThrow(() -> new CustomException(
+                        CustomExceptionStatus.NOT_FOUND_NOTICE,
+                        "ID에 해당하는 알림을 찾을 수 없습니다",
+                        this.getClass().getSimpleName(),
+                        id,
+                        Domain.NOTICE
+                )
+        );
         if (notice.getMember().getId() != member.getId())
-            throw new AppException(ErrorCode.UNAUTHORIZED_USER,"해당 알람을 확인할 수 없는 사용자입니다","/notice/"+id);
+            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_USER,
+                    "조회하려는 회원의 ID와 알람 대상의 ID가 일치하지 않아 알람을 확인할 수 없습니다",
+                    this.getClass().getSimpleName(),
+                    notice.getMember().getId(),
+                    Domain.NOTICE);
         if (notice.getIsRead())
-            throw new AppException(ErrorCode.ALREADY_READ,"이미 읽은 알림입니다","/notice/"+id);
+            throw new CustomException(CustomExceptionStatus.ALREADY_READ,
+                    "이미 읽은 알림입니다",
+                    this.getClass().getSimpleName(),
+                    notice.getIsRead(),
+                    Domain.NOTICE);
 
         notice.changeIsRead(true);
         noticeRepository.save(notice);

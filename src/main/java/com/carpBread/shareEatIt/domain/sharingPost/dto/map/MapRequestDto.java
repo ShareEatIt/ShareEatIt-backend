@@ -7,8 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @NoArgsConstructor
-@AllArgsConstructor
-@Getter @Builder
+@Getter
 public class MapRequestDto {
 
     @NotNull
@@ -16,4 +15,9 @@ public class MapRequestDto {
 
     @NotNull
     private Double latitude;
+
+    public MapRequestDto(Double longitude, Double latitude) {
+        this.longitude = longitude;
+        this.latitude = latitude;
+    }
 }
