@@ -57,7 +57,7 @@ jobs:
         run: | 
           echo "$DOCKER_PASSWORD" | docker login -u ${{ secrets.DOCKER_USERNAME }} --password-stdin
           # docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker build -t ${{ secrets.DOCKER_USERNAME }}/share-eat-it:latest .
+          docker build -f Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/share-eat-it:latest .
           docker push ${{ secrets.DOCKER_USERNAME }}/share-eat-it:latest
 
       # GitHub Secrets에 추가한 액세스 키 값으로 AWS 사용자 인증
