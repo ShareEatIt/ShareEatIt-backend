@@ -60,6 +60,8 @@ public class CustomOAuth2UserService implements OAuth2UserService<OAuth2UserRequ
         Boolean isJoined = signUpIfNotExists(oAuth2Attribute,accessToken, LoginProvider.toEnum(registrationId));
         attributesMap.put("is_new_member",isJoined);
 
+        System.out.println(oAuth2User.getAttributes());
+
         // 5. OAuth2User 구현 객체 리턴
         return new DefaultOAuth2User(
                 // authorization을 set으로 생성하여 추가가 삭제가 불가하고 단일 객체만 생성 가능
