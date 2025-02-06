@@ -282,13 +282,7 @@ public class CreateSharingPostService {
     /* 이미지 리스트 저장 */
     private void saveImageList(List<String> imgUrlList, SharingPost savedPost){
         for (int i=0; i<imgUrlList.size(); i++){
-            PostImgUrl newImgEntity = PostImgUrl.builder()
-                    .url(imgUrlList.get(i))
-                    .imgOrder(i + 1)
-                    .post(savedPost)
-                    .build();
-
-            postImgUrlRepository.save(newImgEntity);
+            postImgUrlRepository.save(new PostImgUrl(imgUrlList.get(i), i+1, savedPost));
 
         }
     }

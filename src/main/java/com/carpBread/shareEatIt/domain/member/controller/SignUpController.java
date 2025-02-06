@@ -8,10 +8,8 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Controller;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 /* 회원가입 컨트롤러 */
 @RestController
@@ -21,8 +19,11 @@ public class SignUpController {
     private final SignUpService signUpService;
 
     @PostMapping
-    public ApiResponse<SignUpResponseDto> signUp(@Valid @RequestBody SignUpRequestDto dto){
-        SignUpResponseDto responseDto = signUpService.registerNewMember(dto);
+    @ResponseStatus(HttpStatus.CREATED)
+    public ApiResponse<SignUpResponseDto> signUp(@RequestPart(name = "profileImg",required = false) MultipartFile profileImg,
+                                                 @RequestPart(name = "profile") @Valid SignUpRequestDto profile){
+
+        SignUpResponseDto responseDto = signUpService.registerNewMember(profileImg, profile);
 
         ApiResponse<SignUpResponseDto> response = new ApiResponse<>(
                 HttpStatus.CREATED.value(),

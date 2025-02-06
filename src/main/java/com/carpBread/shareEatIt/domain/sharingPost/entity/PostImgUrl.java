@@ -9,8 +9,7 @@ import lombok.NoArgsConstructor;
 @Entity
 @Table(name = "SHARING_POST_IMG_URL")
 @NoArgsConstructor
-@AllArgsConstructor
-@Builder @Getter
+@Getter
 public class PostImgUrl {
 
     @Id
@@ -32,4 +31,9 @@ public class PostImgUrl {
         this.imgOrder=order;
     }
 
+    public PostImgUrl(String url, Integer imgOrder, SharingPost post) {
+        this.url = url;
+        this.imgOrder = imgOrder;
+        this.post = post;
+    }
 }

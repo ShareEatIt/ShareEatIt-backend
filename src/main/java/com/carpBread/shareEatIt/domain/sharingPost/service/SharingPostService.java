@@ -317,13 +317,9 @@ public class SharingPostService {
                 }
 
                 String newUrl = s3Client.getUrl(bucketName, key).toString();
-                PostImgUrl newUrlEntity = PostImgUrl.builder()
-                        .post(updatedPost)
-                        .imgOrder(idx)
-                        .url(newUrl)
-                        .build();
+                PostImgUrl imgUrl = new PostImgUrl(newUrl, idx, updatedPost);
                 idx+=1;
-                postImgUrlRepository.save(newUrlEntity);
+                postImgUrlRepository.save(imgUrl);
             }
         }
     }
