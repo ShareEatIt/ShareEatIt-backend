@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -94,6 +95,8 @@ public class OAuth2LogoutHandler implements LogoutHandler {
                 break;
         }
 
+        response.setStatus(HttpStatus.OK.value());
+
     }
 
     /* KAKAO 로그아웃 */
@@ -113,7 +116,8 @@ public class OAuth2LogoutHandler implements LogoutHandler {
                     // 로그아웃 중 오류가 발생한 경우
                     throw new CustomException(
                             CustomExceptionStatus.LOGOUT_FAIL,
-                            "KAKAO 로그아웃 중 오류가 발생했습니다. \n Error Response : "+error.getMessage(),
+                            "KAKAO 로그아웃 중 오류가 발생했습니다. "+
+                            System.lineSeparator()+" Error Response : "+error.getMessage(),
                             this.getClass().getSimpleName(),
                             null,
                             Domain.AUTH
@@ -139,7 +143,8 @@ public class OAuth2LogoutHandler implements LogoutHandler {
                     // 로그아웃 중 오류가 발생한 경우
                     throw new CustomException(
                             CustomExceptionStatus.LOGOUT_FAIL,
-                            "NAVER 로그아웃 중 오류가 발생했습니다. \n Error Response : "+error.getMessage(),
+                            "NAVER 로그아웃 중 오류가 발생했습니다. "+
+                            System.lineSeparator()+" Error Response : "+error.getMessage(),
                             this.getClass().getSimpleName(),
                             null,
                             Domain.AUTH
@@ -163,7 +168,8 @@ public class OAuth2LogoutHandler implements LogoutHandler {
                     // 로그아웃 중 오류가 발생한 경우
                     throw new CustomException(
                             CustomExceptionStatus.LOGOUT_FAIL,
-                            "GOOGLE 로그아웃 중 오류가 발생했습니다. \n Error Response : "+error.getMessage(),
+                            "GOOGLE 로그아웃 중 오류가 발생했습니다. "+
+                            System.lineSeparator()+" Error Response : "+error.getMessage(),
                             this.getClass().getSimpleName(),
                             null,
                             Domain.AUTH

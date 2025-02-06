@@ -48,6 +48,7 @@ public class MemberService {
     private final SharingPostRepository sharingPostRepository;
     private final SseService sseService;
     private final AmazonS3 s3Client;
+    private final GeometryFactory geometryFactory;
     @Value("${cloud.aws.s3.bucket}")
     private String bucketName;
 
@@ -244,7 +245,9 @@ public class MemberService {
         catch (IOException e){
             throw new CustomException(
                     CustomExceptionStatus.AWS_S3_IMG_UPLOAD_CONNECTION_ERROR,
-                    "AWS S3 이미지를 업로드 중 서버 내부의 에러가 발생하여 이미지를 S3에 업로드하지 못했습니다. \n Error message : "+e.getMessage(),
+                    "AWS S3 이미지를 업로드 중 서버 내부의 에러가 발생하여 이미지를 S3에 업로드하지 못했습니다. "+
+                    System.lineSeparator()+
+                    " Error message : "+e.getMessage(),
                     this.getClass().getSimpleName(),
                     null,
                     Domain.MEMBER
@@ -257,7 +260,7 @@ public class MemberService {
 
     /* MemberService private 함수 : 새로운 위도와 경도로 Point 객체 새로 생성 */
     private Point createNewPoint(double latitude, double longitude){
-        Point newPoint = new GeometryFactory().createPoint(new Coordinate(longitude, latitude));
+        Point newPoint = geometryFactory.createPoint(new Coordinate(longitude, latitude));
         newPoint.setSRID(4326);
 
         return newPoint;

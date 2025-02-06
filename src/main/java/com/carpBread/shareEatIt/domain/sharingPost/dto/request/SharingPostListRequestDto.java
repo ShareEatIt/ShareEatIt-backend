@@ -1,4 +1,4 @@
-package com.carpBread.shareEatIt.domain.sharingPost.dto;
+package com.carpBread.shareEatIt.domain.sharingPost.dto.request;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;

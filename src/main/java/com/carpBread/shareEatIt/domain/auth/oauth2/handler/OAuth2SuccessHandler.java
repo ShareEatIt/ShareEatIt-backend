@@ -10,6 +10,7 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -25,6 +26,9 @@ import java.io.IOException;
 public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler {
     private final JWTUtils jwtUtils;
     private final MemberRepository memberRepository;
+
+    @Value("${spring.security.oauth2.client-redirect-url}")
+    private String clientRedirectUrl;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request, HttpServletResponse response, Authentication authentication) throws IOException, ServletException {
@@ -48,8 +52,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         String redirectUrl = buildRedirectUrl(responseDto);
 
-        System.out.println(request.getRequestURL());
-
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
 
 
@@ -58,7 +60,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
     /* 프런트엔드 redirect url 빌드 */
     private String buildRedirectUrl(AuthLoginResponseDto dto){
         return UriComponentsBuilder
-                .fromUriString("http://localhost:3000/home")
+                .fromUriString(clientRedirectUrl)
                 .queryParam("accessToken", dto.getAccessToken())
                 .queryParam("refreshToken", dto.getRefreshToken())
                 .queryParam("isNewMember", dto.getIsNewMember())

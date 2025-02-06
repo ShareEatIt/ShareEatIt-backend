@@ -26,6 +26,9 @@ import java.io.IOException;
 @RequiredArgsConstructor
 public class OAuth2FailureHandler extends SimpleUrlAuthenticationFailureHandler {
 
+    @Value("${spring.security.oauth2.client-redirect-url}")
+    private String clientRedirectUrl;
+
     @Value("${sentry.dsn}")
     private String dsn;
 
@@ -34,7 +37,8 @@ public class OAuth2FailureHandler extends SimpleUrlAuthenticationFailureHandler 
     public void onAuthenticationFailure(HttpServletRequest request, HttpServletResponse response, AuthenticationException exception) throws IOException, ServletException {
         CustomException customException = new CustomException(
                 CustomExceptionStatus.LOGIN_FAIL,
-                "OAUTH2 로그인 인증과정에서 오류가 발생하여 로그인에 실패했습니다. \n Error message : "+exception.getMessage(),
+                "OAUTH2 로그인 인증과정에서 오류가 발생하여 로그인에 실패했습니다. "+
+                System.lineSeparator()+" Error message : "+exception.getMessage(),
                 this.getClass().getSimpleName(),
                 null,
                 Domain.AUTH);
@@ -82,7 +86,7 @@ public class OAuth2FailureHandler extends SimpleUrlAuthenticationFailureHandler 
     /* 프런트엔드 redirect url 빌드 */
     private String buildRedirectUrl(){
         return UriComponentsBuilder
-                .fromUriString("http://localhost:3000/home")
+                .fromUriString(clientRedirectUrl)
                 .build().toUriString();
     }
 }

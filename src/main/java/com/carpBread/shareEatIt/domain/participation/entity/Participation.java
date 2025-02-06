@@ -7,18 +7,15 @@ import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
-import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
-
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "PARTICIPATIONS")
+@Table(name = "participations")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
-@AllArgsConstructor
 @SuperBuilder
 @Getter
 public class Participation extends BaseEntity {

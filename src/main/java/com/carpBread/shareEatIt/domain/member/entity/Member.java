@@ -16,7 +16,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Table(name = "MEMBER")
+@Table(name = "member")
 @NoArgsConstructor
 @SuperBuilder
 @Getter
@@ -70,12 +70,20 @@ public class Member extends BaseEntity {
 
     // 회원 거주 위도/경도 위치
     @Column(columnDefinition = "POINT", name = "location_point")
+    @NotNull
     private Point locationPoint;
 
     // 가게/개인 속성
     @Enumerated(value = EnumType.STRING)
     @NotNull
     private Provider provider;
+
+    @PrePersist
+    public void prePersist(){
+        if (locationPoint!=null){
+            locationPoint.setSRID(4326);
+        }
+    }
 
     @OneToMany(mappedBy = "member", fetch = FetchType.LAZY, cascade = CascadeType.ALL)
     List<Keywords> keywordsList = new ArrayList<>();

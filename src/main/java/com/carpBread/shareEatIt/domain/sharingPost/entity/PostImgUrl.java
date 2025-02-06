@@ -7,7 +7,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Entity
-@Table(name = "SHARING_POST_IMG_URL")
+@Table(name = "sharing_post_img_url")
 @NoArgsConstructor
 @Getter
 public class PostImgUrl {

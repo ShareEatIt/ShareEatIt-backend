@@ -12,7 +12,8 @@ import com.carpBread.shareEatIt.domain.participation.entity.Participation;
 import com.carpBread.shareEatIt.domain.participation.entity.ParticipationStatus;
 import com.carpBread.shareEatIt.domain.participation.repository.GratitudeStickerRepository;
 import com.carpBread.shareEatIt.domain.participation.repository.ParticipationRepository;
-import com.carpBread.shareEatIt.domain.sharingPost.dto.*;
+import com.carpBread.shareEatIt.domain.sharingPost.dto.request.SharingPostUpdateRequestDto;
+import com.carpBread.shareEatIt.domain.sharingPost.dto.response.SharingPostResponseDto;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.*;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.PostImgUrlRepository;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
@@ -309,7 +310,8 @@ public class SharingPostService {
                 } catch (IOException e) {
                     throw new CustomException(
                             CustomExceptionStatus.AWS_S3_IMG_UPLOAD_CONNECTION_ERROR,
-                            "AWS S3에 이미지를 업로드하는 과정에 오류가 발생하여 S3에 이미지를 업로드하지 못했습니다. \n Error message : "+e.getMessage(),
+                            "AWS S3에 이미지를 업로드하는 과정에 오류가 발생하여 S3에 이미지를 업로드하지 못했습니다. "+
+                            System.lineSeparator()+" Error message : "+e.getMessage(),
                             this.getClass().getSimpleName(),
                             null,
                             Domain.SHARING_POST

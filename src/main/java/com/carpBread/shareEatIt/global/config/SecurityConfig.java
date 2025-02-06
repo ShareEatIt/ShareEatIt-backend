@@ -6,6 +6,7 @@ import com.carpBread.shareEatIt.domain.auth.oauth2.handler.OAuth2FailureHandler;
 import com.carpBread.shareEatIt.domain.auth.oauth2.handler.OAuth2LogoutHandler;
 import com.carpBread.shareEatIt.domain.auth.oauth2.handler.OAuth2SuccessHandler;
 import com.carpBread.shareEatIt.domain.auth.oauth2.service.CustomOAuth2UserService;
+import com.carpBread.shareEatIt.global.entity.HttpCookieOAuth2AuthorizationRequestRepository;
 import com.carpBread.shareEatIt.global.jwt.JWTFilter;
 import com.carpBread.shareEatIt.global.jwt.JWTUtils;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
@@ -22,6 +23,8 @@ import org.springframework.security.config.annotation.web.configurers.AbstractHt
 import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.oauth2.client.web.AuthorizationRequestRepository;
+import org.springframework.security.oauth2.core.endpoint.OAuth2AuthorizationRequest;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.cors.CorsConfiguration;
@@ -50,6 +53,7 @@ public class SecurityConfig {
 
     // handler
     private final JWTCustomExceptionHandler jwtCustomExceptionHandler;
+    private final AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository;
 
     // oauth2
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
@@ -87,23 +91,37 @@ public class SecurityConfig {
                     .failureHandler(authenticationFailureHandler)
             )
             .httpBasic(AbstractHttpConfigurer::disable)
-            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .sessionManagement(session -> session
+                            .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+            )
             .authorizeHttpRequests(request-> request
                     .requestMatchers(AUTH_WHITELIST).permitAll()  // 채팅 엔드포인트 인증 제외함
                     .anyRequest().hasRole("MEMBER")
             )
             .oauth2Login(oauth2 ->oauth2
+                    .authorizationEndpoint(endpoint -> endpoint
+                            .authorizationRequestRepository(authorizationRequestRepository)
+                    )
                     .successHandler(oAuth2SuccessHandler)
                     .failureHandler(oAuth2FailureHandler)
-                    .userInfoEndpoint(endpoint-> endpoint.userService(oAuth2UserService))
+                    .userInfoEndpoint(endpoint-> endpoint
+                            .userService(oAuth2UserService))
             )
             .logout(logout -> logout
                     .addLogoutHandler(oAuth2LogoutHandler)
                     .logoutUrl("/logout")
+                    .invalidateHttpSession(true) // 세션 무효화
+                    .deleteCookies("JSESSIONID")
+                    .clearAuthentication(true)
             );
         ;
         return http.build();
 
+    }
+
+    @Bean
+    public AuthorizationRequestRepository<OAuth2AuthorizationRequest> authorizationRequestRepository(){
+        return new HttpCookieOAuth2AuthorizationRequestRepository();
     }
 
     /* 비밀번호 암호화 해시 함수 bean 등록 */

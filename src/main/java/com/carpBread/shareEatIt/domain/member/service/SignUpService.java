@@ -32,6 +32,7 @@ public class SignUpService {
     /* 회원가입 */
     public SignUpResponseDto registerNewMember(MultipartFile profileImg, SignUpRequestDto dto) {
 
+
         // username 고유 여부 인증
         memberModuleService.alreadyExistedUsername(dto.getUsername());
 
@@ -46,6 +47,19 @@ public class SignUpService {
             profileImgUrl= s3ImageUploadService.uploadOneImageToS3Bucket(profileImg);
 
         }
+
+        // 점검 : MySQL 8.4 Reference Manual 에 정의된 메뉴얼에 따라, latitude(위도)는 [-90.0, 90.0] / longitude(경도)는 [-180.0, 180.0] 범위로 지정
+        if ((dto.getLatitude()>90.0 || dto.getLatitude()<-90.0)
+                || (dto.getLongitude()>180.0 || dto.getLongitude()<-180.0)){
+            throw new CustomException(
+                    CustomExceptionStatus.VALUE_OUT_OF_RANGE,
+                    "입력한 위도 혹은 경도 값이 범위를 초과하거나 미만입니다. 범위를 재점검해주십시오.",
+                    this.getClass().getSimpleName(),
+                    "latitude : "+dto.getLatitude()+" longitude : "+dto.getLongitude(),
+                    Domain.SHARING_POST
+            );
+        }
+
 
         // 비밀번호 해시 암호화
         String encodedPW = encodingPassword(dto.getPassword());

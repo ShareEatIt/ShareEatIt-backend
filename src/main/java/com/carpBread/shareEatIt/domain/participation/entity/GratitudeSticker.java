@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 import lombok.experimental.SuperBuilder;
 
 @Entity
-@Table(name = "GRATITUDE_STICKERS")
+@Table(name = "gratitude_stickers")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)  // accesslevel을 지정함으로써 외부에서 실수로 엔티티 객체를 직접 생성하는 것 방지
 @SuperBuilder
 @Getter
