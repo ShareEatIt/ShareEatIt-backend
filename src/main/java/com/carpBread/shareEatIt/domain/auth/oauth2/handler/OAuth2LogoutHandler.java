@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -93,6 +94,8 @@ public class OAuth2LogoutHandler implements LogoutHandler {
                 googleLogout(member);
                 break;
         }
+
+        response.setStatus(HttpStatus.OK.value());
 
     }
 
