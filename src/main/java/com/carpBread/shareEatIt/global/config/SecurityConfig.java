@@ -2,8 +2,9 @@ package com.carpBread.shareEatIt.global.config;
 
 import com.carpBread.shareEatIt.domain.auth.handler.CustomAuthenticationFailureHandler;
 import com.carpBread.shareEatIt.domain.auth.handler.CustomAuthenticationSuccessHandler;
+import com.carpBread.shareEatIt.domain.auth.handler.CustomLogoutSuccessHandler;
 import com.carpBread.shareEatIt.domain.auth.oauth2.handler.OAuth2FailureHandler;
-import com.carpBread.shareEatIt.domain.auth.oauth2.handler.OAuth2LogoutHandler;
+import com.carpBread.shareEatIt.domain.auth.handler.CustomLogoutHandler;
 import com.carpBread.shareEatIt.domain.auth.oauth2.handler.OAuth2SuccessHandler;
 import com.carpBread.shareEatIt.domain.auth.oauth2.service.CustomOAuth2UserService;
 import com.carpBread.shareEatIt.global.entity.HttpCookieOAuth2AuthorizationRequestRepository;
@@ -59,7 +60,8 @@ public class SecurityConfig {
     private final OAuth2SuccessHandler oAuth2SuccessHandler;
     private final OAuth2FailureHandler oAuth2FailureHandler;
     private final CustomOAuth2UserService oAuth2UserService;
-    private final OAuth2LogoutHandler oAuth2LogoutHandler;
+    private final CustomLogoutHandler customLogoutHandler;
+    private final CustomLogoutSuccessHandler customLogoutSuccessHandler;
 
     // local login
     private final CustomAuthenticationSuccessHandler authenticationSuccessHandler;
@@ -108,7 +110,8 @@ public class SecurityConfig {
                             .userService(oAuth2UserService))
             )
             .logout(logout -> logout
-                    .addLogoutHandler(oAuth2LogoutHandler)
+                    .addLogoutHandler(customLogoutHandler)
+                    .logoutSuccessHandler(customLogoutSuccessHandler)
                     .logoutUrl("/logout")
                     .invalidateHttpSession(true) // 세션 무효화
                     .deleteCookies("JSESSIONID")
