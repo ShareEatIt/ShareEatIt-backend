@@ -8,6 +8,9 @@ import com.carpBread.shareEatIt.domain.participation.entity.Participation;
 import com.carpBread.shareEatIt.domain.participation.repository.ParticipationQuerydslRepository;
 import com.carpBread.shareEatIt.domain.sharingPost.dto.response.stats.RankResponseDto;
 import com.carpBread.shareEatIt.global.entity.Period;
+import com.carpBread.shareEatIt.global.exception.CustomException;
+import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
+import com.carpBread.shareEatIt.global.exception.Domain;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -48,6 +51,14 @@ public class ParticipationStatsService {
             period=ago.getYear()+"-"+ago.getMonthValue()+"-"+ago.getDayOfMonth()
                     +" ~ "
                     +now.getYear()+"-"+now.getMonthValue()+"-"+now.getDayOfMonth();
+        }else {
+            throw new CustomException(
+                    CustomExceptionStatus.INVALID_ENUM_VALUE,
+                    "올바르지 않은 PeriodType ENUM 값입니다",
+                    this.getClass().getSimpleName(),
+                    periodType,
+                    Domain.PARTICIPATION
+            );
         }
 
         // 2. paricipation 조회
