@@ -9,6 +9,9 @@ import com.carpBread.shareEatIt.global.entity.Period;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.PostStatus;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostQuerydslRepository;
+import com.carpBread.shareEatIt.global.exception.CustomException;
+import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
+import com.carpBread.shareEatIt.global.exception.Domain;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
@@ -49,6 +52,14 @@ public class StatsService {
             period=ago.getYear()+"-"+ago.getMonthValue()+"-"+ago.getDayOfMonth()
                     +" ~ "
                     +now.getYear()+"-"+now.getMonthValue()+"-"+now.getDayOfMonth();
+        }else {
+            throw new CustomException(
+                    CustomExceptionStatus.INVALID_ENUM_VALUE,
+                    "올바르지 않은 PeriodType ENUM 값입니다",
+                    this.getClass().getSimpleName(),
+                    periodType,
+                    Domain.SHARING_POST
+            );
         }
 
         // 2. post 조회
