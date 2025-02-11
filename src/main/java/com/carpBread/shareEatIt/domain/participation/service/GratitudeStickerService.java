@@ -1,7 +1,7 @@
 package com.carpBread.shareEatIt.domain.participation.service;
 
 import com.carpBread.shareEatIt.domain.member.entity.Member;
-import com.carpBread.shareEatIt.domain.participation.dto.GratitudeResponseDto;
+import com.carpBread.shareEatIt.domain.participation.dto.responseDto.GratitudeResponseDto;
 import com.carpBread.shareEatIt.domain.participation.entity.GratitudeSticker;
 import com.carpBread.shareEatIt.domain.participation.entity.GratitudeType;
 import com.carpBread.shareEatIt.domain.participation.entity.Participation;
@@ -11,7 +11,6 @@ import com.carpBread.shareEatIt.domain.sharingPost.entity.PostStatus;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
 import com.carpBread.shareEatIt.domain.sharingPost.repository.SharingPostRepository;
 import com.carpBread.shareEatIt.global.exception.CustomException;
-import jakarta.validation.constraints.Null;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;

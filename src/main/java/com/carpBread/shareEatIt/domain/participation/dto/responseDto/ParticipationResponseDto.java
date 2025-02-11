@@ -1,4 +1,4 @@
-package com.carpBread.shareEatIt.domain.participation.dto;
+package com.carpBread.shareEatIt.domain.participation.dto.responseDto;
 
 import com.carpBread.shareEatIt.domain.chat.entity.ChatRoom;
 import com.carpBread.shareEatIt.domain.participation.entity.ParticipationStatus;
@@ -11,16 +11,16 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(force = true, access = AccessLevel.PROTECTED)
 public class ParticipationResponseDto {
-    private Long participationId;
-    private Long sharingPostId;
-    private Long giverId;
-    private Long receiverId;
-    private Long chatRoomId;
-    private ParticipationStatus status;
-    private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
+    private final Long participationId;
+    private final Long sharingPostId;
+    private final Long giverId;
+    private final Long receiverId;
+    private final Long chatRoomId;
+    private final ParticipationStatus status;
+    private final LocalDateTime createdAt;
+    private final LocalDateTime modifiedAt;
 
     @Builder
     public ParticipationResponseDto(Long participationId, Long sharingPostId, Long giverId, Long receiverId, Long chatRoomId, ParticipationStatus status, LocalDateTime createdAt, LocalDateTime modifiedAt) {
@@ -35,15 +35,15 @@ public class ParticipationResponseDto {
     }
 
     public static ParticipationResponseDto from(Participation participation, ChatRoom chatRoom){
-        return new ParticipationResponseDto(
-                participation.getId(),
-                participation.getPost().getId(),
-                participation.getGiver().getId(),
-                participation.getReceiver().getId(),
-                chatRoom.getId(),
-                participation.getStatus(),
-                participation.getCreatedAt(),
-                participation.getModifiedAt()
-        );
+        return ParticipationResponseDto.builder()
+                .participationId(participation.getId())
+                .sharingPostId(participation.getPost().getId())
+                .giverId(participation.getGiver().getId())
+                .receiverId(participation.getReceiver().getId())
+                .chatRoomId(chatRoom.getId())
+                .status(participation.getStatus())
+                .createdAt(participation.getCreatedAt())
+                .modifiedAt(participation.getModifiedAt())
+                .build();
     }
 }
