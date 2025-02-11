@@ -59,16 +59,16 @@ public class ParticipationService {
 
     /* 참여 생성 - 나눔글 채팅 참여 */
     public Pair<HttpStatus, ParticipationResponseDto> createParticipation(Member receiver, ParticipationRequestDto requestDto) {
-
-        Long postId= requestDto.getSharingPostId();
+        String className = this.getClass().getSimpleName();
 
         // requestDto로 받아온 postId의 나눔글 조회
+        Long postId= requestDto.getSharingPostId();
         SharingPost post = sharingPostRepository.findById(postId)
-                .orElseThrow(() -> new CustomException(NOT_FOUND_SHARINGPOST, "해당ID의 나눔글을 찾지 못했습니다.", "ParticipationService", "participationId: "+requestDto.getSharingPostId(), PARTICIPATION));
+                .orElseThrow(() -> new CustomException(NOT_FOUND_SHARINGPOST, "해당ID의 나눔글을 찾지 못했습니다.", className, "postId: "+requestDto.getSharingPostId(), PARTICIPATION));
 
         // 참여하려는 사용자가 개설자가 아닌지 확인
         if(post.getWriter().getId().equals(receiver.getId())){
-            throw new CustomException(CAN_NOT_PARTICIPATE_MY_POST, "본인의 나눔글에는 참여할 수 없습니다. ", "ParticipationService", null, PARTICIPATION);
+            throw new CustomException(CAN_NOT_PARTICIPATE_MY_POST, "본인의 나눔글에는 참여할 수 없습니다. ", className, null, PARTICIPATION);
         }
 
         // 이미 참여한 나눔인 경우 - 참여 기록 반환
@@ -125,20 +125,28 @@ public class ParticipationService {
 
     // 게시글에서 첫 번째 이미지 URL 조회
     private String findFirstImgUrl(SharingPost post) {
+        String className = this.getClass().getSimpleName();
+
         return sharingPostService.getPostImgUrlList(post).stream()
                 .filter(imgUrl -> imgUrl.getImgOrder() == 1) // imgOrder가 1인 이미지 필터링
                 .map(PostImgUrl::getUrl) // URL만 추출
                 .findFirst() // 첫 번째 URL 가져오기
-                .orElseThrow(() -> new CustomException(CustomExceptionStatus.NOT_FOUND_POST_IMAGE, "ParticipationService", "현재 POST에 해당하는 IMAGE를 찾을 수 없습니다", null, PARTICIPATION));
+                .orElseThrow(() -> new CustomException(
+                        CustomExceptionStatus.NOT_FOUND_POST_IMAGE,
+                        "현재 POST에 해당하는 IMAGE를 찾을 수 없습니다",
+                        className,
+                        null,
+                        PARTICIPATION));
     }
 
 
     /* 참여 상태 변경 */
     public ParticipationUpdateStatusResponseDto updateStatus(Long ptId, Member giver, ParticipationStatus ptStatus) {
+        String className = this.getClass().getSimpleName();
 
         // participation 객체 찾아오기
         Participation participation = participationRepository.findById(ptId)
-                .orElseThrow(() -> new CustomException(NOT_FOUND_PARTICIPATION, "해당 ID의 참여기록을 찾지 못했습니다.", "ParticipationService", "participationId: "+ptId, PARTICIPATION));
+                .orElseThrow(() -> new CustomException(NOT_FOUND_PARTICIPATION, "해당 ID의 참여기록을 찾지 못했습니다.", className, "participationId: "+ptId, PARTICIPATION));
 
         String sharingPostStatus = participation.getPost().getStatus().toString();
         String participationStatus = ptStatus.toString();
@@ -147,13 +155,13 @@ public class ParticipationService {
         if (sharingPostStatus.equals(participationStatus)){
             log.warn("이미 나눔글이 {}인 상태로, 같은 상태로 변경 불가", sharingPostStatus);
             if (sharingPostStatus.equals("COMPLETED")){
-                throw new CustomException(ALREADY_COMPLETED_SHARINGPOST, "이미 나눔 완료된 나눔입니다.", "ParticipationService", null, PARTICIPATION);
+                throw new CustomException(ALREADY_COMPLETED_SHARINGPOST, "이미 나눔 완료된 나눔입니다.", className, null, PARTICIPATION);
             }
             else if (sharingPostStatus.equals("MATCHED")){
-                throw new CustomException(ALREADY_MATCHED_SHARINGPOST, "이미 찜 상태인 나눔입니다.", "ParticipationService", null, PARTICIPATION);
+                throw new CustomException(ALREADY_MATCHED_SHARINGPOST, "이미 찜 상태인 나눔입니다.", className, null, PARTICIPATION);
             }
             else {
-                throw new CustomException(ALREADY_AVAILABLE_SHARINGPSOT, "현재 나눔 가능한 상태로 변경할 상태가 없습니다.", "ParticipationService", null, PARTICIPATION);
+                throw new CustomException(ALREADY_AVAILABLE_SHARINGPSOT, "현재 나눔 가능한 상태로 변경할 상태가 없습니다.", className, null, PARTICIPATION);
             }
         }
 
@@ -162,7 +170,7 @@ public class ParticipationService {
             log.warn("사용자 != 나눔글 작성자");
             log.info("giverId : {}", giver.getId());
             log.info("writerId : {}", participation.getPost().getWriter().getId());
-            throw new CustomException(NOT_WRITER_OF_SHARINGPOST, "나눔글 작성자가 아니므로 나눔 상태를 변경할 수 없습니다.", "ParticipationService", null, PARTICIPATION);
+            throw new CustomException(NOT_WRITER_OF_SHARINGPOST, "나눔글 작성자가 아니므로 나눔 상태를 변경할 수 없습니다.", className, null, PARTICIPATION);
         }
 
         // 상태 변경
@@ -176,7 +184,7 @@ public class ParticipationService {
             post.updateStatus(postStatus);
         } catch (IllegalArgumentException e) {
             log.warn("잘못된 상태값으로, 해당 나눔글의 상태 변경에 실패");
-            throw new CustomException(INVALID_STATUS_VALUE ,"잘못된 상태값으로, 해당 나눔글의 상태 변경에 실패하였습니다.", "ParticipationService", null, PARTICIPATION);
+            throw new CustomException(INVALID_STATUS_VALUE ,"잘못된 상태값으로, 해당 나눔글의 상태 변경에 실패하였습니다.", className, null, PARTICIPATION);
         }
 
         // 변경한 내용 저장
@@ -186,8 +194,7 @@ public class ParticipationService {
         sendNotification(participation, ptStatus);
 
         // 응답 DTO 생성
-        ParticipationUpdateStatusResponseDto responseDto = ParticipationUpdateStatusResponseDto.from(participation);
-        return responseDto;
+        return ParticipationUpdateStatusResponseDto.from(participation);
 
     }
 

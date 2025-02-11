@@ -31,19 +31,20 @@ public class GratitudeStickerService {
 
     /* 고마움 스티커 생성 */
     public GratitudeResponseDto createGratitudeSticker(Long postId, Member member, GratitudeType gratitudeType){
+        String className = this.getClass().getSimpleName();
 
         // 파라미터 값이 누락된 경우 예외 처리
         if (postId == null || member == null || gratitudeType == null) {
-            throw new CustomException(CAN_NOT_BE_NULL, "필수 입력 값이 누락되었습니다.", "GratitudeStickerService" + postId, null, PARTICIPATION);
+            throw new CustomException(CAN_NOT_BE_NULL, "필수 입력 값이 누락되었습니다.", className, null, PARTICIPATION);
         }
 
         // SharingPost 객체 찾기
         SharingPost post = sharingPostRepository.findById(postId)
-                .orElseThrow(() -> new CustomException(NOT_FOUND_SHARINGPOST, "해당 Id의 SharingPost를 찾을 수 없습니다.", "GratitudeStickerService", "sharingPostId: " + postId,  PARTICIPATION));
+                .orElseThrow(() -> new CustomException(NOT_FOUND_SHARINGPOST, "해당 Id의 SharingPost를 찾을 수 없습니다.", className, "sharingPostId: " + postId, PARTICIPATION));
 
         // 검증1 : 해당 나눔글의 상태가 COMPLETED인지 확인
         if (!post.getStatus().equals(PostStatus.COMPLETED)){
-            throw new CustomException(NOT_COMPLETED_SHARINGPOST, "완료되지 않은 나눔입니다.","GratitudeStickerService", "postStatus: "+post.getStatus(), PARTICIPATION);
+            throw new CustomException(NOT_COMPLETED_SHARINGPOST, "완료되지 않은 나눔입니다.", className, "postStatus: "+post.getStatus(), PARTICIPATION);
         }
 
         // 해당 나눔글을 참조하고 있는 '참여' 데이터 중 상태가 COMPLETED인 참여 찾아오기
@@ -51,13 +52,12 @@ public class GratitudeStickerService {
 
         // 검증4 : 찾은 '참여' 데이터의 receiverId가 memberId와 같은지 확인
         if (!member.getId().equals(participation.getReceiver().getId())){
-            throw new CustomException(NOT_RECEIVER_OF_SHARINGPOST, "해당 나눔을 받은 멤버가 아닙니다.", "GratitudeStickerService", null, PARTICIPATION);
+            throw new CustomException(NOT_RECEIVER_OF_SHARINGPOST, "해당 나눔을 받은 멤버가 아닙니다.", className, null, PARTICIPATION);
         }
 
         // 검증 5 : 이미 고마움을 남긴 경우
         if (gratitudeStickerRepository.existsByParticipationId(participation.getId())){
-//            throw new CustomException(ALREADY_EXISTS_GRATITUDESTICKER, "이미 고마움을 남긴 나눔입니다.", "GratitudeStickerService",  null, PARTICIPATION);
-            throw new NullPointerException("----------------");
+            throw new CustomException(ALREADY_EXISTS_GRATITUDESTICKER, "이미 고마움을 남긴 나눔입니다.", className, null, PARTICIPATION);
         }
 
         // GratitudeSticker 객체 생성
@@ -78,14 +78,16 @@ public class GratitudeStickerService {
 
     // 리스트에 하나의 객체만 있는지 확인한 후, 그 객체를 반환하는 함수
     public Participation findSingleParticipation(Long postId) {
+        String className = this.getClass().getSimpleName();
+
         List<Participation> participationList = participationRepository.findByPostIdAndStatus(postId);
 
         if (participationList.isEmpty()) { // 검증2 : 찾지 못한 경우
-            throw new CustomException(NOT_FOUND_PARTICIPATION, "해당 나눔글의 완료된 참여정보를 불러올 수 없습니다.", "GratitudeStickerService", null, PARTICIPATION);
+            throw new CustomException(NOT_FOUND_PARTICIPATION, "해당 나눔글의 완료된 참여정보를 불러올 수 없습니다.", className, null, PARTICIPATION);
         }
 
-        if (participationList.size() > 1) { //검증3 : COMPLETED인 참여가 여러개인 경우
-            throw new CustomException(MULTIPLE_COMPLETED_PARTICIPATIONS, "같은 나눔글에 대해 참여 상태가 COMPLETED인 참여 객체가 여러개입니다.", "GratitudeStickerService", null, PARTICIPATION);
+        if (participationList.size() > 1) { // 검증3 : COMPLETED인 참여가 여러개인 경우
+            throw new CustomException(MULTIPLE_COMPLETED_PARTICIPATIONS, "같은 나눔글에 대해 참여 상태가 COMPLETED인 참여 객체가 여러개입니다.", className, null, PARTICIPATION);
         }
 
         // 리스트에 하나의 요소만 있을 때 그 객체를 반환
@@ -95,20 +97,21 @@ public class GratitudeStickerService {
 
     /* 고마움 스티커 수정 */
     public GratitudeResponseDto updateGratitudeStickers(Long gratitudeStickerId, Member member, GratitudeType gratitudeType) {
+        String className = this.getClass().getSimpleName();
 
         // 파라미터 값이 누락된 경우 예외 처리
         if (gratitudeStickerId == null || member == null || gratitudeType == null) {
-            throw new CustomException(CAN_NOT_BE_NULL, "필수 입력 값이 누락되었습니다.", "GratitudeStickerService", null, PARTICIPATION);
+            throw new CustomException(CAN_NOT_BE_NULL, "필수 입력 값이 누락되었습니다.", className, null, PARTICIPATION);
         }
 
         // gratitudeSticker 객체 찾기
         GratitudeSticker gratitudeSticker = gratitudeStickerRepository.findById(gratitudeStickerId)
-                .orElseThrow(() -> new CustomException(NOT_FOUND_GRATITUDESTICKER, "해당 Id의 gratitudeSticker를 찾을 수 없습니다.", "GratitudeStickerService", "gratitudeStickerId: " +gratitudeStickerId, PARTICIPATION));
+                .orElseThrow(() -> new CustomException(NOT_FOUND_GRATITUDESTICKER, "해당 Id의 gratitudeSticker를 찾을 수 없습니다.", className, "gratitudeStickerId: " +gratitudeStickerId, PARTICIPATION));
 
         // 검증1 : 찾은 gratitudeSticker의 reviewerId가 memberId와 같은지 확인
         Member reviewer = gratitudeSticker.getReviewer();
         if (reviewer == null || !member.getId().equals(reviewer.getId())){
-            throw new CustomException(NOT_REVIEWER_OF_SHARINGPOST, "해당 나눔을 받은 멤버가 아닙니다.", "GratitudeStickerService", null, PARTICIPATION);
+            throw new CustomException(NOT_REVIEWER_OF_SHARINGPOST, "해당 나눔을 받은 멤버가 아닙니다.", className, null, PARTICIPATION);
         }
 
         // 업데이트
