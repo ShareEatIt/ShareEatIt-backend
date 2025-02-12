@@ -35,8 +35,14 @@ public class JWTFilter extends OncePerRequestFilter {
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException, CustomException {
 
-        log.debug(request.getRequestURI());
-        System.out.println(request.getRequestURL().toString());
+        // 클라이언트 IP 주소 추출
+        String clientIp = request.getRemoteAddr();
+
+        // User-Agent 추출
+        String userAgent = request.getHeader("User-Agent");
+
+        System.out.println(clientIp);
+        System.out.println(userAgent);
 
         if (isOmissionUrl(request,response,filterChain)){
             filterChain.doFilter(request, response);
