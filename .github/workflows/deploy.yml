@@ -56,6 +56,19 @@ jobs:
         docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
         docker build --platform linux/arm64 -f Dockerfile -t ${{ secrets.DOCKER_USERNAME }}/share-eat-it:latest .
         docker push ${{ secrets.DOCKER_USERNAME }}/share-eat-it:latest
+
+    - name: Deploy
+      uses: appleboy/ssh-action@master
+      with: 
+        host: ${{ secrets.HOST }}
+        username: ubuntu
+        key: ${{ secrets.HOST_KEY }}
+        script: |
+          docker stop application-server-container
+          docker rm $(docker ps -a --filter "status=exited" -q)
+          docker rmi ${{ secrets.DOCKER_USERNAME }}/share-eat-it
+
+          docker run --name application-server-container -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/share-eat-it:latest
     
 
 # # Workflow는 한 개 이상의 job으로 구성됨
