@@ -1,4 +1,4 @@
-package com.carpBread.shareEatIt.domain.participation.dto;
+package com.carpBread.shareEatIt.domain.participation.dto.requestDto;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AccessLevel;
@@ -6,13 +6,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public class ParticipationRequestDto {
 
     @NotNull(message = "나눔글Id가 필요합니다.")
-    private Long sharingPostId;
+    private final Long sharingPostId;
 
     public ParticipationRequestDto(Long sharingPostId) {
         this.sharingPostId = sharingPostId;
     }
+
 }

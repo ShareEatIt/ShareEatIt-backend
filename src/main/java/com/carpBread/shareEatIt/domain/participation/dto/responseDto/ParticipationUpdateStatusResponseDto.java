@@ -1,4 +1,4 @@
-package com.carpBread.shareEatIt.domain.participation.dto;
+package com.carpBread.shareEatIt.domain.participation.dto.responseDto;
 
 import com.carpBread.shareEatIt.domain.participation.entity.Participation;
 import com.carpBread.shareEatIt.domain.participation.entity.ParticipationStatus;
@@ -11,33 +11,33 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Getter
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
+@NoArgsConstructor(access = AccessLevel.PROTECTED, force = true)
 public class ParticipationUpdateStatusResponseDto {
-    private Long sharingPostId;
-    private PostStatus SharingPostStatus;
-    private Long participationId;
-    private ParticipationStatus ParticipationStatus;
-    private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
+    private final Long sharingPostId;
+    private final PostStatus sharingPostStatus;
+    private final Long participationId;
+    private final ParticipationStatus participationStatus;
+    private final LocalDateTime createdAt;
+    private final LocalDateTime modifiedAt;
 
     @Builder
     public ParticipationUpdateStatusResponseDto(Long sharingPostId, PostStatus sharingPostStatus, Long participationId, com.carpBread.shareEatIt.domain.participation.entity.ParticipationStatus participationStatus, LocalDateTime createdAt, LocalDateTime modifiedAt) {
         this.sharingPostId = sharingPostId;
-        SharingPostStatus = sharingPostStatus;
+        this.sharingPostStatus = sharingPostStatus;
         this.participationId = participationId;
-        ParticipationStatus = participationStatus;
+        this.participationStatus = participationStatus;
         this.createdAt = createdAt;
         this.modifiedAt = modifiedAt;
     }
 
     public static ParticipationUpdateStatusResponseDto from(Participation participation){
-        return new ParticipationUpdateStatusResponseDto(
-                participation.getPost().getId(),
-                participation.getPost().getStatus(),
-                participation.getId(),
-                participation.getStatus(),
-                participation.getCreatedAt(),
-                participation.getModifiedAt()
-        );
+        return ParticipationUpdateStatusResponseDto.builder()
+                .sharingPostId(participation.getPost().getId())
+                .sharingPostStatus(participation.getPost().getStatus())
+                .participationId(participation.getId())
+                .participationStatus(participation.getStatus())
+                .createdAt(participation.getCreatedAt())
+                .modifiedAt(participation.getModifiedAt())
+                .build();
     }
 }
