@@ -70,6 +70,8 @@ jobs:
             # docker stop application-server-container
             # docker rm $(docker ps -a --filter "status=exited" -q)
             # docker rmi ${{ secrets.DOCKER_USERNAME }}/share-eat-it
+
+            docker pull floweralice/share-eat-it:latest
   
             docker run --name application-server-container -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/share-eat-it:latest
             
