@@ -1,4 +1,4 @@
-package com.carpBread.shareEatIt.domain.auth.oauth2.handler;
+package com.carpBread.shareEatIt.domain.auth.handler;
 
 import com.carpBread.shareEatIt.domain.auth.LoginProvider;
 import com.carpBread.shareEatIt.domain.auth.oauth2.entity.OAuth2Token;
@@ -14,6 +14,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.data.redis.core.ValueOperations;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
@@ -23,7 +24,7 @@ import org.springframework.web.reactive.function.client.WebClient;
 /* 사용자 로그아웃 핸들러 */
 // @Value를 받기 때문에 이 클래스를 사용하는 다른 클래스에서 반드시 autowired로 입력받아야 하고, new 로 새로운 객체를 생성하면 안된다.
 @Component
-public class OAuth2LogoutHandler implements LogoutHandler {
+public class CustomLogoutHandler implements LogoutHandler {
 
     /* KAKAO 관련 변수 */
     @Value("${spring.security.oauth2.client.registration.kakao.client-id}")
@@ -59,7 +60,7 @@ public class OAuth2LogoutHandler implements LogoutHandler {
     private OAuth2TokenRepository oAuth2TokenRepository;
     private JWTUtils jwtUtils;
     private RedisTemplate<String,Object> redisTemplate;
-    public OAuth2LogoutHandler(WebClient webClient, MemberRepository memberRepository, OAuth2TokenRepository oAuth2TokenRepository, JWTUtils jwtUtils, RedisTemplate<String,Object> redisTemplate) {
+    public CustomLogoutHandler(WebClient webClient, MemberRepository memberRepository, OAuth2TokenRepository oAuth2TokenRepository, JWTUtils jwtUtils, RedisTemplate<String,Object> redisTemplate) {
 
         this.webClient=webClient;
         this.memberRepository=memberRepository;

@@ -116,4 +116,23 @@ public class Member extends BaseEntity {
         this.refreshToken=newRefreshToken;
 
     }
+
+    public Member(String email, String username, String password,
+                  String nickname, Boolean isNoticeAvail, Boolean isKeywordAvail,
+                  String addressSt, String addressDetail, Point locationPoint,
+                  String provider, String profileImgUrl){
+        super();
+        this.email=email;
+        this.username=username;
+        this.password=password;
+        this.nickname=nickname;
+        this.isNoticeAvail=isNoticeAvail;
+        this.isKeywordAvail=isKeywordAvail;
+        this.addressSt=addressSt;
+        this.addressDetail=addressDetail;
+        this.locationPoint=locationPoint;
+        this.provider=Provider.toEnum(provider);
+        this.profileImgUrl=profileImgUrl;
+
+    }
 }

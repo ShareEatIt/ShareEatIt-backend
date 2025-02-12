@@ -2,7 +2,7 @@ package com.carpBread.shareEatIt.domain.participation.service;
 
 import com.carpBread.shareEatIt.config.WithMockCustomUser;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
-import com.carpBread.shareEatIt.domain.participation.dto.GratitudeResponseDto;
+import com.carpBread.shareEatIt.domain.participation.dto.responseDto.GratitudeResponseDto;
 import com.carpBread.shareEatIt.domain.participation.entity.GratitudeSticker;
 import com.carpBread.shareEatIt.domain.participation.entity.GratitudeType;
 import com.carpBread.shareEatIt.domain.participation.entity.Participation;
@@ -32,8 +32,6 @@ import java.util.Optional;
 
 import static com.carpBread.shareEatIt.domain.member.entity.Provider.INDIVIDUAL;
 import static com.carpBread.shareEatIt.domain.sharingPost.entity.PostCategory.BAKERY;
-import static com.carpBread.shareEatIt.global.exception.CustomExceptionStatus.ALREADY_EXISTS_GRATITUDESTICKER;
-import static com.carpBread.shareEatIt.global.exception.CustomExceptionStatus.CAN_NOT_BE_NULL;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;

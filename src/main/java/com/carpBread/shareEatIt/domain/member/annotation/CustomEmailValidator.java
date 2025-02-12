@@ -9,7 +9,7 @@ import java.util.regex.Pattern;
 @Component
 public class CustomEmailValidator implements ConstraintValidator<Email, String> {
     // 이메일 문자열 정규 표현식 지정
-    private static final String regexEmail="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$\n";
+    private static final String regexEmail="^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$";
 
     // Pattern 객체
     private static final Pattern PATTERN = Pattern.compile(regexEmail);

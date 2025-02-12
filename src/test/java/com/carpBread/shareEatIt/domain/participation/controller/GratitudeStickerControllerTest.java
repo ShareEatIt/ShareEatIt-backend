@@ -1,7 +1,7 @@
 package com.carpBread.shareEatIt.domain.participation.controller;
 
 import com.carpBread.shareEatIt.config.WithMockCustomUser;
-import com.carpBread.shareEatIt.domain.participation.dto.GratitudeResponseDto;
+import com.carpBread.shareEatIt.domain.participation.dto.responseDto.GratitudeResponseDto;
 import com.carpBread.shareEatIt.domain.participation.entity.GratitudeType;
 import com.carpBread.shareEatIt.domain.participation.service.GratitudeStickerService;
 import org.junit.jupiter.api.BeforeEach;

@@ -52,7 +52,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
         String redirectUrl = buildRedirectUrl(responseDto);
 
-        getRedirectStrategy().sendRedirect(request, response, redirectUrl);
+        // 보안 관련 테스트 위한 주석처리
+//        getRedirectStrategy().sendRedirect(request, response, redirectUrl);
 
 
     }

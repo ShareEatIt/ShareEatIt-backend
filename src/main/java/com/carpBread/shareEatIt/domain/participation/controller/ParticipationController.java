@@ -2,10 +2,10 @@ package com.carpBread.shareEatIt.domain.participation.controller;
 
 import com.carpBread.shareEatIt.domain.auth.annotation.AuthUser;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
-import com.carpBread.shareEatIt.domain.participation.dto.ParticipationHistoryListResponseDto;
-import com.carpBread.shareEatIt.domain.participation.dto.ParticipationRequestDto;
-import com.carpBread.shareEatIt.domain.participation.dto.ParticipationResponseDto;
-import com.carpBread.shareEatIt.domain.participation.dto.ParticipationUpdateStatusResponseDto;
+import com.carpBread.shareEatIt.domain.participation.dto.responseDto.ParticipationHistoryListResponseDto;
+import com.carpBread.shareEatIt.domain.participation.dto.requestDto.ParticipationRequestDto;
+import com.carpBread.shareEatIt.domain.participation.dto.responseDto.ParticipationResponseDto;
+import com.carpBread.shareEatIt.domain.participation.dto.responseDto.ParticipationUpdateStatusResponseDto;
 import com.carpBread.shareEatIt.domain.participation.entity.ParticipationStatus;
 import com.carpBread.shareEatIt.domain.participation.service.ParticipationService;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.PostType;
@@ -61,12 +61,11 @@ public class ParticipationController {
     public ApiResponse<ParticipationHistoryListResponseDto> getParticipationByProvider(@AuthUser Member receiver,
                                                                                        @PathVariable("provider") PostType provider){
         ParticipationHistoryListResponseDto responseDto = participationService.findAllParticipationByProvider(receiver,provider);
-        ApiResponse<ParticipationHistoryListResponseDto> response = new ApiResponse<>(
+        return new ApiResponse<>(
                 HttpStatus.OK.value(),  // 상태코드 200
                 "사용자의 나눔 참여 목록 중 특정 제공자의 나눔 참여 목록 조회 성공",   // 성공 메시지
                 responseDto      // 실제 데이터
         );
-        return response;
     }
 
 
@@ -77,12 +76,11 @@ public class ParticipationController {
                                                                           @PathVariable("ptId") Long ptId,
                                                                           @RequestParam("status") ParticipationStatus status){
         ParticipationUpdateStatusResponseDto responseDto = participationService.updateStatus(ptId, giver, status);
-        ApiResponse<ParticipationUpdateStatusResponseDto> response = new ApiResponse<>(
+        return new ApiResponse<>(
                 HttpStatus.OK.value(),  // 상태코드 200
                 "참여 상태 수정 성공",   // 성공 메시지
                 responseDto      // 실제 데이터
         );
-        return response;
     }
 
 }
