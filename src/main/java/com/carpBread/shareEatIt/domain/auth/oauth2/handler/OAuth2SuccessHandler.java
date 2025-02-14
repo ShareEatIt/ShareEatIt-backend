@@ -6,6 +6,7 @@ import com.carpBread.shareEatIt.global.jwt.JWTUtils;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -40,7 +41,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         String email = (String) principal.getAttributes().get("email");
         Boolean isNewMember = (Boolean) principal.getAttributes().get("is_new_member");
         LoginProvider provider = (LoginProvider) principal.getAttributes().get("provider");
-        String accessToken = "Bearer "+jwtUtils.createAccessToken(email,provider);
+//        String accessToken = "Bearer "+jwtUtils.createAccessToken(email,provider);
+        String accessToken = jwtUtils.createAccessToken(email,provider);
         Member member = memberRepository.findByEmail(email)
                 .orElseThrow(() -> null);
         String refreshToken = member.getRefreshToken();
@@ -51,6 +53,33 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         AuthLoginResponseDto responseDto = new AuthLoginResponseDto(accessToken, refreshToken, isNewMember);
 
         String redirectUrl = buildRedirectUrl(responseDto);
+
+        // cookie 생성
+        Cookie cookie1 = new Cookie("AccessToken", accessToken);
+        cookie1.setHttpOnly(true);
+        cookie1.setSecure(true);
+        cookie1.setPath("/");
+        cookie1.setMaxAge(60*60*24);
+        response.addCookie(cookie1);
+
+        Cookie cookie2 = new Cookie("RefreshToken", refreshToken);
+        cookie2.setHttpOnly(true);
+        cookie2.setSecure(true);
+        cookie2.setPath("/");
+        cookie2.setMaxAge(60*60*24*30);
+        response.addCookie(cookie2);
+
+        Cookie cookie3 = new Cookie("isNewMember", isNewMember.toString());
+        cookie3.setHttpOnly(true);
+        cookie3.setSecure(true);
+        cookie3.setPath("/");
+        cookie3.setMaxAge(60*60*24);
+        response.addCookie(cookie3);
+
+        response.sendRedirect(clientRedirectUrl);
+
+        System.out.println("OAuth2SuccessHandler.onAuthenticationSuccess : 리다이랙트 처리 완료");
+
 
         // 보안 관련 테스트 위한 주석처리
 //        getRedirectStrategy().sendRedirect(request, response, redirectUrl);

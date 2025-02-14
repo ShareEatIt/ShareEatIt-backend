@@ -9,6 +9,7 @@ import com.carpBread.shareEatIt.global.exception.CustomExceptionStatus;
 import com.carpBread.shareEatIt.global.exception.Domain;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
@@ -32,6 +33,8 @@ public class JWTFilter extends OncePerRequestFilter {
     private final MemberRepository memberRepository;
     private final RedisTemplate<String, Object> redisTemplate;
 
+    private final String ACCESS_TOKEN_NAME = "AccessToken";
+
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException, CustomException {
 
@@ -49,7 +52,17 @@ public class JWTFilter extends OncePerRequestFilter {
             return;
         }
 
+
         String authorization = request.getHeader("Authorization");
+
+        if (request.getCookies()!=null){
+            for (Cookie cookie : request.getCookies()){
+                if (cookie.getName().equals(ACCESS_TOKEN_NAME)){
+                    authorization="Bearer "+cookie.getValue();
+                    break;
+                }
+            }
+        }
 
         // 1. 토큰 유무 확인
         if (authorization==null || !authorization.startsWith("Bearer ")){
@@ -108,12 +121,12 @@ public class JWTFilter extends OncePerRequestFilter {
     private boolean isOmissionUrl(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException{
         // 토큰 검증을 생략할 경로
         if (
-//                request.getRequestURI().startsWith("/login")
-                request.getRequestURI().startsWith("/favicon.ico")
-//                || request.getRequestURI().startsWith("/oauth2/authorize")
+                request.getRequestURI().startsWith("/login")
+                || request.getRequestURI().startsWith("/favicon.ico")
+                || request.getRequestURI().startsWith("/oauth2/authorize")
                 || request.getRequestURI().startsWith("/ws")
                 || request.getRequestURI().startsWith("/auth/refresh")
-//                || request.getRequestURI().startsWith("/oauth2")
+                || request.getRequestURI().startsWith("/oauth2")
                 || request.getRequestURI().startsWith("/sentry")
 //                || request.getRequestURI().startsWith("/signup")
                 ) {

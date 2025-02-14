@@ -69,9 +69,9 @@ public class SecurityConfig {
 
     // 인증이 필요없는 URL 패턴 목록을 정의
     private static final String[] AUTH_WHITELIST = {
-//            "/login/**", // 로그인
+            "/login/**", // 로그인
             "/ws/**",
-//            "/oauth2/**",
+            "/oauth2/**",
             "/auth/refresh",
             "/sentry",
 //            "/signup"
