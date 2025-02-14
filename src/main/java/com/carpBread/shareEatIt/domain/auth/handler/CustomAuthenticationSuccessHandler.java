@@ -35,6 +35,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         // 사용자의 username으로 JWT 생성
         String username = principal.getUsername();
         String accessToken = "Bearer "+jwtUtils.createAccessToken(username, LoginProvider.LOCAL);
+
         String refreshToken = jwtUtils.createRefreshToken(username, LoginProvider.LOCAL);
 
         // http response
@@ -46,6 +47,8 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         response.setStatus(HttpServletResponse.SC_OK);
         response.setContentType("application/json");
         response.setCharacterEncoding("UTF-8");
+        response.setHeader("Authorization", accessToken);
+        response.setHeader("RefreshToken", refreshToken);
         response.getWriter().write(objectMapper.writeValueAsString(responseDto));
 
         log.debug(accessToken);

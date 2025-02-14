@@ -52,8 +52,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // 3. 클라이언트 리다이렉트
         AuthLoginResponseDto responseDto = new AuthLoginResponseDto(accessToken, refreshToken, isNewMember);
 
-        String redirectUrl = buildRedirectUrl(responseDto);
-
         // cookie 생성
         Cookie cookie1 = new Cookie("AccessToken", accessToken);
         cookie1.setHttpOnly(true);
@@ -85,16 +83,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 //        getRedirectStrategy().sendRedirect(request, response, redirectUrl);
 
 
-    }
-
-    /* 프런트엔드 redirect url 빌드 */
-    private String buildRedirectUrl(AuthLoginResponseDto dto){
-        return UriComponentsBuilder
-                .fromUriString(clientRedirectUrl)
-                .queryParam("accessToken", dto.getAccessToken())
-                .queryParam("refreshToken", dto.getRefreshToken())
-                .queryParam("isNewMember", dto.getIsNewMember())
-                .build().toUriString();
     }
 
 
