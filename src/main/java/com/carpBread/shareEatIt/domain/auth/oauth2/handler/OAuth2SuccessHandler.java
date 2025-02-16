@@ -57,7 +57,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         cookie1.setHttpOnly(true);
         cookie1.setSecure(true);
         cookie1.setPath("/");
-        cookie1.setMaxAge(60*60*24);
+        cookie1.setMaxAge(60*60*24*2);
         response.addCookie(cookie1);
 
         Cookie cookie2 = new Cookie("RefreshToken", refreshToken);
@@ -71,7 +71,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         cookie3.setHttpOnly(true);
         cookie3.setSecure(true);
         cookie3.setPath("/");
-        cookie3.setMaxAge(60*60*24);
+        cookie3.setMaxAge(60*60*24*2);
         response.addCookie(cookie3);
 
         response.sendRedirect(clientRedirectUrl);
