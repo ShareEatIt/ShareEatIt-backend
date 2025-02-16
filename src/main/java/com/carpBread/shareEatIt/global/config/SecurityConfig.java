@@ -74,6 +74,7 @@ public class SecurityConfig {
             "/oauth2/**",
             "/auth/refresh",
             "/sentry",
+            "/actuator/health"
 //            "/signup"
     };
 
@@ -146,6 +147,7 @@ public class SecurityConfig {
         configuration.addAllowedOrigin("http://localhost:8080");
         configuration.addAllowedOrigin("https://shareeatit.netlify.app");
         configuration.addAllowedOrigin("https://api.shareeat.r-e.kr");
+        configuration.addAllowedOrigin("https://shareeatit-api.r-e.kr");
 //        configuration.addAllowedOrigin("http://54.180.228.54:8080");
 
 

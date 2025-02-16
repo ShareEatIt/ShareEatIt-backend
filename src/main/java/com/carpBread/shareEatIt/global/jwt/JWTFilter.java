@@ -128,6 +128,7 @@ public class JWTFilter extends OncePerRequestFilter {
                 || request.getRequestURI().startsWith("/auth/refresh")
                 || request.getRequestURI().startsWith("/oauth2")
                 || request.getRequestURI().startsWith("/sentry")
+                || request.getRequestURI().startsWith("/actuator/health")
 //                || request.getRequestURI().startsWith("/signup")
                 ) {
             return true;
