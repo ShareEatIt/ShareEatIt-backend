@@ -11,7 +11,7 @@ services:
       - share_network
 
   share-eat-it-elb:
-    build: .
+    build: floweralice/share-eat-it-elb:latest
     container_name: application-server-container
     restart: always
     ports:
