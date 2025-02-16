@@ -94,6 +94,11 @@ dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-validation'
 }
 
+// spring-JCL과 겹치는 commons-logging 라이브러리 삭제
+configurations.all {
+	exclude group: 'commons-logging', module: 'commons-logging'
+}
+
 tasks.withType(JavaCompile) {
 	options.compilerArgs << "-parameters"
 }
