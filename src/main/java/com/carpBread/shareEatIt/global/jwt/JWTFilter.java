@@ -55,14 +55,16 @@ public class JWTFilter extends OncePerRequestFilter {
 
         String authorization = request.getHeader("Authorization");
 
-        if (request.getCookies()!=null){
-            for (Cookie cookie : request.getCookies()){
-                if (cookie.getName().equals(ACCESS_TOKEN_NAME)){
-                    authorization="Bearer "+cookie.getValue();
-                    break;
-                }
-            }
-        }
+//        if (request.getCookies()!=null){
+//            for (Cookie cookie : request.getCookies()){
+//                if (cookie.getName().equals(ACCESS_TOKEN_NAME)){
+//                    authorization="Bearer "+cookie.getValue();
+//                    break;
+//                }
+//            }
+//        }
+
+        System.out.println(authorization);
 
         // 1. 토큰 유무 확인
         if (authorization==null || !authorization.startsWith("Bearer ")){
@@ -113,6 +115,8 @@ public class JWTFilter extends OncePerRequestFilter {
 
         // 5. 인증된 사용자 principal security context에 포함
         includeSecurityContext(member,jwtUtils.getSub(token));
+
+        System.out.println("인가 성공! - 테스트 코드, 삭제 예정");
 
         filterChain.doFilter(request, response);
     }
