@@ -74,7 +74,9 @@ public class SecurityConfig {
             "/oauth2/**",
             "/auth/refresh",
             "/sentry",
-            "/actuator/health"
+            "/actuator/health",
+            "/"
+
 //            "/signup"
     };
 
