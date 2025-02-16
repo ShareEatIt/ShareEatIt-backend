@@ -12,9 +12,9 @@ services:
 
   share-eat-it-elb:
     image: share-eat-it-elb:latest
-    build:
-      context: ./
-      dockerfile: Dockerfile
+#    build:
+#      context: ./
+#      dockerfile: Dockerfile
     container_name: application-server-container
     restart: always
     ports:
