@@ -148,6 +148,7 @@ public class SecurityConfig {
         configuration.addAllowedOrigin("https://shareeatit.netlify.app");
         configuration.addAllowedOrigin("https://api.shareeat.r-e.kr");
         configuration.addAllowedOrigin("https://shareeatit-api.r-e.kr");
+        configuration.addAllowedOrigin("https://shareEatIt-server-ELB-904686182.ap-northeast-2.elb.amazonaws.com");
 //        configuration.addAllowedOrigin("http://54.180.228.54:8080");
 
 

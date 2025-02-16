@@ -44,8 +44,8 @@ public class JWTFilter extends OncePerRequestFilter {
         // User-Agent 추출
         String userAgent = request.getHeader("User-Agent");
 
-        System.out.println(clientIp);
-        System.out.println(userAgent);
+//        System.out.println(clientIp);
+//        System.out.println(userAgent);
 
         if (isOmissionUrl(request,response,filterChain)){
             filterChain.doFilter(request, response);
