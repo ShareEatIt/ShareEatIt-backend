@@ -65,6 +65,13 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .build();
         response.setHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
 
+        String redirectHtml = "<html><head><script>"
+                + "setTimeout(function() { window.location.href = '" + clientRedirectUrl + "'; }, 1000);"
+                + "</script></head><body>로그인 성공! 이동 중...</body></html>";
+
+        response.setContentType("text/html");
+        response.getWriter().write(redirectHtml);
+
 
 //        Cookie cookie1 = new Cookie("AccessToken", accessToken);
 ////        cookie1.setHttpOnly(true);
@@ -88,8 +95,6 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 //        response.addCookie(cookie3);
 
 //        response.sendRedirect(clientRedirectUrl);
-        response.setContentType("application/json");
-        response.getWriter().write("{\"redirectUrl\": \"" + clientRedirectUrl + "\"}");
 
         System.out.println("OAuth2SuccessHandler.onAuthenticationSuccess : 리다이랙트 처리 완료");
 
