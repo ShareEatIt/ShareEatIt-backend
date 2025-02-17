@@ -76,7 +76,6 @@ public class SecurityConfig {
             "/sentry",
             "/actuator/health",
             "/"
-
 //            "/signup"
     };
 

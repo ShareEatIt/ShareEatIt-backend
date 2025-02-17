@@ -12,9 +12,6 @@ services:
 
   share-eat-it-elb:
     image: floweralice/share-eat-it-elb:latest
-#    build:
-#      context: ./
-#      dockerfile: Dockerfile
     container_name: application-server-container
     restart: always
     ports:
