@@ -53,16 +53,6 @@ public class JWTFilter extends OncePerRequestFilter {
 
         String authorization = request.getHeader("Authorization");
 
-        if (request.getCookies()!=null){
-            for (Cookie cookie : request.getCookies()){
-                System.out.println(cookie);
-                if (cookie.getName().equals(ACCESS_TOKEN_NAME)){
-                    authorization="Bearer "+cookie.getValue();
-                    break;
-                }
-            }
-        }
-
         System.out.println("Authorization : "+authorization);
 
         // 1. 토큰 유무 확인
