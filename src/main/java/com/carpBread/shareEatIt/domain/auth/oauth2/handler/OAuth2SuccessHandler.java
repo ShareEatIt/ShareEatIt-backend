@@ -52,59 +52,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .queryParam("code", oAuth2Code)
                 .build().encode().toString();
 
-
-//        String accessToken = "Bearer "+jwtUtils.createAccessToken(email,provider);
-        String accessToken = jwtUtils.createAccessToken(email,provider);
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> null);
-        String refreshToken = member.getRefreshToken();
-//
-//        System.out.println(accessToken);
-//
-//        // 3. 클라이언트 리다이렉트
-//        AuthLoginResponseDto responseDto = new AuthLoginResponseDto(accessToken, refreshToken, isNewMember);
-//
-//
-//        // cookie 생성
-//        ResponseCookie accessTokenCookie = ResponseCookie.from("AccessToken", accessToken)
-//                .maxAge(1000L * 60 * 60 * 3)
-//                .secure(true)
-//                .sameSite("None")
-//                .httpOnly(true)
-//                .domain("localhost")
-//                .path("/")
-//                .build();
-//        response.setHeader("Authorization",accessToken);
-//        response.setHeader("RT-token",refreshToken);
-
-
-//        Cookie cookie1 = new Cookie("AccessToken", accessToken);
-////        cookie1.setHttpOnly(true);
-////        cookie1.setSecure(true);
-//        cookie1.setPath("/");
-//        cookie1.setMaxAge(60*60*24*2);
-//        response.addCookie(cookie1);
-//
-//        Cookie cookie2 = new Cookie("RefreshToken", refreshToken);
-////        cookie2.setHttpOnly(true);
-////        cookie2.setSecure(true);
-//        cookie2.setPath("/");
-//        cookie2.setMaxAge(60*60*24*30);
-//        response.addCookie(cookie2);
-//
-//        Cookie cookie3 = new Cookie("isNewMember", isNewMember.toString());
-////        cookie3.setHttpOnly(true);
-////        cookie3.setSecure(true);
-//        cookie3.setPath("/");
-//        cookie3.setMaxAge(60*60*24*2);
-//        response.addCookie(cookie3);
-
-//        response.sendRedirect(clientRedirectUrl);
-
-        // 보안 관련 테스트 위한 주석처리
+        // redirect
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
-
-        System.out.println("OAuth2SuccessHandler.onAuthenticationSuccess : 리다이랙트 처리 완료");
 
 
     }

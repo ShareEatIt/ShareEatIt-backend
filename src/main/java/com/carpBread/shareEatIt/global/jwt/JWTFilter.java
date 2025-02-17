@@ -49,11 +49,7 @@ public class JWTFilter extends OncePerRequestFilter {
             filterChain.doFilter(request, response);
             return;
         }
-
-
         String authorization = request.getHeader("Authorization");
-
-        System.out.println("Authorization : "+authorization);
 
         // 1. 토큰 유무 확인
         if (authorization==null || !authorization.startsWith("Bearer ")){

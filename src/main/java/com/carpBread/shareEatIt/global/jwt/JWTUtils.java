@@ -38,13 +38,19 @@ public class JWTUtils {
     private Key key;
     private Key codeKey;
 
+    private Key refreshKey;
+
     @Autowired
-    public JWTUtils(@Value("${spring.jwt.secret}") String secretKey, @Value("${spring.jwt.code-secret}") String codeSecretKey){
+    public JWTUtils(@Value("${spring.jwt.secret}") String secretKey,
+                    @Value("${spring.jwt.code-secret}") String codeSecretKey,
+                    @Value("${spring.jwt.refresh-secret}") String refreshSecretKey){
         byte[] decodedKey = Decoders.BASE64.decode(secretKey);
         byte[] decodeCodeKey = Decoders.BASE64.decode(codeSecretKey);
+        byte[] decodeRefreshKey = Decoders.BASE64.decode(refreshSecretKey);
 
         key = Keys.hmacShaKeyFor(decodedKey);
         codeKey = Keys.hmacShaKeyFor(decodeCodeKey);
+        refreshKey = Keys.hmacShaKeyFor(decodeRefreshKey);
     }
 
     public String createToken(String email, String nickname){
@@ -146,6 +152,61 @@ public class JWTUtils {
                 .setExpiration(new Date(currentTime+refreshTokenExpiredTime))
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
+    }
+
+    /* RefreshToken에서 sub 추출*/
+    public String getSubFromRefreshToken(String token){
+        try {
+            return Jwts.parserBuilder().setSigningKey(refreshKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .get("sub", String.class);
+
+        }catch (Exception e){
+            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,
+                    "유효하지 않은 JWT입니다. Error Message : "+e.getMessage(),
+                    this.getClass().getSimpleName(),
+                    null,
+                    Domain.AUTH);
+        }
+    }
+
+    /* RefreshToken 에서 jti 추출 */
+    public String getJtiFromRefreshToken(String token){
+        try {
+
+            return Jwts.parserBuilder().setSigningKey(refreshKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .get("jti", String.class);
+
+        }catch (Exception e){
+            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,
+                    "유효하지 않은 JWT입니다. Error Message : "+e.getMessage(),
+                    this.getClass().getSimpleName(),
+                    null, // 보안 문제로 code 보내지 않음
+                    Domain.AUTH);
+        }
+    }
+
+    /* RefreshToken provider 추출 */
+    public String getProviderFromRefreshToken(String token){
+        try {
+            return Jwts.parserBuilder().setSigningKey(refreshKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .get("provider", String.class);
+
+        }catch (Exception e){
+            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,
+                    "유효하지 않은 JWT입니다. Error Message : "+e.getMessage(),
+                    this.getClass().getSimpleName(),
+                    null, // 보안 문제로 code 보내지 않음
+                    Domain.AUTH);
+        }
     }
 
     /* OAuth2Code에서 sub 추출 */

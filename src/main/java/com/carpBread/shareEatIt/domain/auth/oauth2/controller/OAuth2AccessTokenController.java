@@ -31,7 +31,7 @@ public class OAuth2AccessTokenController {
 
     @PostMapping
     @ResponseStatus(HttpStatus.CREATED)
-    public ResponseEntity<ApiResponse<Boolean>> createOAuth2LoginAccessToken(@RequestBody String code, HttpServletResponse response){
+    public ApiResponse<Boolean> createOAuth2LoginAccessToken(@RequestBody String code, HttpServletResponse response){
         System.out.println("OAuth2AccessTokenController.createOAuth2LoginAccessToken");
         System.out.println(code);
 
@@ -53,31 +53,11 @@ public class OAuth2AccessTokenController {
 
         String accessToken = jwtUtils.createAccessToken(email, LoginProvider.toEnum(provider));
         String refreshToken = jwtUtils.createRefreshToken(email, LoginProvider.toEnum(provider));
-        memberModuleService.updateRefreshToken(email,refreshToken);
-
-//        // 3. 쿠키 생성
-//        ResponseCookie accessTokenCookie = ResponseCookie.from("AccessToken", accessToken)
-//                .maxAge(60 * 60 * 3) // 3시간
-//                .secure(true) // https 안에서만 유효
-//                .sameSite("None") // same site 설정 무효
-//                .httpOnly(true) // js로 읽어들일 수 없음
-//                .path("/") // 이 경로로 시작되는 모든 경로에서 사용 가능
-//                .build();
-//        response.setHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
-//
-//        ResponseCookie refreshTokenCookie = ResponseCookie.from("RefreshToken", refreshToken)
-//                .maxAge(60 * 60 * 24 * 30) // 30일
-//                .secure(true) // https 안에서만 유효
-//                .sameSite("None") // same site 설정 무효
-//                .httpOnly(true) // js로 읽어들일 수 없음
-//                .path("/") // 이 경로로 시작되는 모든 경로에서 사용 가능
-//                .build();
-//        response.setHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+        memberModuleService.updateRefreshTokenByEmail(email,refreshToken);
 
         // 3. header에 token을 넣는 방식
         response.setHeader("Authorization", accessToken);
         response.setHeader("RT-token", refreshToken);
-
 
         // 4. code 폐기
         String jti = jwtUtils.getJtiFromOAuth2Code(code);
@@ -85,12 +65,10 @@ public class OAuth2AccessTokenController {
                 .set(jti, code);
 
         // 5. response
-        ApiResponse response1 = new ApiResponse(
+        return new ApiResponse(
                 HttpStatus.OK.value(),
                 "OAuth2Code를 통해 AccessToken 발급이 완료되었습니다",
                 isNewMem);
-        return ResponseEntity.ok()
-                .body(response1);
 
     }
 
