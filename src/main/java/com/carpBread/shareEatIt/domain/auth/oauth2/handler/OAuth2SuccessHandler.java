@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
@@ -53,52 +54,42 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // 3. 클라이언트 리다이렉트
         AuthLoginResponseDto responseDto = new AuthLoginResponseDto(accessToken, refreshToken, isNewMember);
 
-        ResponseCookie accessToken1 = ResponseCookie.from("AccessToken", accessToken)
-                .path("/")
-                .sameSite("None")
-                .httpOnly(false)
-                .secure(false)
-                .maxAge(60 * 60 * 24 * 2)
-                .build();
-
-        response.addHeader("Set-Cookie", accessToken1.toString());
-
-        ResponseCookie refreshToken1 = ResponseCookie.from("RefreshToken", refreshToken)
-                .path("/")
-                .sameSite("None")
-                .httpOnly(true)
-                .secure(true)
-                .maxAge(60 * 60 * 24 * 30)
-                .build();
-
-        response.addHeader("Set-Cookie", refreshToken1.toString());
 
         // cookie 생성
-        Cookie cookie1 = new Cookie("AccessToken", accessToken);
-//        cookie1.setHttpOnly(true);
-        cookie1.setSecure(true);
-        cookie1.setPath("/");
-        cookie1.setMaxAge(60*60*24*2);
-        response.addCookie(cookie1);
+        ResponseCookie accessTokenCookie = ResponseCookie.from("AccessToken", accessToken)
+                .maxAge(1000L * 60 * 60 * 3)
+                .secure(true)
+                .sameSite("None")
+                .httpOnly(true)
+                .path("/")
+                .build();
+        response.setHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
 
 
+//        Cookie cookie1 = new Cookie("AccessToken", accessToken);
+////        cookie1.setHttpOnly(true);
+////        cookie1.setSecure(true);
+//        cookie1.setPath("/");
+//        cookie1.setMaxAge(60*60*24*2);
+//        response.addCookie(cookie1);
+//
+//        Cookie cookie2 = new Cookie("RefreshToken", refreshToken);
+////        cookie2.setHttpOnly(true);
+////        cookie2.setSecure(true);
+//        cookie2.setPath("/");
+//        cookie2.setMaxAge(60*60*24*30);
+//        response.addCookie(cookie2);
+//
+//        Cookie cookie3 = new Cookie("isNewMember", isNewMember.toString());
+////        cookie3.setHttpOnly(true);
+////        cookie3.setSecure(true);
+//        cookie3.setPath("/");
+//        cookie3.setMaxAge(60*60*24*2);
+//        response.addCookie(cookie3);
 
-
-        Cookie cookie2 = new Cookie("RefreshToken", refreshToken);
-        cookie2.setHttpOnly(true);
-        cookie2.setSecure(true);
-        cookie2.setPath("/");
-        cookie2.setMaxAge(60*60*24*30);
-        response.addCookie(cookie2);
-
-        Cookie cookie3 = new Cookie("isNewMember", isNewMember.toString());
-//        cookie3.setHttpOnly(true);
-//        cookie3.setSecure(true);
-        cookie3.setPath("/");
-        cookie3.setMaxAge(60*60*24*2);
-        response.addCookie(cookie3);
-
-        response.sendRedirect(clientRedirectUrl);
+//        response.sendRedirect(clientRedirectUrl);
+        response.setContentType("application/json");
+        response.getWriter().write("{\"redirectUrl\": \"" + clientRedirectUrl + "\"}");
 
         System.out.println("OAuth2SuccessHandler.onAuthenticationSuccess : 리다이랙트 처리 완료");
 
