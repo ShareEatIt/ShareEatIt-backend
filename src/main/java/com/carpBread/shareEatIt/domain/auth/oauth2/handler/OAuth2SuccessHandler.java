@@ -54,10 +54,10 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
 
 //        String accessToken = "Bearer "+jwtUtils.createAccessToken(email,provider);
-//        String accessToken = jwtUtils.createAccessToken(email,provider);
-//        Member member = memberRepository.findByEmail(email)
-//                .orElseThrow(() -> null);
-//        String refreshToken = member.getRefreshToken();
+        String accessToken = jwtUtils.createAccessToken(email,provider);
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> null);
+        String refreshToken = member.getRefreshToken();
 //
 //        System.out.println(accessToken);
 //
@@ -74,7 +74,8 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 //                .domain("localhost")
 //                .path("/")
 //                .build();
-//        response.setHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
+//        response.setHeader("Authorization",accessToken);
+//        response.setHeader("RT-token",refreshToken);
 
 
 //        Cookie cookie1 = new Cookie("AccessToken", accessToken);

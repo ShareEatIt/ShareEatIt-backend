@@ -163,6 +163,11 @@ public class SecurityConfig {
         configuration.addAllowedHeader("*");
         // 헤더에 authorization항목이 있으므로 credential을 true로 설정합니다.
         configuration.setAllowCredentials(true);
+
+        // custom header 지정
+        configuration.addExposedHeader("Authorization");
+        configuration.addExposedHeader("RT-token");
+
         // 채팅 관련 설정
         configuration.setAllowedOriginPatterns(Arrays.asList(
                 "https://jiangxy.github.io"));

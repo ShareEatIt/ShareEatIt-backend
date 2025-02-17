@@ -14,6 +14,7 @@ import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseCookie;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.Set;
@@ -29,8 +30,9 @@ public class OAuth2AccessTokenController {
     private final MemberModuleService memberModuleService;
 
     @PostMapping
-    public ApiResponse<Boolean> createOAuth2LoginAccessToken(@RequestBody String code, HttpServletResponse response){
-
+    @ResponseStatus(HttpStatus.CREATED)
+    public ResponseEntity<ApiResponse<Boolean>> createOAuth2LoginAccessToken(@RequestBody String code, HttpServletResponse response){
+        System.out.println("OAuth2AccessTokenController.createOAuth2LoginAccessToken");
         System.out.println(code);
 
         // 1. 사용된 토큰인지 확인
@@ -53,24 +55,28 @@ public class OAuth2AccessTokenController {
         String refreshToken = jwtUtils.createRefreshToken(email, LoginProvider.toEnum(provider));
         memberModuleService.updateRefreshToken(email,refreshToken);
 
-        // 3. 쿠키 생성
-        ResponseCookie accessTokenCookie = ResponseCookie.from("AccessToken", accessToken)
-                .maxAge(60 * 60 * 3) // 3시간
-                .secure(true) // https 안에서만 유효
-                .sameSite("None") // same site 설정 무효
-                .httpOnly(true) // js로 읽어들일 수 없음
-                .path("/") // 이 경로로 시작되는 모든 경로에서 사용 가능
-                .build();
-        response.setHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
+//        // 3. 쿠키 생성
+//        ResponseCookie accessTokenCookie = ResponseCookie.from("AccessToken", accessToken)
+//                .maxAge(60 * 60 * 3) // 3시간
+//                .secure(true) // https 안에서만 유효
+//                .sameSite("None") // same site 설정 무효
+//                .httpOnly(true) // js로 읽어들일 수 없음
+//                .path("/") // 이 경로로 시작되는 모든 경로에서 사용 가능
+//                .build();
+//        response.setHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
+//
+//        ResponseCookie refreshTokenCookie = ResponseCookie.from("RefreshToken", refreshToken)
+//                .maxAge(60 * 60 * 24 * 30) // 30일
+//                .secure(true) // https 안에서만 유효
+//                .sameSite("None") // same site 설정 무효
+//                .httpOnly(true) // js로 읽어들일 수 없음
+//                .path("/") // 이 경로로 시작되는 모든 경로에서 사용 가능
+//                .build();
+//        response.setHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
 
-        ResponseCookie refreshTokenCookie = ResponseCookie.from("RefreshToken", refreshToken)
-                .maxAge(60 * 60 * 24 * 30) // 30일
-                .secure(true) // https 안에서만 유효
-                .sameSite("None") // same site 설정 무효
-                .httpOnly(true) // js로 읽어들일 수 없음
-                .path("/") // 이 경로로 시작되는 모든 경로에서 사용 가능
-                .build();
-        response.setHeader(HttpHeaders.SET_COOKIE, refreshTokenCookie.toString());
+        // 3. header에 token을 넣는 방식
+        response.setHeader("Authorization", accessToken);
+        response.setHeader("RT-token", refreshToken);
 
 
         // 4. code 폐기
@@ -79,9 +85,12 @@ public class OAuth2AccessTokenController {
                 .set(jti, code);
 
         // 5. response
-        return new ApiResponse(HttpStatus.OK.value(),
+        ApiResponse response1 = new ApiResponse(
+                HttpStatus.OK.value(),
                 "OAuth2Code를 통해 AccessToken 발급이 완료되었습니다",
                 isNewMem);
+        return ResponseEntity.ok()
+                .body(response1);
 
     }
 
