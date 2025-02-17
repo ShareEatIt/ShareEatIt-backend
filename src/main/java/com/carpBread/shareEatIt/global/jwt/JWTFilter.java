@@ -44,6 +44,10 @@ public class JWTFilter extends OncePerRequestFilter {
         // User-Agent 추출
         String userAgent = request.getHeader("User-Agent");
 
+
+        System.out.println(request.getRequestURI());
+
+
 //        System.out.println(clientIp);
 //        System.out.println(userAgent);
 
@@ -136,6 +140,7 @@ public class JWTFilter extends OncePerRequestFilter {
                 || request.getRequestURI().equals("/")
 //                || request.getRequestURI().startsWith("/signup")
                 ) {
+            System.out.println("in here");
             return true;
         }
         return false;
