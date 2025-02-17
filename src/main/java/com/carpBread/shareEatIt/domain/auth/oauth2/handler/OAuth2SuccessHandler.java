@@ -12,6 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -52,6 +53,26 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // 3. 클라이언트 리다이렉트
         AuthLoginResponseDto responseDto = new AuthLoginResponseDto(accessToken, refreshToken, isNewMember);
 
+        ResponseCookie accessToken1 = ResponseCookie.from("AccessToken", accessToken)
+                .path("/")
+                .sameSite("None")
+                .httpOnly(false)
+                .secure(false)
+                .maxAge(60 * 60 * 24 * 2)
+                .build();
+
+        response.addHeader("Set-Cookie", accessToken1.toString());
+
+        ResponseCookie refreshToken1 = ResponseCookie.from("RefreshToken", refreshToken)
+                .path("/")
+                .sameSite("None")
+                .httpOnly(true)
+                .secure(true)
+                .maxAge(60 * 60 * 24 * 30)
+                .build();
+
+        response.addHeader("Set-Cookie", refreshToken1.toString());
+
         // cookie 생성
         Cookie cookie1 = new Cookie("AccessToken", accessToken);
 //        cookie1.setHttpOnly(true);
@@ -59,6 +80,9 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         cookie1.setPath("/");
         cookie1.setMaxAge(60*60*24*2);
         response.addCookie(cookie1);
+
+
+
 
         Cookie cookie2 = new Cookie("RefreshToken", refreshToken);
         cookie2.setHttpOnly(true);
