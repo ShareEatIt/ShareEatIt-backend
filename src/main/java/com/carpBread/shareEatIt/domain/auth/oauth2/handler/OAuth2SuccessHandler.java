@@ -61,6 +61,7 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .secure(true)
                 .sameSite("None")
                 .httpOnly(true)
+                .domain("localhost")
                 .path("/")
                 .build();
         response.setHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
