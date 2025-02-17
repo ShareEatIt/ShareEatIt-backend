@@ -40,16 +40,10 @@ public class JWTFilter extends OncePerRequestFilter {
 
         // 클라이언트 IP 주소 추출
         String clientIp = request.getRemoteAddr();
-
         // User-Agent 추출
         String userAgent = request.getHeader("User-Agent");
-
-
-        System.out.println(request.getRequestURI());
-
-
-//        System.out.println(clientIp);
-//        System.out.println(userAgent);
+        System.out.println(clientIp);
+        System.out.println(userAgent);
 
         if (isOmissionUrl(request,response,filterChain)){
             filterChain.doFilter(request, response);
@@ -120,7 +114,6 @@ public class JWTFilter extends OncePerRequestFilter {
         // 5. 인증된 사용자 principal security context에 포함
         includeSecurityContext(member,jwtUtils.getSub(token));
 
-        System.out.println("인가 성공! - 테스트 코드, 삭제 예정");
 
         filterChain.doFilter(request, response);
     }
@@ -132,15 +125,14 @@ public class JWTFilter extends OncePerRequestFilter {
                 request.getRequestURI().startsWith("/login")
                 || request.getRequestURI().startsWith("/favicon.ico")
                 || request.getRequestURI().startsWith("/oauth2/authorize")
+                || request.getRequestURI().equals("/oauth2/access-token")
                 || request.getRequestURI().startsWith("/ws")
                 || request.getRequestURI().startsWith("/auth/refresh")
-                || request.getRequestURI().startsWith("/oauth2")
                 || request.getRequestURI().startsWith("/sentry")
                 || request.getRequestURI().startsWith("/actuator/health")
                 || request.getRequestURI().equals("/")
-//                || request.getRequestURI().startsWith("/signup")
+                || request.getRequestURI().startsWith("/signup")
                 ) {
-            System.out.println("in here");
             return true;
         }
         return false;
@@ -188,7 +180,7 @@ public class JWTFilter extends OncePerRequestFilter {
 
         // 해당 jti가 redis에 저장되어 있는 경우 로그아웃된 토큰이라고 파악
         if (!keys.isEmpty()){
-            log.debug(token+"은 로그아웃된 토큰입니다.");
+            log.debug("이미 로그아웃된 토큰입니다.");
             return true;
         }
         return false;

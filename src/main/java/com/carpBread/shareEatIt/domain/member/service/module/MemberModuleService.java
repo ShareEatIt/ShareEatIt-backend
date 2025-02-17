@@ -54,6 +54,23 @@ public class MemberModuleService {
         }
     }
 
+    // refreshToken 갱신
+    public void updateRefreshToken(String email, String refreshToken){
+        Member member = memberRepository.findByEmail(email)
+                .orElseThrow(() -> new CustomException(
+                                CustomExceptionStatus.NOT_FOUND_MEMBER,
+                                "EMAIL로 찾을 수 없는 사용자입니다. 가입되어있지 않습니다.",
+                                this.getClass().getSimpleName(),
+                                email,
+                                Domain.MEMBER
+                        )
+                );
+
+        member.updateRefreshToken(refreshToken);
+        memberRepository.save(member);
+
+    }
+
     // email 고유 여부 인증
     public void alreadyExistedEmail(String email){
         if (memberRepository.existsByEmail(email)){

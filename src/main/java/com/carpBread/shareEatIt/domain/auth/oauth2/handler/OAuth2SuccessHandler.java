@@ -39,39 +39,42 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // 1. 인증 principal 받아오기
         OAuth2User principal = (OAuth2User) authentication.getPrincipal();
 
-        // 2. 토큰 발행
+        // 2. 정보 추출
         String email = (String) principal.getAttributes().get("email");
         Boolean isNewMember = (Boolean) principal.getAttributes().get("is_new_member");
         LoginProvider provider = (LoginProvider) principal.getAttributes().get("provider");
+
+        // 3. 코드 발급
+        String oAuth2Code = jwtUtils.createOAuth2Code(email, provider, isNewMember);
+
+        // 4. redirect url
+        String redirectUrl = UriComponentsBuilder.fromUriString(clientRedirectUrl)
+                .queryParam("code", oAuth2Code)
+                .build().encode().toString();
+
+
 //        String accessToken = "Bearer "+jwtUtils.createAccessToken(email,provider);
-        String accessToken = jwtUtils.createAccessToken(email,provider);
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> null);
-        String refreshToken = member.getRefreshToken();
-
-        System.out.println(accessToken);
-
-        // 3. 클라이언트 리다이렉트
-        AuthLoginResponseDto responseDto = new AuthLoginResponseDto(accessToken, refreshToken, isNewMember);
-
-
-        // cookie 생성
-        ResponseCookie accessTokenCookie = ResponseCookie.from("AccessToken", accessToken)
-                .maxAge(1000L * 60 * 60 * 3)
-                .secure(true)
-                .sameSite("None")
-                .httpOnly(true)
-                .domain("localhost")
-                .path("/")
-                .build();
-        response.setHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
-
-        String redirectHtml = "<html><head><script>"
-                + "setTimeout(function() { window.location.href = '" + clientRedirectUrl + "'; }, 1000);"
-                + "</script></head><body>로그인 성공! 이동 중...</body></html>";
-
-        response.setContentType("text/html");
-        response.getWriter().write(redirectHtml);
+//        String accessToken = jwtUtils.createAccessToken(email,provider);
+//        Member member = memberRepository.findByEmail(email)
+//                .orElseThrow(() -> null);
+//        String refreshToken = member.getRefreshToken();
+//
+//        System.out.println(accessToken);
+//
+//        // 3. 클라이언트 리다이렉트
+//        AuthLoginResponseDto responseDto = new AuthLoginResponseDto(accessToken, refreshToken, isNewMember);
+//
+//
+//        // cookie 생성
+//        ResponseCookie accessTokenCookie = ResponseCookie.from("AccessToken", accessToken)
+//                .maxAge(1000L * 60 * 60 * 3)
+//                .secure(true)
+//                .sameSite("None")
+//                .httpOnly(true)
+//                .domain("localhost")
+//                .path("/")
+//                .build();
+//        response.setHeader(HttpHeaders.SET_COOKIE, accessTokenCookie.toString());
 
 
 //        Cookie cookie1 = new Cookie("AccessToken", accessToken);
@@ -97,11 +100,10 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
 
 //        response.sendRedirect(clientRedirectUrl);
 
-        System.out.println("OAuth2SuccessHandler.onAuthenticationSuccess : 리다이랙트 처리 완료");
-
-
         // 보안 관련 테스트 위한 주석처리
-//        getRedirectStrategy().sendRedirect(request, response, redirectUrl);
+        getRedirectStrategy().sendRedirect(request, response, redirectUrl);
+
+        System.out.println("OAuth2SuccessHandler.onAuthenticationSuccess : 리다이랙트 처리 완료");
 
 
     }
