@@ -51,7 +51,7 @@ public class OAuth2AccessTokenController {
         String provider = jwtUtils.getProviderFromOAuth2Code(code);
         Boolean isNewMem = jwtUtils.getIsNewMemFromOAuth2Code(code);
 
-        String accessToken = jwtUtils.createAccessToken(email, LoginProvider.toEnum(provider));
+        String accessToken = "Bearer "+jwtUtils.createAccessToken(email, LoginProvider.toEnum(provider));
         String refreshToken = jwtUtils.createRefreshToken(email, LoginProvider.toEnum(provider));
         memberModuleService.updateRefreshTokenByEmail(email,refreshToken);
 
