@@ -84,7 +84,8 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http
             .requiresChannel(channel ->
-                    channel.anyRequest().requiresSecure() // HTTP 요청을 HTTPS 로 강제 리디렉션
+                    channel.requestMatchers("/login**").requiresSecure() // HTTP 요청을 HTTPS 로 강제 리디렉션
+
             )
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
