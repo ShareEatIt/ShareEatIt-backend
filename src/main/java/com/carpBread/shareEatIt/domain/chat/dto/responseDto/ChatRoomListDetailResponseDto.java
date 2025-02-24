@@ -1,4 +1,4 @@
-package com.carpBread.shareEatIt.domain.chat.dto;
+package com.carpBread.shareEatIt.domain.chat.dto.responseDto;
 
 import com.carpBread.shareEatIt.domain.chat.entity.ChatRoom;
 import com.carpBread.shareEatIt.domain.chat.entity.ChatRoomStatus;
@@ -10,18 +10,19 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDateTime;
 
 @Getter
-@NoArgsConstructor
+@NoArgsConstructor(force = true)
 public class ChatRoomListDetailResponseDto {
-    private Long ChatRoomId;
-    private Long participationId;
-    private ChatRoomStatus status;
-    private String opponent;
-    private LocalDateTime createdAt;
-    private LocalDateTime modifiedAt;
+
+    private final Long chatRoomId;
+    private final Long participationId;
+    private final ChatRoomStatus status;
+    private final String opponent;
+    private final LocalDateTime createdAt;
+    private final LocalDateTime modifiedAt;
 
     @Builder
     public ChatRoomListDetailResponseDto(Long chatRoomId, Long participationId, ChatRoomStatus status, String opponent, LocalDateTime createdAt, LocalDateTime modifiedAt) {
-        ChatRoomId = chatRoomId;
+        this.chatRoomId = chatRoomId;
         this.participationId = participationId;
         this.status = status;
         this.opponent = opponent;
@@ -30,13 +31,13 @@ public class ChatRoomListDetailResponseDto {
     }
 
     public static ChatRoomListDetailResponseDto from(ChatRoom chatRoom, Member opponent) {
-        return new ChatRoomListDetailResponseDto(
-                chatRoom.getId(),
-                chatRoom.getParticipation().getId(),
-                chatRoom.getStatus(),
-                opponent.getNickname(),
-                chatRoom.getCreatedAt(),
-                chatRoom.getModifiedAt()
-        );
+        return ChatRoomListDetailResponseDto.builder()
+                .chatRoomId(chatRoom.getId())
+                .participationId(chatRoom.getParticipation().getId())
+                .status(chatRoom.getStatus())
+                .opponent(opponent.getNickname())
+                .createdAt(chatRoom.getCreatedAt())
+                .modifiedAt(chatRoom.getModifiedAt())
+                .build();
     }
 }

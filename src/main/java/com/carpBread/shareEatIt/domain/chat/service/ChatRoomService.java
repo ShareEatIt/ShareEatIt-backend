@@ -1,8 +1,8 @@
 package com.carpBread.shareEatIt.domain.chat.service;
 
-import com.carpBread.shareEatIt.domain.chat.dto.ChatRoomListDetailResponseDto;
-import com.carpBread.shareEatIt.domain.chat.dto.ChatRoomListResponseDto;
-import com.carpBread.shareEatIt.domain.chat.dto.ChatRoomResponseDto;
+import com.carpBread.shareEatIt.domain.chat.dto.responseDto.ChatRoomListDetailResponseDto;
+import com.carpBread.shareEatIt.domain.chat.dto.responseDto.ChatRoomListResponseDto;
+import com.carpBread.shareEatIt.domain.chat.dto.responseDto.ChatRoomResponseDto;
 import com.carpBread.shareEatIt.domain.chat.entity.ChatRoom;
 import com.carpBread.shareEatIt.domain.chat.entity.ChatRoomStatus;
 import com.carpBread.shareEatIt.domain.chat.repository.ChatRoomRepository;
