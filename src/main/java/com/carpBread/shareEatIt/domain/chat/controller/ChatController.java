@@ -1,9 +1,9 @@
 package com.carpBread.shareEatIt.domain.chat.controller;
 
 import com.carpBread.shareEatIt.domain.auth.annotation.AuthUser;
-import com.carpBread.shareEatIt.domain.chat.dto.ChatListResponseDto;
-import com.carpBread.shareEatIt.domain.chat.dto.ChatMessageRequestDto;
-import com.carpBread.shareEatIt.domain.chat.dto.ChatMessageResponseDto;
+import com.carpBread.shareEatIt.domain.chat.dto.responseDto.ChatListResponseDto;
+import com.carpBread.shareEatIt.domain.chat.dto.requestDto.ChatMessageRequestDto;
+import com.carpBread.shareEatIt.domain.chat.dto.responseDto.ChatMessageResponseDto;
 import com.carpBread.shareEatIt.domain.chat.service.ChatMessageService;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.global.response.ApiResponse;
@@ -16,6 +16,7 @@ import org.springframework.messaging.handler.annotation.SendTo;
 import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 @RequiredArgsConstructor
@@ -38,14 +39,15 @@ public class ChatController {
 
     /* 해당 채팅방의 채팅 내역 조회 */
     @GetMapping("/chat/message/{chatRoomId}")
-    public ApiResponse<ChatListResponseDto> getAllMessageByChatRoomId(@AuthUser Member member,@PathVariable("chatRoomId") Long roomId){
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<ChatListResponseDto> getAllMessageByChatRoomId(@AuthUser Member member,
+                                                                      @PathVariable("chatRoomId") Long roomId){
         ChatListResponseDto responseDto = chatMessageService.getMessageByChatRoomId(member, roomId);
-        ApiResponse<ChatListResponseDto> response = new ApiResponse<>(
+        return new ApiResponse<>(
                 HttpStatus.OK.value(),  // 상태코드 201
                 "채팅 내역 조회",   // 성공 메시지
                 responseDto      // 실제 데이터
         );
-        return response;
     }
 
 }
