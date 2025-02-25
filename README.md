@@ -1,11 +1,16 @@
 # ShareEatIt
-> 간략한 프로젝트 소개 문구를 작성합니다.
+> 쉐어릿 - 잉여 식량 매칭 서비스
 
 [![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FShareEatIt%2FShareEatIt-backend.git&count_bg=%23F2C24E&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
 
-한 두 문단으로 프로젝트 소개 글을 작성합니다.
+쉐어릿(ShareEatIt)은 국내 음식물 쓰레기 문제로 인한 온실가스 배출을 줄이기 위해 설계된 
+**기부 기반 잉여 식량 매칭 서비스**입니다. <br>
+서비스명은 ‘나누다’(share)와 ‘먹다’(eat), 그리고 ‘그것’(it)을 결합한 단어로, 잉여 음식 및 식료품을 필요한 사람들에게 나눔으로써 음식물 쓰레기 배출을 줄이는 것을 목표로 합니다.
 
 ![](../header.png)
+
+## 배포 주소
+> **주소** : [https://shareeatit.netlify.app/ ](https://shareeatit.netlify.app/ )<br>
 
 ## 설치 방법
 
@@ -51,26 +56,46 @@ npm test
 * 0.0.1
     * 작업 진행 중
 
-## 정보
+## 팀 소개
+|      정유진        |          이여진         |                                                                                                                  
+| :------------------------------------------------------------------------------: | :----------------------------------------------------: | 
+|   <img width="160px" src="https://github.com/user-attachments/assets/c0e29d87-3bef-4389-b773-239bac550d01" />    |   <img width="160px" src="https://github.com/user-attachments/assets/4413ebac-7642-415e-a9e1-199b3ec4c5af" />    |  
+|   [@sophie_lavender](https://github.com/yujinjeo)   |    [@yeojinLee1020](https://github.com/yeojinLee1020)  | 
+| 이화여자대학교 컴퓨터공학과 4학년 | 이화여자대학교 컴퓨터공학과 4학년 | ![KakaoTalk_20240219_195136864](https://github.com/user-attachments/assets/4413ebac-7642-415e-a9e1-199b3ec4c5af)
 
-이름 – [@트위터 주소](https://twitter.com/dbader_org) – 이메일주소@example.com
 
-XYZ 라이센스를 준수하며 ``LICENSE``에서 자세한 정보를 확인할 수 있습니다.
 
-[https://github.com/yourname/github-link](https://github.com/dbader/)
+## STACKS
+<div align=center><h1>📚 STACKS</h1></div>
+## 
+<div align=center> 
+  <img src="https://img.shields.io/badge/java-007396?style=for-the-badge&logo=java&logoColor=white"> 
+  <img src="https://img.shields.io/badge/springboot-6DB33F?style=for-the-badge&logo=springboot&logoColor=white"> 
+  <img src="https://img.shields.io/badge/JPA-000000?style=for-the-badge&logo=&logoColor=white"> 
+  <img src="https://img.shields.io/badge/queryDSL-005571?style=for-the-badge&logo=hibernate&logoColor=white">
+  <br>
+  
+  <img src="https://img.shields.io/badge/mysql-4479A1?style=for-the-badge&logo=mysql&logoColor=white"> 
+  <img src="https://img.shields.io/badge/redis-DC382D?style=for-the-badge&logo=redis&logoColor=white"> 
+  <img src="https://img.shields.io/badge/mongoDB-47A248?style=for-the-badge&logo=MongoDB&logoColor=white">
+  <br>
 
-## 기여 방법
+  <img src="https://img.shields.io/badge/docker-2496ED?style=for-the-badge&logo=docker&logoColor=white">
+  <img src="https://img.shields.io/badge/nginx-009639?style=for-the-badge&logo=nginx&logoColor=white">
+  <img src="https://img.shields.io/badge/aws-FF9900?style=for-the-badge&logo=amazonaws&logoColor=white"> 
+  <br>
 
-1. (<https://github.com/yourname/yourproject/fork>)을 포크합니다.
-2. (`git checkout -b feature/fooBar`) 명령어로 새 브랜치를 만드세요.
-3. (`git commit -am 'Add some fooBar'`) 명령어로 커밋하세요.
-4. (`git push origin feature/fooBar`) 명령어로 브랜치에 푸시하세요. 
-5. 풀리퀘스트를 보내주세요.
+  <img src="https://img.shields.io/badge/sentry-362D59?style=for-the-badge&logo=sentry&logoColor=white">
+  <br>
 
-<!-- Markdown link & img dfn's -->
-[npm-image]: https://img.shields.io/npm/v/datadog-metrics.svg?style=flat-square
-[npm-url]: https://npmjs.org/package/datadog-metrics
-[npm-downloads]: https://img.shields.io/npm/dm/datadog-metrics.svg?style=flat-square
-[travis-image]: https://img.shields.io/travis/dbader/node-datadog-metrics/master.svg?style=flat-square
-[travis-url]: https://travis-ci.org/dbader/node-datadog-metrics
-[wiki]: https://github.com/yourname/yourproject/wiki
+  <img src="https://img.shields.io/badge/github-181717?style=for-the-badge&logo=github&logoColor=white">
+  <img src="https://img.shields.io/badge/git-F05032?style=for-the-badge&logo=git&logoColor=white">
+  <br>
+</div>
+
+
+
+## 주요기능?
+
+
+
