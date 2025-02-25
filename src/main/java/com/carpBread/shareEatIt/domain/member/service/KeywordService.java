@@ -106,14 +106,14 @@ public class KeywordService {
     }
 
     /* keyword 비활성화 */
-    public KeywordResponseDto changeKeywordUsageToUnAvailable(Member member, Long id) {
+    public KeywordResponseDto changeKeywordUsageToUnAvailable(Member member, String keyword) {
 
-        Keywords targetKeyword = keywordsRepository.findByMemberAndId(member, id)
+        Keywords targetKeyword = keywordsRepository.findByMemberAndKeyword(member, keyword)
                 .orElseThrow(() -> new CustomException(
                         CustomExceptionStatus.NOT_FOUND_KEYWORD_UNAVAILABLE_ID,
                         "회원과 KEYWORD ID에 해당하는 KEYWORD를 찾을 수 없습니다",
                         this.getClass().getSimpleName(),
-                        id,
+                        keyword,
                         Domain.KEYWORD
                 ));
         targetKeyword.changeAvail(false);

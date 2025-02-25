@@ -2,6 +2,7 @@ package com.carpBread.shareEatIt.domain.sharingPost.repository;
 
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.entity.QMember;
+import com.carpBread.shareEatIt.domain.sharingPost.dto.response.stats.SimpleStatsCurrentResponseComponent;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.PostType;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.QSharingPost;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
@@ -14,6 +15,7 @@ import org.locationtech.jts.geom.GeometryFactory;
 import org.locationtech.jts.geom.Point;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -104,6 +106,45 @@ public class SharingPostQuerydslRepositoryImpl implements SharingPostQuerydslRep
         }
 
         return rank;
+    }
+
+    // 사용자의 해당 연도, 해당 월별 나눔글 작성 수
+    @Override
+    public SimpleStatsCurrentResponseComponent findCurrentStatsByMonth(Member member, LocalDate now, int month) {
+
+        int year = now.getYear();
+
+        Long count = query.select(sharingPost.count())
+                .from(sharingPost)
+                .where(sharingPost.createdAt.year().eq(year))
+                .where(sharingPost.writer.eq(member))
+                .where(sharingPost.createdAt.month().eq(month))
+                .fetchOne();
+        count = (count!=null)?count:0;
+
+        return SimpleStatsCurrentResponseComponent.builder()
+                .unit(month)
+                .count(count)
+                .build();
+    }
+
+    // 사용자의 해당 월, 해당 주차별 나눔글 작성 수
+    @Override
+    public SimpleStatsCurrentResponseComponent findCurrentStatsByWeek(Member member, LocalDate now, int week) {
+        Long count = query.select(sharingPost.count())
+                .from(sharingPost)
+                .where(
+                        sharingPost.createdAt.year().eq(now.getYear()),
+                        sharingPost.createdAt.month().eq(now.getMonthValue()),
+                        Expressions.numberTemplate(Integer.class, "WEEK({0})", now).eq(week)
+                )
+                .where(sharingPost.writer.eq(member))
+                .fetchOne();
+
+        return SimpleStatsCurrentResponseComponent.builder()
+                .unit(week)
+                .count(count)
+                .build();
     }
 
     @Override
