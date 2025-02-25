@@ -1,7 +1,7 @@
 # ShareEatIt
 > 간략한 프로젝트 소개 문구를 작성합니다.
 
-[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FShareEatIt%2FShareEatIt-backend.git&count_bg=%2379C83D&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
+[![Hits](https://hits.seeyoufarm.com/api/count/incr/badge.svg?url=https%3A%2F%2Fgithub.com%2FShareEatIt%2FShareEatIt-backend.git&count_bg=%23F2C24E&title_bg=%23555555&icon=&icon_color=%23E7E7E7&title=hits&edge_flat=false)](https://hits.seeyoufarm.com)
 
 [![NPM Version][npm-image]][npm-url]
 [![Build Status][travis-image]][travis-url]
