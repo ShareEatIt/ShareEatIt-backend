@@ -2,10 +2,13 @@ package com.carpBread.shareEatIt.domain.sharingPost.controller;
 
 import com.carpBread.shareEatIt.domain.auth.annotation.AuthUser;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
+import com.carpBread.shareEatIt.domain.sharingPost.dto.request.SharingStatsDetailRequestDto;
 import com.carpBread.shareEatIt.domain.sharingPost.dto.response.stats.RankResponseDto;
 import com.carpBread.shareEatIt.domain.sharingPost.dto.response.stats.SharingPostStatsPeriodResponseDto;
+import com.carpBread.shareEatIt.domain.sharingPost.dto.response.stats.SharingStatsPeriodCurrentResponseDto;
 import com.carpBread.shareEatIt.domain.sharingPost.service.StatsService;
 import com.carpBread.shareEatIt.global.response.ApiResponse;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -18,13 +21,23 @@ public class SharingPostStatisticsController {
 
     private final StatsService statsService;
 
-    @GetMapping("/period/{periodType}")
+    @GetMapping("/period/detail")
     @ResponseStatus(HttpStatus.OK)
-    public ApiResponse<SharingPostStatsPeriodResponseDto> getStatsByPeriod(@AuthUser Member member,
-                                                                           @PathVariable(name = "periodType")String periodType){
+    public ApiResponse<SharingPostStatsPeriodResponseDto> getStatsByPeriodInDetail(@AuthUser Member member,
+                                                                           @RequestBody @Valid SharingStatsDetailRequestDto dto){
 
-        SharingPostStatsPeriodResponseDto responseDto = statsService.getStatsByPeriod(member,periodType);
-        return new ApiResponse<SharingPostStatsPeriodResponseDto>(HttpStatus.OK.value(),"회원 나눔글 통계 조회 성공",responseDto);
+        SharingPostStatsPeriodResponseDto responseDto = statsService.getStatsByPeriod(member,dto);
+        return new ApiResponse<SharingPostStatsPeriodResponseDto>(HttpStatus.OK.value(),"회원 나눔글 상세 통계 조회 성공",responseDto);
+    }
+
+    @GetMapping("/period/current")
+    @ResponseStatus(HttpStatus.OK)
+    public ApiResponse<SharingStatsPeriodCurrentResponseDto> getCurrentStats(@AuthUser Member member){
+        SharingStatsPeriodCurrentResponseDto responseDto = statsService.getCurrentStats(member);
+        return new ApiResponse<SharingStatsPeriodCurrentResponseDto>(
+                HttpStatus.OK.value(),
+                "현재 월별, 주별 회원 나눔글 작성수 조회 성공",
+                responseDto);
     }
 
     @GetMapping("/rank")
