@@ -34,6 +34,8 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
         CustomUserDetails principal = (CustomUserDetails) authentication.getPrincipal();
 
+        System.out.println("CustomAuthenticationSuccessHandler.onAuthenticationSuccess");
+
         // 사용자의 username으로 JWT 생성
         String username = principal.getUsername();
         String accessToken = "Bearer "+jwtUtils.createAccessToken(username, LoginProvider.LOCAL);
