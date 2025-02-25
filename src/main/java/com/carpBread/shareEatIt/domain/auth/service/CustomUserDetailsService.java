@@ -23,6 +23,8 @@ public class CustomUserDetailsService implements UserDetailsService {
         Member findMember = memberRepository.findByUsername(username)
                 .orElseThrow(()-> new UsernameNotFoundException(username+" username을 가진 회원을 찾지 못했습니다."));
 
+        System.out.println("CustomUserDetailsService.loadUserByUsername");
+
         // userdetails 반환
         return new CustomUserDetails(findMember);
     }

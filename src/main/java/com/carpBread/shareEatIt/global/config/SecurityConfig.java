@@ -76,7 +76,9 @@ public class SecurityConfig {
             "/sentry",
             "/actuator/health",
             "/",
-            "/signup"
+            "/signup",
+            "/signin"
+
     };
 
     /* security filter chain 설정 */
@@ -92,6 +94,7 @@ public class SecurityConfig {
             .addFilterBefore(jwtCustomExceptionHandler, JWTFilter.class)
             // form login 활성화
             .formLogin(login -> login
+                    .loginProcessingUrl("/signin")
                     .usernameParameter("username")
                     .passwordParameter("password")
                     .successHandler(authenticationSuccessHandler)
