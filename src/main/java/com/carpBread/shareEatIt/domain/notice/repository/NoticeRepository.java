@@ -10,6 +10,8 @@ public interface NoticeRepository extends JpaRepository<Notice, Long> {
 
     List<Notice> findByMemberAndIsRead(Member member, Boolean isRead);
 
+    List<Notice> findByMember(Member member);
+
 }
 
 

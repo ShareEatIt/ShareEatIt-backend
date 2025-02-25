@@ -27,7 +27,10 @@ public class NoticeService {
 
 
     public NoticeListResponseDto findUnreadNoticeList(Member member) {
-        List<Notice> unReadNoticeList = noticeRepository.findByMemberAndIsRead(member, false);
+
+        // 테스트를 위한 주석처리
+        List<Notice> unReadNoticeList = noticeRepository.findByMember(member);
+//        List<Notice> unReadNoticeList = noticeRepository.findByMemberAndIsRead(member, false);
 
         List<NoticeResponseComponent> componentList = new ArrayList<>();
         for (Notice notice : unReadNoticeList){
