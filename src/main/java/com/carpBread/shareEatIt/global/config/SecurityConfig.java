@@ -85,7 +85,6 @@ public class SecurityConfig {
         http
             .requiresChannel(channel ->
                     channel.requestMatchers("/login**").requiresSecure() // HTTP 요청을 HTTPS 로 강제 리디렉션
-
             )
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
@@ -123,7 +122,6 @@ public class SecurityConfig {
                     .deleteCookies("JSESSIONID")
                     .clearAuthentication(true)
             );
-        ;
         return http.build();
 
     }
@@ -155,8 +153,6 @@ public class SecurityConfig {
         configuration.addAllowedOrigin("https://api.shareeat.r-e.kr");
         configuration.addAllowedOrigin("https://shareeatit-api.r-e.kr");
         configuration.addAllowedOrigin("https://shareEatIt-server-ELB-904686182.ap-northeast-2.elb.amazonaws.com");
-//        configuration.addAllowedOrigin("http://54.180.228.54:8080");
-
 
         configuration.addAllowedMethod("GET");
         configuration.addAllowedMethod("POST");

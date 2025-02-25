@@ -1,4 +1,4 @@
-package com.carpBread.shareEatIt.domain.chat.dto;
+package com.carpBread.shareEatIt.domain.chat.dto.requestDto;
 
 import com.carpBread.shareEatIt.domain.chat.entity.ChatMessageType;
 import jakarta.validation.constraints.NotNull;

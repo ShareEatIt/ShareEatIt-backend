@@ -1,8 +1,8 @@
 package com.carpBread.shareEatIt.domain.chat.controller;
 
 import com.carpBread.shareEatIt.domain.auth.annotation.AuthUser;
-import com.carpBread.shareEatIt.domain.chat.dto.ChatRoomListResponseDto;
-import com.carpBread.shareEatIt.domain.chat.dto.ChatRoomResponseDto;
+import com.carpBread.shareEatIt.domain.chat.dto.responseDto.ChatRoomListResponseDto;
+import com.carpBread.shareEatIt.domain.chat.dto.responseDto.ChatRoomResponseDto;
 import com.carpBread.shareEatIt.domain.chat.entity.ChatRoom;
 import com.carpBread.shareEatIt.domain.chat.service.ChatRoomService;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
@@ -22,15 +22,14 @@ public class ChatRoomController {
     @PostMapping()
     @ResponseStatus(HttpStatus.CREATED)
     public ApiResponse<ChatRoomResponseDto> createChatRoom(@AuthUser Member member,
-                                                                           @RequestParam(name = "ptId")Long participationId){
+                                                           @RequestParam(name = "ptId")Long participationId){
         ChatRoom savedChatRoom = chatRoomService.createChatRoom(member, participationId);
         ChatRoomResponseDto responseDto = chatRoomService.changeChatRoomToDto(savedChatRoom);
-        ApiResponse<ChatRoomResponseDto> response = new ApiResponse<>(
+        return new ApiResponse<>(
                 HttpStatus.CREATED.value(),
                 "채팅방 생성",
                 responseDto
         );
-        return response;
     }
 
     /* 채팅방 목록 조회 */
@@ -39,25 +38,23 @@ public class ChatRoomController {
     public ApiResponse<ChatRoomListResponseDto> getAllChatRooms(@AuthUser Member member) {
 
         ChatRoomListResponseDto responseDto = chatRoomService.findAllChatRoom(member);
-        ApiResponse<ChatRoomListResponseDto> response = new ApiResponse<>(
+        return new ApiResponse<>(
                 HttpStatus.OK.value(),
                 "사용자의 모든 채팅방 조회",
                 responseDto
         );
-        return response;
     }
 
     /* 채팅방 나가기 */
     @PatchMapping("/{chatRoomId}")
     @ResponseStatus(HttpStatus.OK)
     public ApiResponse<ChatRoomResponseDto> existChatRoom(@AuthUser Member member,
-                                                                          @PathVariable(name = "chatRoomId") Long chatRoomId) {
+                                                          @PathVariable(name = "chatRoomId") Long chatRoomId) {
         ChatRoomResponseDto responseDto = chatRoomService.updateChatRoomStatus(member, chatRoomId);
-        ApiResponse<ChatRoomResponseDto> response = new ApiResponse<>(
+        return new ApiResponse<>(
                 HttpStatus.OK.value(),
                 "채팅방 나가기 설공",
                 responseDto
         );
-        return response;
     }
 }
