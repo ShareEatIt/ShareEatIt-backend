@@ -23,7 +23,7 @@ public class MemberController {
     @ResponseStatus(HttpStatus.OK)
     public String test(@AuthUser Member member){
 
-        System.out.println(member.getEmail());
+        System.out.println("===============test=================");
         return "로그인 성공!";
     }
 

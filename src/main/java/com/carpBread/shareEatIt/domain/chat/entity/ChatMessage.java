@@ -1,6 +1,7 @@
 package com.carpBread.shareEatIt.domain.chat.entity;
 
-import lombok.AllArgsConstructor;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -13,11 +14,11 @@ import java.time.LocalDateTime;
 @Getter
 @NoArgsConstructor
 @Document(collection = "chat")
-@AllArgsConstructor
 @Profile("!test") // 유진: test 시 application-test 프로퍼티에 불러오지 않는 빈으로 지정 (mongodb 사용)
 public class ChatMessage {
 
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private String id;
 
     private ChatMessageType type; // 메시지 타입
@@ -29,6 +30,15 @@ public class ChatMessage {
     private String content; // 메시지
 
     private LocalDateTime createdAt; // 채팅 발송 시간
+
+    public ChatMessage(String id, ChatMessageType type, Long chatRoomId, Long senderId, String content, LocalDateTime createdAt) {
+        this.id = id;
+        this.type = type;
+        this.chatRoomId = chatRoomId;
+        this.senderId = senderId;
+        this.content = content;
+        this.createdAt = createdAt;
+    }
 
     @Builder
     public ChatMessage(ChatMessageType type, Long chatRoomId, Long senderId, String content, LocalDateTime createdAt) {

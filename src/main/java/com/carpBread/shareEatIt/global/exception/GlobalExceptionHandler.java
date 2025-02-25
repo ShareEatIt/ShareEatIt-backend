@@ -211,7 +211,7 @@ public class GlobalExceptionHandler {
 
         // sentry에 전송할 내용
         Sentry.withScope(scope -> {
-            scope.setTransaction(method + " 런타임" + requestURI);
+            scope.setTransaction(method + requestURI);
             // 추가 정보
             scope.setExtra("file_path", element.getClassName());
             scope.setExtra("exception_status", responseDto.getExceptionStatus());

@@ -3,6 +3,7 @@ package com.carpBread.shareEatIt.domain.auth.handler;
 import com.carpBread.shareEatIt.domain.auth.dto.response.AuthLoginResponseDto;
 import com.carpBread.shareEatIt.domain.auth.LoginProvider;
 import com.carpBread.shareEatIt.domain.auth.dto.CustomUserDetails;
+import com.carpBread.shareEatIt.domain.member.service.module.MemberModuleService;
 import com.carpBread.shareEatIt.global.jwt.JWTUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.servlet.ServletException;
@@ -24,6 +25,7 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
 
     private final JWTUtils jwtUtils;
     private final ObjectMapper objectMapper;
+    private final MemberModuleService memberModuleService;
 
     @Override
     public void onAuthenticationSuccess(HttpServletRequest request,
@@ -36,17 +38,11 @@ public class CustomAuthenticationSuccessHandler implements AuthenticationSuccess
         String username = principal.getUsername();
         String accessToken = "Bearer "+jwtUtils.createAccessToken(username, LoginProvider.LOCAL);
         String refreshToken = jwtUtils.createRefreshToken(username, LoginProvider.LOCAL);
-
-        // http response
-        AuthLoginResponseDto responseDto= new AuthLoginResponseDto(
-                accessToken,
-                refreshToken,
-                false);
+        memberModuleService.updateRefreshTokenByUsername(username, refreshToken);
 
         response.setStatus(HttpServletResponse.SC_OK);
-        response.setContentType("application/json");
-        response.setCharacterEncoding("UTF-8");
-        response.getWriter().write(objectMapper.writeValueAsString(responseDto));
+        response.setHeader("Authorization", accessToken);
+        response.setHeader("RT-token", refreshToken);
 
         log.debug(accessToken);
     }

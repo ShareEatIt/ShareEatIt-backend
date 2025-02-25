@@ -1,4 +1,4 @@
-package com.carpBread.shareEatIt.domain.chat.dto;
+package com.carpBread.shareEatIt.domain.chat.dto.responseDto;
 
 import lombok.Getter;
 

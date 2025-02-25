@@ -1,14 +1,13 @@
 package com.carpBread.shareEatIt.domain.chat.service;
 
-import com.carpBread.shareEatIt.domain.chat.dto.ChatListResponseDto;
-import com.carpBread.shareEatIt.domain.chat.dto.ChatMessageRequestDto;
-import com.carpBread.shareEatIt.domain.chat.dto.ChatMessageResponseDto;
+import com.carpBread.shareEatIt.domain.chat.dto.responseDto.ChatListResponseDto;
+import com.carpBread.shareEatIt.domain.chat.dto.requestDto.ChatMessageRequestDto;
+import com.carpBread.shareEatIt.domain.chat.dto.responseDto.ChatMessageResponseDto;
 import com.carpBread.shareEatIt.domain.chat.entity.ChatMessage;
 import com.carpBread.shareEatIt.domain.chat.entity.ChatRoom;
 import com.carpBread.shareEatIt.domain.chat.repository.ChatMessageRepository;
 import com.carpBread.shareEatIt.domain.chat.repository.ChatRoomRepository;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
-import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
 import com.carpBread.shareEatIt.domain.notice.dto.NoticeCreateDto;
 import com.carpBread.shareEatIt.domain.notice.dto.NoticeRelatedObjectResponseComponent;
 import com.carpBread.shareEatIt.domain.notice.entity.Notice;
@@ -16,7 +15,6 @@ import com.carpBread.shareEatIt.domain.notice.entity.NoticeType;
 import com.carpBread.shareEatIt.domain.notice.repository.NoticeRepository;
 import com.carpBread.shareEatIt.domain.notice.service.SseService;
 import com.carpBread.shareEatIt.domain.participation.entity.Participation;
-import com.carpBread.shareEatIt.domain.participation.repository.ParticipationRepository;
 import com.carpBread.shareEatIt.global.exception.CustomException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -33,17 +31,17 @@ import static com.carpBread.shareEatIt.global.exception.Domain.CHAT;
 
 @Service
 @RequiredArgsConstructor
-@Transactional
+@Transactional(readOnly = true)
 @Slf4j
 public class ChatMessageService {
+
     private final ChatMessageRepository chatMessageRepository;
     private final ChatRoomRepository chatRoomRepository;
-    private final ParticipationRepository participationRepository;
-    private final MemberRepository memberRepository;
     private final SseService sseService;
     private final NoticeRepository noticeRepository;
 
     /* 채팅 메시지 저장 */
+    @Transactional
     public ChatMessageResponseDto saveMessage(ChatMessageRequestDto requestDto) {
 
         // requestDto로 받아온 roomId로 채팅방 조회
@@ -65,8 +63,7 @@ public class ChatMessageService {
         sendNotification(savedMessage);
 
         // 응답 DTO 생성
-        ChatMessageResponseDto responseDto = ChatMessageResponseDto.from(savedMessage);
-        return responseDto;
+        return ChatMessageResponseDto.from(savedMessage);
 
     }
 
