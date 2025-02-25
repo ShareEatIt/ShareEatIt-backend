@@ -1,10 +1,8 @@
 package com.carpBread.shareEatIt.domain.sharingPost.service;
 
 import com.carpBread.shareEatIt.domain.member.entity.Member;
-import com.carpBread.shareEatIt.domain.sharingPost.dto.response.stats.RankResponseDto;
-import com.carpBread.shareEatIt.domain.sharingPost.dto.response.stats.SharingPostPeriodByCategoryResponseComponent;
-import com.carpBread.shareEatIt.domain.sharingPost.dto.response.stats.SharingPostStatsPeriodResponseDto;
-import com.carpBread.shareEatIt.domain.sharingPost.dto.response.stats.StatsCategoryPostListSimpleResponseComponent;
+import com.carpBread.shareEatIt.domain.sharingPost.dto.request.SharingStatsDetailRequestDto;
+import com.carpBread.shareEatIt.domain.sharingPost.dto.response.stats.*;
 import com.carpBread.shareEatIt.global.entity.Period;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.PostStatus;
 import com.carpBread.shareEatIt.domain.sharingPost.entity.SharingPost;
@@ -16,10 +14,17 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
+import java.io.InputStream;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.ChronoField;
+import java.time.temporal.IsoFields;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
 
 @Service
 @Slf4j
@@ -30,37 +35,40 @@ public class StatsService {
     // 10km radius
     private final double radius = 10000;
 
-    public SharingPostStatsPeriodResponseDto getStatsByPeriod(Member member, String periodType) {
+    public SharingPostStatsPeriodResponseDto getStatsByPeriod(Member member, SharingStatsDetailRequestDto dto) {
         // 1. 조회 기간
-        LocalDateTime ago = null;
-        LocalDateTime now = LocalDateTime.now();
-        String period="";
-
-        if (Period.MONTH.getValue().equals(periodType)){
-            ago=LocalDateTime.of(
-                    now.getYear(), now.getMonthValue(),
-                    1,0,0
-            );
-            period = now.getYear() + "-" + now.getMonthValue();
-
-        } else if (Period.WEEK.getValue().equals(periodType)) {
-            LocalDateTime minusDays = now.minusDays(7);
-            ago=LocalDateTime.of(
-                    minusDays.getYear(), minusDays.getMonthValue(),
-                    minusDays.getDayOfMonth(), 0,0
-            );
-            period=ago.getYear()+"-"+ago.getMonthValue()+"-"+ago.getDayOfMonth()
+        LocalDateTime ago = LocalDateTime.of(dto.getStartDate(), LocalTime.MIN);
+        LocalDateTime now = LocalDateTime.of(dto.getEndDate(), LocalTime.MAX);
+        String period=ago.getYear()+"-"+ago.getMonthValue()+"-"+ago.getDayOfMonth()
                     +" ~ "
                     +now.getYear()+"-"+now.getMonthValue()+"-"+now.getDayOfMonth();
-        }else {
-            throw new CustomException(
-                    CustomExceptionStatus.INVALID_ENUM_VALUE,
-                    "올바르지 않은 PeriodType ENUM 값입니다",
-                    this.getClass().getSimpleName(),
-                    periodType,
-                    Domain.SHARING_POST
-            );
-        }
+
+        // API 변경으로 주석처리
+//        if (Period.MONTH.getValue().equals(periodType)){
+//            ago=LocalDateTime.of(
+//                    now.getYear(), now.getMonthValue(),
+//                    1,0,0
+//            );
+//            period = now.getYear() + "-" + now.getMonthValue();
+//
+//        } else if (Period.WEEK.getValue().equals(periodType)) {
+//            LocalDateTime minusDays = now.minusDays(7);
+//            ago=LocalDateTime.of(
+//                    minusDays.getYear(), minusDays.getMonthValue(),
+//                    minusDays.getDayOfMonth(), 0,0
+//            );
+//            period=ago.getYear()+"-"+ago.getMonthValue()+"-"+ago.getDayOfMonth()
+//                    +" ~ "
+//                    +now.getYear()+"-"+now.getMonthValue()+"-"+now.getDayOfMonth();
+//        }else {
+//            throw new CustomException(
+//                    CustomExceptionStatus.INVALID_ENUM_VALUE,
+//                    "올바르지 않은 PeriodType ENUM 값입니다",
+//                    this.getClass().getSimpleName(),
+//                    periodType,
+//                    Domain.SHARING_POST
+//            );
+//        }
 
         // 2. post 조회
         List<SharingPost> postList =
@@ -107,6 +115,41 @@ public class StatsService {
                 userRankIn10km);
     }
 
+    public SharingStatsPeriodCurrentResponseDto getCurrentStats(Member member) {
+        LocalDate now = LocalDate.now();
+
+        // 연도 월별 통계 구하기
+        StatsCurrentYearResponseComponent yearResponseComponent = StatsCurrentYearResponseComponent.builder()
+                .currentYear(now.getYear())
+                .currentYearStatsList(
+                        IntStream.rangeClosed(1,12)
+                                .mapToObj(i -> sharingPostQuerydslRepository.findCurrentStatsByMonth(member, now, i))
+                                .collect(Collectors.toList())
+                )
+                .build();
+
+        // 월 주별 통계 구하기
+        StatsCurrentMonthResponseComponent monthResponseComponent = StatsCurrentMonthResponseComponent.builder()
+                .currentMonth(now.getMonthValue())
+                .currentMonthStatsList(
+                        IntStream.rangeClosed(1,
+                                LocalDate.now()
+                                        .withMonth(now.getMonthValue())
+                                        .withDayOfMonth(LocalDate.now().getDayOfMonth())
+                                        .get(ChronoField.ALIGNED_WEEK_OF_MONTH)
+                        )
+                                .mapToObj(i -> sharingPostQuerydslRepository.findCurrentStatsByWeek(member, now, i))
+                                .collect(Collectors.toList())
+
+                )
+                .build();
+
+        return new SharingStatsPeriodCurrentResponseDto(monthResponseComponent, yearResponseComponent);
+
+
+    }
+
+
     private List<SharingPostPeriodByCategoryResponseComponent> createCategoryCountList(
             List<SharingPost> postList){
 
@@ -137,6 +180,7 @@ public class StatsService {
     private int rankIn10kmUsers(Member writer){
         return sharingPostQuerydslRepository.findSharingRankInRadius(writer, radius);
     }
+
 
 
 }

@@ -52,11 +52,11 @@ public class KeywordController {
     }
 
     // 키워드 사용 중지
-    @PatchMapping("/{id}")
+    @PatchMapping
     @ResponseStatus(HttpStatus.OK)
     public ApiResponse<KeywordResponseDto> changeKeywordUsageToUnAvailable(@AuthUser Member member,
-                                                                                           @PathVariable(name = "id") Long id){
-        KeywordResponseDto responseDto = keywordService.changeKeywordUsageToUnAvailable(member,id);
+                                                                                           @RequestParam(name = "keyword") String keyword){
+        KeywordResponseDto responseDto = keywordService.changeKeywordUsageToUnAvailable(member,keyword);
 
         ApiResponse<KeywordResponseDto> response = new ApiResponse<>(HttpStatus.OK.value(), "키워드 사용 여부 수정 성공", responseDto);
 
