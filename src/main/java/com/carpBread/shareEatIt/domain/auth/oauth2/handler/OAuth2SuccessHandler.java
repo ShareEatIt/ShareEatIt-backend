@@ -6,11 +6,14 @@ import com.carpBread.shareEatIt.global.jwt.JWTUtils;
 import com.carpBread.shareEatIt.domain.member.entity.Member;
 import com.carpBread.shareEatIt.domain.member.repository.MemberRepository;
 import jakarta.servlet.ServletException;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.web.authentication.SimpleUrlAuthenticationSuccessHandler;
@@ -36,36 +39,33 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
         // 1. 인증 principal 받아오기
         OAuth2User principal = (OAuth2User) authentication.getPrincipal();
 
-        // 2. 토큰 발행
+        // 2. 정보 추출
         String email = (String) principal.getAttributes().get("email");
         Boolean isNewMember = (Boolean) principal.getAttributes().get("is_new_member");
         LoginProvider provider = (LoginProvider) principal.getAttributes().get("provider");
-        String accessToken = "Bearer "+jwtUtils.createAccessToken(email,provider);
-        Member member = memberRepository.findByEmail(email)
-                .orElseThrow(() -> null);
-        String refreshToken = member.getRefreshToken();
 
-        System.out.println(accessToken);
+        // 3. 코드 발급
+        String oAuth2Code = jwtUtils.createOAuth2Code(email, provider, isNewMember);
 
-        // 3. 클라이언트 리다이렉트
-        AuthLoginResponseDto responseDto = new AuthLoginResponseDto(accessToken, refreshToken, isNewMember);
+        // 4. redirect url
+        String redirectUrl = UriComponentsBuilder.fromUriString(clientRedirectUrl)
+                .queryParam("code", oAuth2Code)
+                .build().encode().toString();
 
-        String redirectUrl = buildRedirectUrl(responseDto);
+        String accessToken = jwtUtils.createAccessToken(email, provider);
+        ResponseCookie responseCookie = ResponseCookie.from("sAccessToken", accessToken)
+                .path("/")
+                .httpOnly(true)
+                .secure(true)
+                .sameSite("None")
+                .maxAge(60 * 60 * 3)
+                .build();
+        response.setHeader(HttpHeaders.SET_COOKIE, responseCookie.toString());
 
-        // 보안 관련 테스트 위한 주석처리
-//        getRedirectStrategy().sendRedirect(request, response, redirectUrl);
+        // redirect
+        getRedirectStrategy().sendRedirect(request, response, redirectUrl);
 
 
-    }
-
-    /* 프런트엔드 redirect url 빌드 */
-    private String buildRedirectUrl(AuthLoginResponseDto dto){
-        return UriComponentsBuilder
-                .fromUriString(clientRedirectUrl)
-                .queryParam("accessToken", dto.getAccessToken())
-                .queryParam("refreshToken", dto.getRefreshToken())
-                .queryParam("isNewMember", dto.getIsNewMember())
-                .build().toUriString();
     }
 
 

@@ -28,19 +28,29 @@ public class JWTUtils {
     @Value("${spring.jwt.audience}")
     private String audience;
 
+
     // accessToken 토큰 만료 시간 - 2h
-    private final long accessTokenExpiredTime=1000*60*60*2l;
+    private final long accessTokenExpiredTime=1000*60*60*3l;
 
     // refreshToken 만료 시간 - 30d
     private final long refreshTokenExpiredTime=1000*60*60*24*30;
 
     private Key key;
+    private Key codeKey;
+
+    private Key refreshKey;
 
     @Autowired
-    public JWTUtils(@Value("${spring.jwt.secret}") String secretKey){
-        byte[] decode = Decoders.BASE64.decode(secretKey);
+    public JWTUtils(@Value("${spring.jwt.secret}") String secretKey,
+                    @Value("${spring.jwt.code-secret}") String codeSecretKey,
+                    @Value("${spring.jwt.refresh-secret}") String refreshSecretKey){
+        byte[] decodedKey = Decoders.BASE64.decode(secretKey);
+        byte[] decodeCodeKey = Decoders.BASE64.decode(codeSecretKey);
+        byte[] decodeRefreshKey = Decoders.BASE64.decode(refreshSecretKey);
 
-        key= Keys.hmacShaKeyFor(decode);
+        key = Keys.hmacShaKeyFor(decodedKey);
+        codeKey = Keys.hmacShaKeyFor(decodeCodeKey);
+        refreshKey = Keys.hmacShaKeyFor(decodeRefreshKey);
     }
 
     public String createToken(String email, String nickname){
@@ -56,6 +66,39 @@ public class JWTUtils {
                 .signWith(key, SignatureAlgorithm.HS256)
                 .compact();
 
+    }
+
+    /* OAUTH2 CODE 만들기 */
+    public String createOAuth2Code(String email, LoginProvider provider, boolean isNewMember){
+        // 현재 시간
+        long currentTime = System.currentTimeMillis();
+
+        // payload 만들기
+        Claims claims = Jwts.claims();
+
+        // 토큰 발급자 issuer
+        claims.put("iss", issuer);
+        // 토큰 대상자 audience
+        claims.put("aud", audience);
+        // 식별자 종류
+        claims.put("provider",provider.name());
+        // 이메일
+        claims.put("sub", email);
+        // isnewMember
+        claims.put("isNewMem", isNewMember);
+        // 토큰 만료 시간 expired datetime
+        claims.put("exp", new Date(currentTime+accessTokenExpiredTime));
+        // 토큰 발급 시간 issued at
+        claims.put("iat", new Date(currentTime));
+        // jwt 고유 식별자(redis에서 사용) jwt identifier
+        claims.put("jti", generateJti());
+
+        return Jwts.builder()
+                .setClaims(claims)
+                .setIssuedAt(new Date(currentTime))
+                .setExpiration(new Date(currentTime+accessTokenExpiredTime))
+                .signWith(codeKey, SignatureAlgorithm.HS256)
+                .compact();
     }
 
     /* ACCESS TOKEN 만들기 */
@@ -111,6 +154,137 @@ public class JWTUtils {
                 .compact();
     }
 
+    /* RefreshToken에서 sub 추출*/
+    public String getSubFromRefreshToken(String token){
+        try {
+            return Jwts.parserBuilder().setSigningKey(refreshKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .get("sub", String.class);
+
+        }catch (Exception e){
+            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,
+                    "유효하지 않은 JWT입니다. Error Message : "+e.getMessage(),
+                    this.getClass().getSimpleName(),
+                    null,
+                    Domain.AUTH);
+        }
+    }
+
+    /* RefreshToken 에서 jti 추출 */
+    public String getJtiFromRefreshToken(String token){
+        try {
+
+            return Jwts.parserBuilder().setSigningKey(refreshKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .get("jti", String.class);
+
+        }catch (Exception e){
+            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,
+                    "유효하지 않은 JWT입니다. Error Message : "+e.getMessage(),
+                    this.getClass().getSimpleName(),
+                    null, // 보안 문제로 code 보내지 않음
+                    Domain.AUTH);
+        }
+    }
+
+    /* RefreshToken provider 추출 */
+    public String getProviderFromRefreshToken(String token){
+        try {
+            return Jwts.parserBuilder().setSigningKey(refreshKey)
+                    .build()
+                    .parseClaimsJws(token)
+                    .getBody()
+                    .get("provider", String.class);
+
+        }catch (Exception e){
+            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,
+                    "유효하지 않은 JWT입니다. Error Message : "+e.getMessage(),
+                    this.getClass().getSimpleName(),
+                    null, // 보안 문제로 code 보내지 않음
+                    Domain.AUTH);
+        }
+    }
+
+    /* OAuth2Code에서 sub 추출 */
+    public String getSubFromOAuth2Code(String code){
+        try {
+
+            return Jwts.parserBuilder().setSigningKey(codeKey)
+                    .build()
+                    .parseClaimsJws(code)
+                    .getBody()
+                    .get("sub", String.class);
+
+        }catch (Exception e){
+            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,
+                    "유효하지 않은 CODE입니다. Error Message : "+e.getMessage(),
+                    this.getClass().getSimpleName(),
+                    null,
+                    Domain.AUTH);
+        }
+    }
+
+    /* OAuth2Code에서 isNewMem 추출 */
+    public Boolean getIsNewMemFromOAuth2Code(String code){
+        try {
+
+            return Jwts.parserBuilder().setSigningKey(codeKey)
+                    .build()
+                    .parseClaimsJws(code)
+                    .getBody()
+                    .get("isNewMem", Boolean.class);
+
+        }catch (Exception e){
+            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,
+                    "유효하지 않은 CODE입니다. Error Message : "+e.getMessage(),
+                    this.getClass().getSimpleName(),
+                    null, // 보안 문제로 code 보내지 않음
+                    Domain.AUTH);
+        }
+    }
+
+    /* OAuth2Code에서 provider 추출 */
+    public String getProviderFromOAuth2Code(String code){
+        try {
+
+            return Jwts.parserBuilder().setSigningKey(codeKey)
+                    .build()
+                    .parseClaimsJws(code)
+                    .getBody()
+                    .get("provider", String.class);
+
+        }catch (Exception e){
+            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,
+                    "유효하지 않은 CODE입니다. Error Message : "+e.getMessage(),
+                    this.getClass().getSimpleName(),
+                    null, // 보안 문제로 code 보내지 않음
+                    Domain.AUTH);
+        }
+    }
+
+    /* OAuth2Code에서 jti 추출 */
+    public String getJtiFromOAuth2Code(String code){
+        try {
+
+            return Jwts.parserBuilder().setSigningKey(codeKey)
+                    .build()
+                    .parseClaimsJws(code)
+                    .getBody()
+                    .get("jti", String.class);
+
+        }catch (Exception e){
+            throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,
+                    "유효하지 않은 CODE입니다. Error Message : "+e.getMessage(),
+                    this.getClass().getSimpleName(),
+                    null, // 보안 문제로 code 보내지 않음
+                    Domain.AUTH);
+        }
+    }
+
     /* 사용자가 로그인한 방식 PROVIDER 추출 */
     public String getProvider(String token){
         try {
@@ -124,7 +298,7 @@ public class JWTUtils {
             return type;
         }catch (Exception e){
             throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,
-                    "유효하지 않은 JWT입니다",
+                    "유효하지 않은 JWT입니다. Error Message : "+e.getMessage(),
                     this.getClass().getSimpleName(),
                     null,
                     Domain.AUTH);
@@ -144,7 +318,7 @@ public class JWTUtils {
             return sub;
         }catch (Exception e){
             throw new CustomException(CustomExceptionStatus.UNAUTHORIZED_JWT,
-                    "유효하지 않은 JWT입니다",
+                    "유효하지 않은 JWT입니다. Error Message : "+e.getMessage(),
                     this.getClass().getSimpleName(),
                     null,
                     Domain.AUTH);

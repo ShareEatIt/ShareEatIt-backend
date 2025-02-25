@@ -69,18 +69,23 @@ public class SecurityConfig {
 
     // 인증이 필요없는 URL 패턴 목록을 정의
     private static final String[] AUTH_WHITELIST = {
-//            "/login/**", // 로그인
+            "/login/**", // 로그인
             "/ws/**",
-//            "/oauth2/**",
+            "/oauth2/**",
             "/auth/refresh",
             "/sentry",
-//            "/signup"
+            "/actuator/health",
+            "/",
+            "/signup"
     };
 
     /* security filter chain 설정 */
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception{
         http
+            .requiresChannel(channel ->
+                    channel.requestMatchers("/login**").requiresSecure() // HTTP 요청을 HTTPS 로 강제 리디렉션
+            )
             .csrf(AbstractHttpConfigurer::disable)
             .cors(cors -> cors.configurationSource(corsConfigurationSource()))
             .addFilterBefore(new JWTFilter(jwtUtils, memberRepository, redisTemplate), UsernamePasswordAuthenticationFilter.class)
@@ -117,7 +122,6 @@ public class SecurityConfig {
                     .deleteCookies("JSESSIONID")
                     .clearAuthentication(true)
             );
-        ;
         return http.build();
 
     }
@@ -141,13 +145,14 @@ public class SecurityConfig {
         CorsConfiguration configuration = new CorsConfiguration();
 
         configuration.addAllowedOrigin("http://localhost:3000");
+        configuration.addAllowedOrigin("https://localhost:3000");
         configuration.addAllowedOrigin("http://localhost:5173");
         configuration.addAllowedOrigin("http://localhost:6379");
         configuration.addAllowedOrigin("http://localhost:8080");
         configuration.addAllowedOrigin("https://shareeatit.netlify.app");
         configuration.addAllowedOrigin("https://api.shareeat.r-e.kr");
-//        configuration.addAllowedOrigin("http://54.180.228.54:8080");
-
+        configuration.addAllowedOrigin("https://shareeatit-api.r-e.kr");
+        configuration.addAllowedOrigin("https://shareEatIt-server-ELB-904686182.ap-northeast-2.elb.amazonaws.com");
 
         configuration.addAllowedMethod("GET");
         configuration.addAllowedMethod("POST");
@@ -158,6 +163,11 @@ public class SecurityConfig {
         configuration.addAllowedHeader("*");
         // 헤더에 authorization항목이 있으므로 credential을 true로 설정합니다.
         configuration.setAllowCredentials(true);
+
+        // custom header 지정
+        configuration.addExposedHeader("Authorization");
+        configuration.addExposedHeader("RT-token");
+
         // 채팅 관련 설정
         configuration.setAllowedOriginPatterns(Arrays.asList(
                 "https://jiangxy.github.io"));
