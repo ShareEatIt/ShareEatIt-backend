@@ -76,7 +76,7 @@ public class AuthController {
 
 
         // 새 토큰 발급
-        String newAccessToken = jwtUtils.createAccessToken(sub, LoginProvider.toEnum(provider));
+        String newAccessToken = "Bearer "+jwtUtils.createAccessToken(sub, LoginProvider.toEnum(provider));
         String newRefreshToken = jwtUtils.createRefreshToken(sub, LoginProvider.toEnum(provider));
 
         System.out.println("AuthController.refreshAccessToken3");
