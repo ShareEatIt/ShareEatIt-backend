@@ -15,6 +15,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import java.security.Key;
+import java.util.Base64;
 import java.util.Date;
 import java.util.UUID;
 
@@ -33,7 +34,7 @@ public class JWTUtils {
     private final long accessTokenExpiredTime=1000*60*60*3l;
 
     // refreshToken 만료 시간 - 30d
-    private final long refreshTokenExpiredTime=1000*60*60*24*30;
+    private final long refreshTokenExpiredTime=1000*60*60*24*30l;
 
     private Key key;
     private Key codeKey;
@@ -47,6 +48,7 @@ public class JWTUtils {
         byte[] decodedKey = Decoders.BASE64.decode(secretKey);
         byte[] decodeCodeKey = Decoders.BASE64.decode(codeSecretKey);
         byte[] decodeRefreshKey = Decoders.BASE64.decode(refreshSecretKey);
+
 
         key = Keys.hmacShaKeyFor(decodedKey);
         codeKey = Keys.hmacShaKeyFor(decodeCodeKey);
@@ -146,18 +148,21 @@ public class JWTUtils {
         // jwt 고유 식별자(redis에서 사용) jwt identifier
         claims.put("jti", generateJti());
 
-        return Jwts.builder()
+        String compact = Jwts.builder()
                 .setClaims(claims)
                 .setIssuedAt(new Date(currentTime))
-                .setExpiration(new Date(currentTime+refreshTokenExpiredTime))
-                .signWith(key, SignatureAlgorithm.HS256)
+                .setExpiration(new Date(currentTime + refreshTokenExpiredTime))
+                .signWith(refreshKey, SignatureAlgorithm.HS256)
                 .compact();
+
+        return compact;
     }
 
     /* RefreshToken에서 sub 추출*/
     public String getSubFromRefreshToken(String token){
         try {
-            return Jwts.parserBuilder().setSigningKey(refreshKey)
+            return Jwts.parserBuilder()
+                    .setSigningKey(refreshKey)
                     .build()
                     .parseClaimsJws(token)
                     .getBody()
@@ -176,7 +181,8 @@ public class JWTUtils {
     public String getJtiFromRefreshToken(String token){
         try {
 
-            return Jwts.parserBuilder().setSigningKey(refreshKey)
+            return Jwts.parserBuilder()
+                    .setSigningKey(refreshKey)
                     .build()
                     .parseClaimsJws(token)
                     .getBody()
@@ -194,7 +200,8 @@ public class JWTUtils {
     /* RefreshToken provider 추출 */
     public String getProviderFromRefreshToken(String token){
         try {
-            return Jwts.parserBuilder().setSigningKey(refreshKey)
+            return Jwts.parserBuilder()
+                    .setSigningKey(refreshKey)
                     .build()
                     .parseClaimsJws(token)
                     .getBody()
