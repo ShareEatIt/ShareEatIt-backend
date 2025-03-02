@@ -45,7 +45,10 @@ public class AuthController {
     /* 리프레시 토큰 발급, 수정 예정!!! */
     @PostMapping("/refresh")
     @ResponseStatus(HttpStatus.CREATED)
-    public ApiResponse<String> refreshAccessToken(@RequestBody String refreshToken, HttpServletResponse response)throws Exception{
+    public ApiResponse<String> refreshAccessToken(@RequestBody String refreshToken, HttpServletResponse response) throws Exception{
+
+        System.out.println("AuthController.refreshAccessToken");
+
 
         // 폐기된 refreshToken인지 확인
         String jti = jwtUtils.getJtiFromRefreshToken(refreshToken);
@@ -60,9 +63,12 @@ public class AuthController {
                     Domain.AUTH);
         }
 
+        System.out.println("AuthController.refreshAccessToken1");
 
         String sub = jwtUtils.getSubFromRefreshToken(refreshToken);
         String provider = jwtUtils.getProviderFromRefreshToken(refreshToken);
+
+        System.out.println("AuthController.refreshAccessToken2");
 
         // refreshToken 폐기
         redisTemplate.opsForValue()
@@ -72,6 +78,8 @@ public class AuthController {
         // 새 토큰 발급
         String newAccessToken = jwtUtils.createAccessToken(sub, LoginProvider.toEnum(provider));
         String newRefreshToken = jwtUtils.createRefreshToken(sub, LoginProvider.toEnum(provider));
+
+        System.out.println("AuthController.refreshAccessToken3");
 
         // db refreshToken 갱신
         if (provider.equals(LoginProvider.LOCAL.name())){

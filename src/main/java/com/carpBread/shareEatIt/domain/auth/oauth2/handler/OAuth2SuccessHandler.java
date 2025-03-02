@@ -52,15 +52,15 @@ public class OAuth2SuccessHandler extends SimpleUrlAuthenticationSuccessHandler 
                 .queryParam("code", oAuth2Code)
                 .build().encode().toString();
 
-        String accessToken = jwtUtils.createAccessToken(email, provider);
-        ResponseCookie responseCookie = ResponseCookie.from("sAccessToken", accessToken)
-                .path("/")
-                .httpOnly(true)
-                .secure(true)
-                .sameSite("None")
-                .maxAge(60 * 60 * 3)
-                .build();
-        response.setHeader(HttpHeaders.SET_COOKIE, responseCookie.toString());
+//        String accessToken = jwtUtils.createAccessToken(email, provider);
+//        ResponseCookie responseCookie = ResponseCookie.from("sAccessToken", accessToken)
+//                .path("/")
+//                .httpOnly(true)
+//                .secure(true)
+//                .sameSite("None")
+//                .maxAge(60 * 60 * 3)
+//                .build();
+//        response.setHeader(HttpHeaders.SET_COOKIE, responseCookie.toString());
 
         // redirect
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
