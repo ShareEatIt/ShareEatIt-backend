@@ -1,3 +1,4 @@
+# 로드발랜싱 적용 YML
 name: Java CI with Gradle
 
 on:
@@ -38,7 +39,7 @@ jobs:
           mkdir ./src/main/resources 
           cd ./src/main/resources
           touch ./application.yml
-          echo "${{ secrets.ELB_APPLICATION_YML }}" > ./application.yml
+          echo "${{ secrets.APPLICATION_YML }}" > ./application.yml
           cd /
         
     - name: Grant execute permission for gradlew
@@ -58,27 +59,27 @@ jobs:
     - name: Upload docker-compose.yml to HOST 1
       uses: appleboy/scp-action@master
       with:
-        host: ${{ secrets.ELB_HOST_1 }}
+        host: ${{ secrets.HOST_1 }}
         username: ubuntu
-        key: ${{ secrets.ELB_HOST_KEY_1 }}
+        key: ${{ secrets.HOST_1_KEY }}
         source: "docker-compose.yml"
         target: "/home/ubuntu/"
 
-    - name: Upload docker-compose.yml to HOST 2
-      uses: appleboy/scp-action@master
-      with:
-        host: ${{ secrets.ELB_HOST_2 }}
-        username: ubuntu
-        key: ${{ secrets.ELB_HOST_KEY_2 }}
-        source: "docker-compose.yml"
-        target: "/home/ubuntu/"
+    # - name: Upload docker-compose.yml to HOST 2
+    #   uses: appleboy/scp-action@master
+    #   with:
+    #     host: ${{ secrets.ELB_HOST_2 }}
+    #     username: ubuntu
+    #     key: ${{ secrets.ELB_HOST_KEY_2 }}
+    #     source: "docker-compose.yml"
+    #     target: "/home/ubuntu/"
 
     - name: Deploy to server 1
       uses: appleboy/ssh-action@master
       with: 
-        host: ${{ secrets.ELB_HOST_1 }}
+        host: ${{ secrets.HOST_1 }}
         username: ubuntu
-        key: ${{ secrets.ELB_HOST_KEY_1 }}
+        key: ${{ secrets.HOST_1_KEY }}
         script: |
           docker stop application-server-container
           docker rm $(docker ps -a --filter "status=exited" -q)
@@ -88,23 +89,24 @@ jobs:
           docker pull ${{ secrets.DOCKER_USERNAME }}/share-eat-it-elb:latest
           docker-compose up -d
           
-    - name: Deploy to server 2
-      uses: appleboy/ssh-action@master
-      with: 
-        host: ${{ secrets.ELB_HOST_2 }}
-        username: ubuntu
-        key: ${{ secrets.ELB_HOST_KEY_2 }}
-        script: |
-          docker stop application-server-container
-          docker rm $(docker ps -a --filter "status=exited" -q)
-          docker rmi ${{ secrets.DOCKER_USERNAME }}/share-eat-it-elb
+    # - name: Deploy to server 2
+    #   uses: appleboy/ssh-action@master
+    #   with: 
+    #     host: ${{ secrets.ELB_HOST_2 }}
+    #     username: ubuntu
+    #     key: ${{ secrets.ELB_HOST_KEY_2 }}
+    #     script: |
+    #       docker stop application-server-container
+    #       docker rm $(docker ps -a --filter "status=exited" -q)
+    #       docker rmi ${{ secrets.DOCKER_USERNAME }}/share-eat-it-elb
 
-          docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
-          docker pull ${{ secrets.DOCKER_USERNAME }}/share-eat-it-elb:latest
-          docker-compose up -d
+    #       docker login -u ${{ secrets.DOCKER_USERNAME }} -p ${{ secrets.DOCKER_PASSWORD }}
+    #       docker pull ${{ secrets.DOCKER_USERNAME }}/share-eat-it-elb:latest
+    #       docker-compose up -d
 
 
-# name: Deploy to Amazon EC2
+
+# # name: Deploy to Amazon EC2
 
 # # Workflow를 트리거하는 이벤트 지정
 # # 이 코드는 main 브랜치에 push 할 때 Workflow 실행
@@ -175,7 +177,7 @@ jobs:
 #           docker rmi ${{ secrets.DOCKER_USERNAME }}/share-eat-it
 
 #           docker run --name application-server-container -d -p 8080:8080 ${{ secrets.DOCKER_USERNAME }}/share-eat-it:latest
-    
+
 
 # # # Workflow는 한 개 이상의 job으로 구성됨
 # # jobs:
