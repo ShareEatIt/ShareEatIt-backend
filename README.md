@@ -58,8 +58,7 @@
 ![Git](https://img.shields.io/badge/git-F05032?style=for-the-badge&logo=git&logoColor=white)  
 
 ## 시스템 아키텍쳐
-
-
+![아키텍처 구조도](https://github.com/user-attachments/assets/cbc6c86a-b628-4ff6-8c7f-d2227a5f5673)
 
 ## 💫 업데이트 내역
 
@@ -85,8 +84,3 @@
 |   <img width="160px" src="https://github.com/user-attachments/assets/c0e29d87-3bef-4389-b773-239bac550d01" />    |   <img width="160px" src="https://github.com/user-attachments/assets/b356477a-e527-4620-960c-b7c27023453d" />    |  
 |   [@sophie_lavender](https://github.com/yujinjeo)   |    [@yeojinLee1020](https://github.com/yeojinLee1020)  | 
 | 이화여자대학교 컴퓨터공학과 4학년 | 이화여자대학교 컴퓨터공학과 4학년 | ![KakaoTalk_20240219_195136864](https://github.com/user-attachments/assets/4413ebac-7642-415e-a9e1-199b3ec4c5af)
-
-
-## 주요 기능 및 트러블 슈팅 기록 
-
-
