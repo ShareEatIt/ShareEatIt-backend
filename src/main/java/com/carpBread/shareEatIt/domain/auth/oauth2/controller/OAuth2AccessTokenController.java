@@ -54,9 +54,9 @@ public class OAuth2AccessTokenController {
         String accessToken = "Bearer "+jwtUtils.createAccessToken(email, LoginProvider.toEnum(provider));
         String refreshToken = jwtUtils.createRefreshToken(email, LoginProvider.toEnum(provider));
 
-        System.out.println("created token : "+ refreshToken);
         memberModuleService.updateRefreshTokenByEmail(email,refreshToken);
 
+        System.out.println(accessToken);
         // 3. header에 token을 넣는 방식
         response.setHeader("Authorization", accessToken);
         response.setHeader("RT-token", refreshToken);
