@@ -79,7 +79,7 @@ public class MemberModuleService {
                 );
 
         member.updateRefreshToken(refreshToken);
-        memberRepository.save(member);
+        Member saved = memberRepository.save(member);
 
     }
 
