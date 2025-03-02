@@ -15,7 +15,7 @@ services:
     container_name: application-server-container
     restart: always
     ports:
-      - "80:8080"
+      - "53597:8080"
     environment:
       - REDIS_HOST=redis
       - REDIS_PORT=6379
